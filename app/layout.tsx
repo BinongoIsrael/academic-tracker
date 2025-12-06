@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Poppins, Roboto, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils"
-import Navbar from "@/components/Navbar";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -51,7 +50,6 @@ export default function RootLayout({
         spaceGrotesk.variable,
         inter.className
       )}>
-        <Navbar />
         {children}
       </body>
     </html>

@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import CallToAction from "@/components/CallToAction";
+import Navbar from "@/components/Navbar";
 
 import type { Metadata } from "next";
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
+      <Navbar />
       <section className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24 py-1 md:py-5">
         <div className="flex flex-col items-center text-center space-y-8">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight max-w-md">
