@@ -1,3 +1,6 @@
+import Footer from "@/components/Footer";
+import CallToAction from "@/components/CallToAction";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -290,6 +293,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CallToAction/>
+      <Footer />
     </div>
   );
 }
