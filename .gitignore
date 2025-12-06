@@ -1,2 +1,5 @@
 node_modules/
 .env
+.next/
+public/file.svg
+public/logo.png
