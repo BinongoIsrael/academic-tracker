@@ -72,5 +72,106 @@
     }
     body {
       @apply bg-background text-foreground;
+      font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    /* Typography Styles */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.012em;
+    }
+    
+    h1 {
+      @apply text-5xl md:text-6xl leading-tight;
+    }
+    
+    h2 {
+      @apply text-4xl md:text-5xl leading-tight;
+    }
+    
+    h3 {
+      @apply text-3xl md:text-4xl leading-snug;
+    }
+    
+    h4 {
+      @apply text-2xl md:text-3xl leading-snug;
+    }
+    
+    h5 {
+      @apply text-xl md:text-2xl leading-normal;
+    }
+    
+    h6 {
+      @apply text-lg md:text-xl leading-normal;
+    }
+    
+    p {
+      font-family: var(--font-roboto), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      @apply text-base leading-relaxed;
+    }
+    
+    .text-body-large {
+      font-family: var(--font-roboto), sans-serif;
+      @apply text-lg md:text-xl leading-relaxed;
+      letter-spacing: -0.005em;
+    }
+    
+    .text-body-medium {
+      font-family: var(--font-inter), sans-serif;
+      @apply text-sm md:text-base leading-normal;
+      font-weight: 500;
+    }
+    
+    .text-body-small {
+      font-family: var(--font-inter), sans-serif;
+      @apply text-xs md:text-sm leading-normal;
+      font-weight: 400;
+    }
+    
+    .text-label {
+      font-family: var(--font-space-grotesk), monospace, sans-serif;
+      @apply text-2xl md:text-3xl leading-snug;
+      font-weight: 500;
+    }
+    
+    .text-button {
+      font-family: var(--font-inter), sans-serif;
+      @apply text-sm leading-6;
+      font-weight: 500;
+    }
+  }
+
+  @layer utilities {
+    .bg-brand-green {
+      background-color: #B9FF66;
+    }
+    
+    .hover\:bg-brand-green-dark:hover {
+      background-color: #a8ef55;
+    }
+    
+    .bg-brand-dark {
+      background-color: #191A23;
+    }
+    
+    .text-brand-dark {
+      color: #191A23;
+    }
+    
+    .shadow-brand {
+      box-shadow: 0px 5px 0px #191A23;
+    }
+    
+    .shadow-brand-dark {
+      box-shadow: 0px 5px 0px #000000;
+    }
+    
+    .hover\:shadow-brand-lg:hover {
+      box-shadow: 0px 8px 0px #191A23;
+    }
+    
+    .hover\:shadow-brand-dark-lg:hover {
+      box-shadow: 0px 8px 0px #000000;
     }
   }
