@@ -8,16 +8,16 @@ import { signup, signInWithGoogle } from "@/lib/auth-actions";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { SignUpErrors } from "@/types";
 
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{
-    password?: string;
-    confirmPassword?: string;
-  }>({});
+  const [errors, setErrors] = useState<SignUpErrors>({});
   const router = useRouter();
 
   const validatePassword = (pwd: string) => {
@@ -43,6 +43,48 @@ export function SignUpForm() {
       return "Password must contain at least one symbol (!@#$%^&*...)";
     }
     return null;
+  };
+
+  const checkEmailExists = async (emailToCheck: string) => {
+    if (!emailToCheck || !emailToCheck.includes('@')) {
+      return;
+    }
+
+    setIsCheckingEmail(true);
+    try {
+      const response = await fetch('/api/check-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailToCheck }),
+      });
+
+      const data = await response.json();
+
+      if (data.exists) {
+        setErrors(prev => ({ 
+          ...prev, 
+          email: "This email is already registered. Please sign in instead." 
+        }));
+      } else {
+        setErrors(prev => ({ ...prev, email: undefined }));
+      }
+    } catch (error) {
+      console.error("Error checking email:", error);
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    setErrors(prev => ({ ...prev, email: undefined }));
+  };
+
+  const handleEmailBlur = () => {
+    checkEmailExists(email);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +113,13 @@ export function SignUpForm() {
       const pwd = formData.get("password") as string;
       const confirmPwd = formData.get("confirm-password") as string;
 
+      // Check email one more time before submission
+      await checkEmailExists(email);
+      if (errors.email) {
+        setIsLoading(false);
+        return;
+      }
+
       const passwordError = validatePassword(pwd);
       if (passwordError) {
         setErrors(prev => ({ ...prev, password: passwordError }));
@@ -85,7 +134,7 @@ export function SignUpForm() {
       }
 
       await signup(formData);
-      router.push(`/confirm?email=${encodeURIComponent(email)}`);
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error) {
       console.error("Signup error:", error);
     } finally {
@@ -115,15 +164,30 @@ export function SignUpForm() {
         </div>
 
         <div className="w-full">
-          <Input
-            name="email"
-            id="email"
-            type="email"
-            placeholder="Email Address"
-            className="w-full h-9 px-3 py-2 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
-            required
-            disabled={isLoading}
-          />
+          <div className="relative">
+            <Input
+              name="email"
+              id="email"
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={handleEmailChange}
+              onBlur={handleEmailBlur}
+              className={`w-full h-9 px-3 py-2 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
+                errors.email ? "border-red-500" : "border-slate-300"
+              }`}
+              required
+              disabled={isLoading}
+            />
+            {isCheckingEmail && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
+          {errors.email && (
+            <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+          )}
         </div>
 
         <div className="w-full">
@@ -201,7 +265,7 @@ export function SignUpForm() {
         <Button
           type="submit"
           className="w-full h-10 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-md mt-5"
-          disabled={isLoading || !!errors.password || !!errors.confirmPassword}
+          disabled={isLoading || isCheckingEmail || !!errors.email || !!errors.password || !!errors.confirmPassword}
         >
           {isLoading ? "Signing up..." : "Sign up with Email"}
         </Button>
