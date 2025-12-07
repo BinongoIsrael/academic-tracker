@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 
-export async function login(formData: FormData) {
+export async function signin(formData: FormData) {
   const supabase = createClient();
 
   // type-casting here for convenience
@@ -36,6 +36,7 @@ export async function signup(formData: FormData) {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/dashboard`,//default to localhost for now
       data: {
         full_name: `${firstName + " " + lastName}`,
         email: formData.get("email") as string,
@@ -46,6 +47,7 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
+    console.error('Signup error: ',error)
     redirect("/error");
   }
 
@@ -69,6 +71,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dashboard`,//default to localhost for now
       queryParams: {
         access_type: "offline",
         prompt: "consent",
