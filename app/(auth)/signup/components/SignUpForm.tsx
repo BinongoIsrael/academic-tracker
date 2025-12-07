@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signup, signInWithGoogle } from "@/lib/auth-actions";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { SignUpErrors } from "@/types";
 
@@ -18,7 +17,7 @@ export function SignUpForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<SignUpErrors>({});
-  const router = useRouter();
+  const [serverError, setServerError] = useState("");
 
   const validatePassword = (pwd: string) => {
     const minLength = pwd.length >= 8;
@@ -108,36 +107,36 @@ export function SignUpForm() {
 
   const handleEmailSignup = async (formData: FormData) => {
     setIsLoading(true);
-    try {
-      const email = formData.get("email") as string;
-      const pwd = formData.get("password") as string;
-      const confirmPwd = formData.get("confirm-password") as string;
+    setServerError("");
+    
+    const email = formData.get("email") as string;
+    const pwd = formData.get("password") as string;
+    const confirmPwd = formData.get("confirm-password") as string;
 
-      // Check email one more time before submission
-      await checkEmailExists(email);
-      if (errors.email) {
-        setIsLoading(false);
-        return;
-      }
+    // Check email one more time before submission
+    await checkEmailExists(email);
+    if (errors.email) {
+      setIsLoading(false);
+      return;
+    }
 
-      const passwordError = validatePassword(pwd);
-      if (passwordError) {
-        setErrors(prev => ({ ...prev, password: passwordError }));
-        setIsLoading(false);
-        return;
-      }
+    const passwordError = validatePassword(pwd);
+    if (passwordError) {
+      setErrors(prev => ({ ...prev, password: passwordError }));
+      setIsLoading(false);
+      return;
+    }
 
-      if (pwd !== confirmPwd) {
-        setErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
-        setIsLoading(false);
-        return;
-      }
+    if (pwd !== confirmPwd) {
+      setErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
+      setIsLoading(false);
+      return;
+    }
 
-      await signup(formData);
-      router.push(`/confirm?email=${encodeURIComponent(email)}`);
-    } catch (error) {
-      console.error("Signup error:", error);
-    } finally {
+    const result = await signup(formData);
+    
+    if (result?.error) {
+      setServerError(result.error);
       setIsLoading(false);
     }
   };
@@ -150,6 +149,13 @@ export function SignUpForm() {
       <p className="text-center text-subtle text-sm leading-5 mb-8">
         Ready to enhance your academic journey? Let's get started
       </p>
+
+      {serverError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-600">{serverError}</p>
+        </div>
+      )}
+
       <form action={handleEmailSignup} className="space-y-4">
         <div className="w-full">
           <Input

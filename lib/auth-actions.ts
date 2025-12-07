@@ -18,7 +18,7 @@ export async function signin(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/error");
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
@@ -28,17 +28,14 @@ export async function signin(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const firstName = formData.get("first-name") as string;
-  const lastName = formData.get("last-name") as string;
+  const username = formData.get("username") as string;
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/dashboard`,//default to localhost for now
       data: {
-        full_name: `${firstName + " " + lastName}`,
+        full_name: username,
         email: formData.get("email") as string,
       },
     },
@@ -47,8 +44,8 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    console.error('Signup error: ',error)
-    redirect("/error");
+    console.error('Signup error: ', error);
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
