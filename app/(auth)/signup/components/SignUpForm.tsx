@@ -134,7 +134,7 @@ export function SignUpForm() {
       }
 
       await signup(formData);
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      router.push(`/confirm?email=${encodeURIComponent(email)}`);
     } catch (error) {
       console.error("Signup error:", error);
     } finally {
