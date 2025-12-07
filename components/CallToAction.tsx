@@ -19,7 +19,7 @@ export default function CallToAction() {
             Get Started
           </Link>
           <Link
-            href="/login"
+            href="/signin"
             className="px-8 py-4 bg-white border-2 border-brand-dark rounded-lg text-button hover:bg-gray-50 transition-colors"
           >
             Sign In
