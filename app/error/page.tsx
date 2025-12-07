@@ -15,12 +15,12 @@ function ErrorContent() {
     if (errorCode === "otp_expired") {
       return {
         title: "Link Expired",
-        message: "The confirmation link has expired. Email links are valid for 24 hours.",
+        message: "The confirmation link has expired. Email links are valid for an hour.",
         icon: <Clock className="w-16 h-16 text-orange-500" />,
         suggestions: [
           "Request a new confirmation email",
           "Check your email for the most recent link",
-          "Make sure to click the link within 24 hours",
+          "Make sure to click the link within an hour",
         ],
       };
     }

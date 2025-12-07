@@ -51,7 +51,7 @@ function ConfirmContent() {
 
         <div className="text-xs text-subtle mb-6">
           <p>Didn't receive the email? Check your spam folder.</p>
-          <p className="mt-1">The link will expire in 24 hours.</p>
+          <p className="mt-1">The link will expire in an hour.</p>
         </div>
 
         <Link
