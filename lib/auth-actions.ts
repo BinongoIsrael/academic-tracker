@@ -22,7 +22,7 @@ export async function signin(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function signup(formData: FormData) {
@@ -82,4 +82,37 @@ export async function signInWithGoogle() {
   }
 
   redirect(data.url);
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = createClient();
+  const email = formData.get("email") as string;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    console.error("Password reset request error:", error);
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = createClient();
+  const password = formData.get("password") as string;
+
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  });
+
+  if (error) {
+    console.error("Password update error:", error);
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/signin?message=Password updated successfully");
 }

@@ -5,17 +5,32 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signin, signInWithGoogle } from "@/lib/auth-actions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const message = searchParams.get("message");
+    if (message) {
+      setSuccessMessage(message);
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 10000);//10 secs
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const handleSignIn = async (formData: FormData) => {
     setIsLoading(true);
     setError("");
+    setSuccessMessage("");
     
     const result = await signin(formData);
     
@@ -34,6 +49,12 @@ export function SignInForm() {
         Fill in your information to pick up right where you left off
       </p>
       
+      {successMessage && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-sm text-green-600">{successMessage}</p>
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
           <p className="text-sm text-red-600">{error}</p>
