@@ -1,5 +1,5 @@
-import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import Sidebar from "./components/Sidebar";
 
 export default function AuthenticatedLayout({
   children,
@@ -9,6 +9,7 @@ export default function AuthenticatedLayout({
   return (
     <>
       <Navbar />
+      <Sidebar />
         {children}
     </>
   );
