@@ -26,7 +26,7 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-center h-12 px-5 font-medium text-2xl rounded-[50px] transition-colors ${
+                className={`flex items-center h-12 px-5 font-medium text-2xl rounded-[50px] transition-colors ${
                   isActive
                     ? "bg-brand-green text-slate-900"
                     : "text-slate-900 hover:bg-gray-50"
