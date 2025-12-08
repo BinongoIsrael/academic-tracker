@@ -22,7 +22,7 @@ export function SignInForm() {
       setSuccessMessage(message);
       const timer = setTimeout(() => {
         setSuccessMessage("");
-      }, 10000);//10 secs
+      }, 10000); //10 secs
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
@@ -31,9 +31,9 @@ export function SignInForm() {
     setIsLoading(true);
     setError("");
     setSuccessMessage("");
-    
+
     const result = await signin(formData);
-    
+
     if (result?.error) {
       setError(result.error);
       setIsLoading(false);
@@ -48,7 +48,7 @@ export function SignInForm() {
       <p className="text-center text-subtle text-sm leading-5 mb-8">
         Fill in your information to pick up right where you left off
       </p>
-      
+
       {successMessage && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
           <p className="text-sm text-green-600">{successMessage}</p>
@@ -68,6 +68,7 @@ export function SignInForm() {
             id="email"
             type="email"
             placeholder="Email Address"
+            autoComplete="email"
             className="w-full h-9 px-3 py-2 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
             required
             disabled={isLoading}
@@ -80,6 +81,7 @@ export function SignInForm() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+              autoComplete="current-password"
               className="w-full h-9 px-3 py-2 pr-10 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
               required
               disabled={isLoading}
@@ -98,9 +100,12 @@ export function SignInForm() {
             </button>
           </div>
         </div>
-        
+
         <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-xs text-slate-900 hover:underline">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-slate-900 hover:underline"
+          >
             Forgot password?
           </Link>
         </div>
@@ -116,10 +121,12 @@ export function SignInForm() {
 
       <div className="relative flex items-center justify-center my-6">
         <div className="flex-grow border-t border-gray-400"></div>
-        <span className="px-4 text-sm font-medium text-subtle">OR CONTINUE WITH</span>
+        <span className="px-4 text-sm font-medium text-subtle">
+          OR CONTINUE WITH
+        </span>
         <div className="flex-grow border-t border-gray-400"></div>
       </div>
-      
+
       <button
         type="button"
         onClick={() => signInWithGoogle()}

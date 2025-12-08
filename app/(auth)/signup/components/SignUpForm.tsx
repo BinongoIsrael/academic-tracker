@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -45,16 +45,16 @@ export function SignUpForm() {
   };
 
   const checkEmailExists = async (emailToCheck: string) => {
-    if (!emailToCheck || !emailToCheck.includes('@')) {
+    if (!emailToCheck || !emailToCheck.includes("@")) {
       return;
     }
 
     setIsCheckingEmail(true);
     try {
-      const response = await fetch('/api/check-email', {
-        method: 'POST',
+      const response = await fetch("/api/check-email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: emailToCheck }),
       });
@@ -62,12 +62,12 @@ export function SignUpForm() {
       const data = await response.json();
 
       if (data.exists) {
-        setErrors(prev => ({ 
-          ...prev, 
-          email: "This email is already registered. Please sign in instead." 
+        setErrors((prev) => ({
+          ...prev,
+          email: "This email is already registered. Please sign in instead.",
         }));
       } else {
-        setErrors(prev => ({ ...prev, email: undefined }));
+        setErrors((prev) => ({ ...prev, email: undefined }));
       }
     } catch (error) {
       console.error("Error checking email:", error);
@@ -79,7 +79,7 @@ export function SignUpForm() {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
-    setErrors(prev => ({ ...prev, email: undefined }));
+    setErrors((prev) => ({ ...prev, email: undefined }));
   };
 
   const handleEmailBlur = () => {
@@ -89,26 +89,31 @@ export function SignUpForm() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
-    
+
     const error = validatePassword(newPassword);
-    setErrors(prev => ({ ...prev, password: error || undefined }));
+    setErrors((prev) => ({ ...prev, password: error || undefined }));
   };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const newConfirmPassword = e.target.value;
     setConfirmPassword(newConfirmPassword);
-    
+
     if (newConfirmPassword && newConfirmPassword !== password) {
-      setErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Passwords do not match",
+      }));
     } else {
-      setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+      setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
     }
   };
 
   const handleEmailSignup = async (formData: FormData) => {
     setIsLoading(true);
     setServerError("");
-    
+
     const email = formData.get("email") as string;
     const pwd = formData.get("password") as string;
     const confirmPwd = formData.get("confirm-password") as string;
@@ -122,19 +127,22 @@ export function SignUpForm() {
 
     const passwordError = validatePassword(pwd);
     if (passwordError) {
-      setErrors(prev => ({ ...prev, password: passwordError }));
+      setErrors((prev) => ({ ...prev, password: passwordError }));
       setIsLoading(false);
       return;
     }
 
     if (pwd !== confirmPwd) {
-      setErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Passwords do not match",
+      }));
       setIsLoading(false);
       return;
     }
 
     const result = await signup(formData);
-    
+
     if (result?.error) {
       setServerError(result.error);
       setIsLoading(false);
@@ -163,6 +171,7 @@ export function SignUpForm() {
             id="username"
             type="text"
             placeholder="Username"
+            autoComplete="username"
             className="w-full h-9 px-3 py-2 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
             required
             disabled={isLoading}
@@ -179,6 +188,7 @@ export function SignUpForm() {
               value={email}
               onChange={handleEmailChange}
               onBlur={handleEmailBlur}
+              autoComplete="email"
               className={`w-full h-9 px-3 py-2 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
                 errors.email ? "border-red-500" : "border-slate-300"
               }`}
@@ -205,6 +215,7 @@ export function SignUpForm() {
               placeholder="Password"
               value={password}
               onChange={handlePasswordChange}
+              autoComplete="password"
               className={`w-full h-9 px-3 py-2 pr-10 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
                 errors.password ? "border-red-500" : "border-slate-300"
               }`}
@@ -242,7 +253,13 @@ export function SignUpForm() {
               <li className={/\d/.test(password) ? "text-green-600" : ""}>
                 • One digit
               </li>
-              <li className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? "text-green-600" : ""}>
+              <li
+                className={
+                  /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                    ? "text-green-600"
+                    : ""
+                }
+              >
                 • One symbol (!@#$%^&*...)
               </li>
             </ul>
@@ -257,6 +274,7 @@ export function SignUpForm() {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
+            autoComplete="new-password"
             className={`w-full h-9 px-3 py-2 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
               errors.confirmPassword ? "border-red-500" : "border-slate-300"
             }`}
@@ -264,14 +282,22 @@ export function SignUpForm() {
             disabled={isLoading}
           />
           {errors.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>
+            <p className="text-xs text-red-500 mt-1">
+              {errors.confirmPassword}
+            </p>
           )}
         </div>
 
         <Button
           type="submit"
           className="w-full h-10 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-md mt-5"
-          disabled={isLoading || isCheckingEmail || !!errors.email || !!errors.password || !!errors.confirmPassword}
+          disabled={
+            isLoading ||
+            isCheckingEmail ||
+            !!errors.email ||
+            !!errors.password ||
+            !!errors.confirmPassword
+          }
         >
           {isLoading ? "Signing up..." : "Sign up with Email"}
         </Button>
