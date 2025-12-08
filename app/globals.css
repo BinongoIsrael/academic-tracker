@@ -110,6 +110,35 @@
     font-family: var(--font-roboto), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     @apply text-base leading-relaxed;
   }
+}
+
+@layer components {
+  .text-dashboard-title {
+    font-family: var(--font-poppins), sans-serif;
+    @apply text-5xl leading-[48px] font-bold;
+    letter-spacing: -0.012em;
+  }
+  
+  .text-dashboard-subtitle {
+    font-family: var(--font-poppins), sans-serif;
+    @apply text-2xl leading-8 font-medium;
+    letter-spacing: -0.006em;
+  }
+  
+  .text-card-label {
+    font-family: var(--font-space-grotesk), sans-serif;
+    @apply text-[30px] leading-[38px] font-medium;
+  }
+  
+  .text-card-value {
+    font-family: var(--font-poppins), sans-serif;
+    @apply text-[80px] leading-none font-semibold;
+  }
+  
+  .text-card-description {
+    font-family: var(--font-roboto), sans-serif;
+    @apply text-xl leading-7 font-medium;
+  }
   
   .text-body-large {
     font-family: var(--font-roboto), sans-serif;
@@ -119,33 +148,22 @@
   
   .text-body-medium {
     font-family: var(--font-inter), sans-serif;
-    @apply text-sm md:text-base leading-normal;
-    font-weight: 500;
+    @apply text-sm md:text-base leading-normal font-medium;
   }
   
   .text-body-small {
     font-family: var(--font-inter), sans-serif;
-    @apply text-xs md:text-sm leading-normal;
-    font-weight: 400;
-  }
-  
-  .text-label {
-    font-family: var(--font-space-grotesk), monospace, sans-serif;
-    @apply text-2xl md:text-3xl leading-snug;
-    font-weight: 500;
+    @apply text-xs md:text-sm leading-normal font-normal;
   }
   
   .text-button {
     font-family: var(--font-inter), sans-serif;
-    @apply text-sm leading-6;
-    font-weight: 500;
+    @apply text-sm leading-6 font-medium;
   }
   
-  .text-subtle {
-    font-family: var(--font-inter), sans-serif;
-    @apply text-sm leading-5;
-    font-weight: 400;
-    color: #64748B;
+  .text-empty-state {
+    font-family: var(--font-space-grotesk), sans-serif;
+    @apply text-[30px] leading-[38px] font-medium;
   }
 }
 
@@ -166,8 +184,8 @@
     color: #191A23;
   }
   
-  .text-subtle {
-    color: #64748B;
+  .text-gray-subtle {
+    color: #686363;
   }
   
   .text-slate-900 {
