@@ -25,6 +25,17 @@ export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
     gwa: gwa
   }));
 
+  const dataMin = Math.min(...trendData);
+  const dataMax = Math.max(...trendData);
+  
+  const minGrade = Math.floor(dataMin * 4) / 4;
+  const maxGrade = Math.ceil(dataMax * 4) / 4;
+  
+  const ticks: number[] = [];
+  for (let i = minGrade; i <= maxGrade; i += 0.25) {
+    ticks.push(parseFloat(i.toFixed(2)));
+  }
+
   return (
     <div className="w-[475px] h-[253px] bg-white border-2 border-black rounded-[45px] shadow-brand p-6">
       <div className="inline-flex items-center px-2 py-0.5 bg-brand-green rounded-[7px] mb-4">
@@ -43,8 +54,8 @@ export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
             hide={true}
           />
           <YAxis 
-            domain={[1.0, 2.0]} 
-            ticks={[1.0, 1.25, 1.5, 1.75, 2.0]}
+            domain={[minGrade, maxGrade]}
+            ticks={ticks}
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 14 }}
