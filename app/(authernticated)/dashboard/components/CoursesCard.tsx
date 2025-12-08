@@ -5,13 +5,12 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
   const hasCourses = courses.length > 0;
 
   return (
-    <div className="w-[1006px] bg-white border-2 border-black rounded-[45px] shadow-brand p-6">
-      <div className="flex items-start justify-between mb-9">
-        <div className="flex items-start gap-4">
-          <div className="w-16 h-16 bg-brand-green rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+    <div className="w-full lg:w-[1006px] bg-white border-2 border-black rounded-[45px] shadow-brand p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-9">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-green rounded-full flex items-center justify-center flex-shrink-0">
             <svg
-              width="42"
-              height="42"
+              className="w-8 h-8 sm:w-10 sm:h-10"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -25,16 +24,16 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
           </div>
 
           <div>
-            <h3 className="text-card-label text-black mb-1">
+            <h3 className="text-xl sm:text-2xl lg:text-[30px] leading-tight lg:leading-[38px] font-medium text-black mb-1">
               Courses
             </h3>
-            <p className="text-card-description text-gray-subtle">
+            <p className="text-base sm:text-lg lg:text-xl leading-relaxed font-medium text-gray-subtle">
               Add and monitor your grades in each course
             </p>
           </div>
         </div>
 
-        <div className="mt-1">
+        <div className="sm:mt-1">
           <AddCourseButton onClick={onAddCourse} />
         </div>
       </div>
@@ -44,13 +43,13 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
           {courses.map((course) => (
             <div
               key={course.id}
-              className="w-full h-[101px] border border-black bg-white flex items-center justify-between px-8"
+              className="w-full min-h-[80px] sm:h-[101px] border border-black bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-8 py-4 sm:py-0 gap-2 sm:gap-0"
             >
-              <span className="text-dashboard-subtitle text-black">
+              <span className="text-lg sm:text-xl lg:text-2xl font-medium text-black">
                 {course.name}
               </span>
               {course.grade && (
-                <span className="text-4xl font-semibold text-slate-900">
+                <span className="text-2xl sm:text-3xl font-semibold text-slate-900">
                   {course.grade.toFixed(2)}
                 </span>
               )}
@@ -58,8 +57,8 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
           ))}
         </div>
       ) : (
-        <div className="w-full h-[101px] border border-black bg-white flex items-center justify-center">
-          <p className="text-empty-state text-black">
+        <div className="w-full min-h-[80px] sm:h-[101px] border border-black bg-white flex items-center justify-center px-4 py-4">
+          <p className="text-lg sm:text-xl lg:text-[30px] leading-tight lg:leading-[38px] font-medium text-black text-center">
             You currently have no courses added
           </p>
         </div>

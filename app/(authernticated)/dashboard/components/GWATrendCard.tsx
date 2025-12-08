@@ -37,9 +37,9 @@ export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
   }
 
   return (
-    <div className="w-[475px] h-[253px] bg-white border-2 border-black rounded-[45px] shadow-brand p-6">
+    <div className="w-full lg:w-[475px] h-[253px] bg-white border-2 border-black rounded-[45px] shadow-brand p-6">
       <div className="inline-flex items-center px-2 py-0.5 bg-brand-green rounded-[7px] mb-4">
-        <span className="text-card-label text-black">
+        <span className="text-xl sm:text-2xl lg:text-[30px] leading-tight lg:leading-[38px] font-medium text-black">
           GWA Trend
         </span>
       </div>

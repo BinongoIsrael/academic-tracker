@@ -215,4 +215,8 @@
   .hover\:shadow-brand-dark-lg:hover {
     box-shadow: 0px 8px 0px #000000;
   }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
