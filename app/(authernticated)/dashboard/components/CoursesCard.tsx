@@ -25,9 +25,9 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
   const sortedCourses = [...courses].sort((a, b) => {
     switch (sortBy) {
       case "name-asc":
-        return a.name.localeCompare(b.name);
+        return a.course_name.localeCompare(b.course_name);
       case "name-desc":
-        return b.name.localeCompare(a.name);
+        return b.course_name.localeCompare(a.course_name);
       case "grade-asc":
         return (a.grade || 0) - (b.grade || 0);
       case "grade-desc":
@@ -107,7 +107,7 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
                 <div className={`w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 rounded-full flex-shrink-0 ${getColorForCourse(course.id)}`}></div>
                 
                 <span className="text-sm sm:text-base lg:text-2xl font-medium text-black break-words line-clamp-2">
-                  {course.name}
+                  {course.course_name}
                 </span>
               </div>
               

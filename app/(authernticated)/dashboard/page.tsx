@@ -8,35 +8,6 @@ import { Course } from "@/types";
 
 export default function DashboardPage() {
   const currentGWA = 1.0;
-  
-  //mock course data
-  const courses: Course[] = [
-    {
-      id: "1",
-      name: "Computer Science 101",
-      grade: 1.00,
-    },
-    {
-      id: "2",
-      name: "Data Structures and Algorithms",
-      grade: 1.25,
-    },
-    {
-      id: "3",
-      name: "Web Systems and Technologies",
-      grade: 1.00,
-    },
-    {
-      id: "4",
-      name: "Database Management Systems",
-      grade: 1.50,
-    },
-    {
-      id: "5",
-      name: "Software Engineering",
-      grade: 1.25,
-    },
-  ];
 
   const gwaTrend = [1.0, 1.71, 1.89, 2.0];
 
@@ -62,7 +33,7 @@ export default function DashboardPage() {
             <GWATrendCard currentGWA={currentGWA} trendData={gwaTrend} />
           </div>
 
-          <CoursesCard courses={courses} onAddCourse={handleAddCourse} />
+          <CoursesCard onAddCourse={handleAddCourse} />
         </main>
         <aside className="hidden lg:block w-[380px] pt-[30px] pr-8 pb-8 sticky top-[88px] self-start">
           <InfoPanel />
