@@ -252,7 +252,6 @@ export default function CreateCourseForm({
           } overflow-hidden`}
         >
           <div className="px-4 sm:px-8 pb-4 sm:pb-8">
-            {/* Course Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-sm font-medium text-slate-900 mb-2">
@@ -339,7 +338,6 @@ export default function CreateCourseForm({
               </div>
             </div>
 
-            {/* Target GPA and Color Picker */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-2">
