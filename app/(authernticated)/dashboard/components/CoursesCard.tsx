@@ -44,9 +44,7 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
 
   return (
     <div className="w-full max-w-full lg:w-[1006px] bg-white border-2 border-black rounded-3xl sm:rounded-[45px] shadow-brand p-4 sm:p-6">
-      {/* Header Section */}
       <div className="flex flex-col gap-4 mb-6">
-        {/* Title and Icon */}
         <div className="flex items-start gap-3">
           <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-brand-green rounded-full flex items-center justify-center flex-shrink-0">
             <svg
@@ -72,14 +70,10 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
             </p>
           </div>
         </div>
-
-        {/* Add Course Button */}
         <div className="w-full sm:w-auto sm:self-end sm:-mt-16">
           <AddCourseButton onClick={onAddCourse} />
         </div>
       </div>
-
-      {/* Sort Dropdown */}
       {hasCourses && (
         <div className="mb-4 sm:mb-6">
           <select
@@ -94,8 +88,6 @@ export default function CoursesCard({ courses = [], onAddCourse }: CoursesCardPr
           </select>
         </div>
       )}
-
-      {/* Courses List */}
       {hasCourses ? (
         <div className="space-y-3 sm:space-y-4">
           {sortedCourses.map((course) => (
