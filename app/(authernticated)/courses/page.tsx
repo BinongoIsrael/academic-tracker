@@ -263,8 +263,8 @@ export default function CoursesPage() {
     <>
       <div className="min-h-screen bg-white">
         <div className="flex">
-          <main className="flex-1 p-8 lg:p-12 ml-0 lg:ml-[325px]">
-            <h1 className="text-[48px] font-bold leading-[48px] tracking-[-0.012em] mb-8">
+          <main className="flex-1 p-4 sm:p-8 lg:p-12 ml-0 lg:ml-[325px]">
+            <h1 className="text-3xl sm:text-4xl lg:text-[48px] font-bold leading-tight tracking-[-0.012em] mb-6 sm:mb-8">
               Course
             </h1>
 
