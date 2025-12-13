@@ -425,8 +425,8 @@ export default function EditCourseModal({
                   required
                   className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
                 >
-                  <option value="Major">Major</option>
-                  <option value="Minor">Minor</option>
+                  <option value="Academic">Academic</option>
+                  <option value="Non-Academic">Non-Academic</option>
                 </select>
               </div>
             </div>

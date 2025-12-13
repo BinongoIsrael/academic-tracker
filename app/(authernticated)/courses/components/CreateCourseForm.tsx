@@ -229,17 +229,19 @@ export default function CreateCourseForm({
 
   return (
     <>
-      <div className="bg-white border border-black rounded-[45px] shadow-[0_5px_0_0_#191A23] mb-12 overflow-hidden">
+      <div className="bg-white border border-black rounded-[45px] shadow-[0_5px_0_0_#191A23] mb-8 sm:mb-12 overflow-hidden">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full p-8 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          className="w-full p-4 sm:p-8 flex items-center justify-between hover:bg-gray-50 transition-colors"
         >
-          <div className="flex items-center gap-3">
-            <Plus className="w-6 h-6" />
-            <h2 className="text-[30px] font-medium">Create New Course</h2>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
+            <h2 className="text-xl sm:text-2xl lg:text-[30px] font-medium">
+              Create New Course
+            </h2>
           </div>
           <ChevronDown
-            className={`w-6 h-6 transition-transform duration-300 ${
+            className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
               isExpanded ? "rotate-180" : ""
             }`}
           />
@@ -249,9 +251,10 @@ export default function CreateCourseForm({
             isExpanded ? "max-h-[5000px] opacity-100" : "max-h-0 opacity-0"
           } overflow-hidden`}
         >
-          <div className="px-8 pb-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              <div className="md:col-span-1">
+          <div className="px-4 sm:px-8 pb-4 sm:pb-8">
+            {/* Course Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+              <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-sm font-medium text-slate-900 mb-2">
                   Course Title
                 </label>
@@ -315,8 +318,8 @@ export default function CreateCourseForm({
                   <option value="" className="text-slate-400">
                     Course Type
                   </option>
-                  <option value="Major">Major</option>
-                  <option value="Minor">Minor</option>
+                  <option value="Academic">Academic</option>
+                  <option value="Non-Academic">Non-Academic</option>
                 </select>
               </div>
 
@@ -335,7 +338,9 @@ export default function CreateCourseForm({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+
+            {/* Target GPA and Color Picker */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-2">
                   Target GPA
@@ -352,17 +357,19 @@ export default function CreateCourseForm({
                 />
               </div>
 
-              <div className="md:col-span-3">
+              <div className="sm:col-span-2 lg:col-span-3">
                 <ColorPicker
                   selectedColor={courseColor}
                   onColorChange={setCourseColor}
                 />
               </div>
             </div>
+
             <GradeInputModeRadio
               value={gradeInputMode}
               onChange={setGradeInputMode}
             />
+
             {gradeInputMode === "final" && (
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-900 mb-2">
@@ -376,7 +383,7 @@ export default function CreateCourseForm({
                   step="0.05"
                   min="1"
                   max="5"
-                  className="w-full max-w-xs h-10 px-3 bg-white border border-black rounded-md text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="w-full sm:max-w-xs h-10 px-3 bg-white border border-black rounded-md text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 />
                 <p className="text-xs text-slate-500 mt-1">
                   Enter the final grade for this course (1.0 = Excellent, 5.0 =
@@ -384,6 +391,7 @@ export default function CreateCourseForm({
                 </p>
               </div>
             )}
+
             {gradeInputMode === "assessments" && (
               <>
                 <CourseStructureRadio
@@ -443,10 +451,10 @@ export default function CreateCourseForm({
             <div className="flex justify-end mt-6">
               <button
                 onClick={handleSubmit}
-                className="flex items-center gap-2 px-6 py-3 bg-brand-dark text-white rounded-[20px] font-medium hover:bg-opacity-90 transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-brand-dark text-white rounded-[20px] font-medium hover:bg-opacity-90 transition-colors text-sm sm:text-base"
               >
                 Add Course
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
