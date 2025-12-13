@@ -351,10 +351,10 @@ export default function EditCourseModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-[45px] border border-black shadow-[0_5px_0_0_#191A23] max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between rounded-t-[45px]">
-            <h2 className="text-[30px] font-medium">Edit Course</h2>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div className="bg-white rounded-[30px] sm:rounded-[45px] border border-black shadow-[0_5px_0_0_#191A23] max-w-full sm:max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between rounded-t-[30px] sm:rounded-t-[45px]">
+            <h2 className="text-xl sm:text-[30px] font-medium">Edit Course</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -363,7 +363,7 @@ export default function EditCourseModal({
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-8">
             <div className="mb-6">
               <label className="block text-sm font-medium text-slate-900 mb-2">
                 Course Name
@@ -377,7 +377,7 @@ export default function EditCourseModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-2">
                   Academic Term
@@ -431,7 +431,7 @@ export default function EditCourseModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-2">
                   Units
@@ -531,8 +531,8 @@ export default function EditCourseModal({
                 Manage Assessments
               </h3>
 
-              <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4">
                   <div>
                     <label className="block text-xs text-slate-600 mb-1">
                       Assessment Name
@@ -615,7 +615,7 @@ export default function EditCourseModal({
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   {editingAssessmentId ? (
                     <>
                       <button
@@ -662,7 +662,7 @@ export default function EditCourseModal({
                     {lectureAssessments.map((assessment) => (
                       <div
                         key={assessment.id}
-                        className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
                       >
                         <div className="flex-1">
                           <p className="font-medium text-slate-900">
@@ -673,7 +673,7 @@ export default function EditCourseModal({
                             occurrence(s)
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-2 sm:mt-0">
                           <button
                             type="button"
                             onClick={() => startEditingAssessment(assessment)}
@@ -711,7 +711,7 @@ export default function EditCourseModal({
                     {labAssessments.map((assessment) => (
                       <div
                         key={assessment.id}
-                        className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
                       >
                         <div className="flex-1">
                           <p className="font-medium text-slate-900">
@@ -722,7 +722,7 @@ export default function EditCourseModal({
                             occurrence(s)
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-2 sm:mt-0">
                           <button
                             type="button"
                             onClick={() => startEditingAssessment(assessment)}
@@ -747,26 +747,26 @@ export default function EditCourseModal({
               )}
             </div>
 
-            <div className="flex justify-between gap-4 pt-6 border-t border-gray-200">
+            <div className="flex flex-col xs:flex-row justify-between gap-3 xs:gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="px-6 py-3 bg-red-600 text-white rounded-[20px] font-medium hover:bg-red-700 transition-colors"
+                className="px-6 py-3 bg-red-600 text-white rounded-[20px] font-medium hover:bg-red-700 transition-colors w-full xs:w-auto"
               >
                 Delete Course
               </button>
-              <div className="flex gap-4">
+              <div className="flex flex-col xs:flex-row gap-3 xs:gap-4 w-full xs:w-auto">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-3 bg-white border border-black text-black rounded-[20px] font-medium hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 bg-white border border-black text-black rounded-[20px] font-medium hover:bg-gray-50 transition-colors w-full xs:w-auto"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-3 bg-brand-dark text-white rounded-[20px] font-medium hover:bg-opacity-90 transition-colors disabled:opacity-50"
+                  className="px-6 py-3 bg-brand-dark text-white rounded-[20px] font-medium hover:bg-opacity-90 transition-colors disabled:opacity-50 w-full xs:w-auto"
                 >
                   {saving ? "Saving..." : "Save Changes"}
                 </button>

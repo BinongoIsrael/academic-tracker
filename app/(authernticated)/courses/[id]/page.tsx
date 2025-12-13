@@ -514,81 +514,95 @@ export default function CourseDetailPage() {
   return (
     <>
       <div className="min-h-screen bg-white">
-        <div className="flex">
-          <main className="flex-1 p-8 lg:p-12 ml-0 lg:ml-[325px]">
-            <CourseHeader
-              course={course}
-              courseColor={courseColor}
-              onBack={() => router.push("/courses")}
-              onGradingScaleClick={() => setShowGradingSetup(!showGradingSetup)}
-              onEditClick={() => setShowEditModal(true)}
-            />
-
-            {showGradingSetup && (
-              <GradingScaleSetup
-                courseId={courseId}
-                onSave={handleSaveGradingScale}
-                initialScales={gradingScale}
+        <div className="flex flex-col lg:flex-row">
+          <main className="flex-1 p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12 ml-0 lg:ml-[325px] max-w-full pb-24 sm:pb-12">
+            <div className="max-w-3xl mx-auto w-full">
+              <CourseHeader
+                course={course}
+                courseColor={courseColor}
+                onBack={() => router.push("/courses")}
+                onGradingScaleClick={() =>
+                  setShowGradingSetup(!showGradingSetup)
+                }
+                onEditClick={() => setShowEditModal(true)}
               />
-            )}
 
-            {!hasGradingScale && !hasFinalGradeOnly && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
-                <p className="text-sm text-yellow-800">
-                  ⚠️ No grading scale configured. Please set up your grading
-                  scale to see GPA calculations.
-                </p>
-              </div>
-            )}
-
-            <GradeSummaryCard
-              targetGPA={targetGPA}
-              currentGPA={displayCurrentGPA ?? null}
-              currentPercentage={currentPercentage}
-              finalGPA={displayFinalGPA ?? null}
-              finalPercentage={finalPercentage}
-              hasGradingScale={hasGradingScale}
-            />
-
-            {hasFinalGradeOnly && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <h3 className="text-lg font-medium text-blue-900 mb-2">
-                  Final Grade Set
-                </h3>
-                <p className="text-sm text-blue-800">
-                  This course has a final grade of{" "}
-                  <strong>{course.grade?.toFixed(2)}</strong> set directly. No
-                  assessment tracking is configured for this course.
-                </p>
-              </div>
-            )}
-
-            {!hasFinalGradeOnly && (
-              <>
-                {lectureAssessments.length > 0 && (
-                  <AssessmentGradeInput
-                    title={`Lecture Assessments (${lecturePercentage}%)`}
-                    assessments={lectureAssessments}
-                    grades={grades}
-                    onGradeChange={handleGradeChange}
+              {showGradingSetup && (
+                <div className="mb-4 sm:mb-6">
+                  <GradingScaleSetup
+                    courseId={courseId}
+                    onSave={handleSaveGradingScale}
+                    initialScales={gradingScale}
                   />
-                )}
+                </div>
+              )}
 
-                {labAssessments.length > 0 && (
-                  <AssessmentGradeInput
-                    title={`Laboratory Assessments (${laboratoryPercentage}%)`}
-                    assessments={labAssessments}
-                    grades={grades}
-                    onGradeChange={handleGradeChange}
-                  />
-                )}
+              {!hasGradingScale && !hasFinalGradeOnly && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-8">
+                  <p className="text-xs sm:text-sm md:text-base text-yellow-800">
+                    No grading scale configured. Please set up your grading
+                    scale to see GPA calculations.
+                  </p>
+                </div>
+              )}
 
-                <ActionButtons
-                  onCalculate={handleCalculate}
-                  onSave={handleSaveGrades}
+              <div className="mb-4 sm:mb-8">
+                <GradeSummaryCard
+                  targetGPA={targetGPA}
+                  currentGPA={displayCurrentGPA ?? null}
+                  currentPercentage={currentPercentage}
+                  finalGPA={displayFinalGPA ?? null}
+                  finalPercentage={finalPercentage}
+                  hasGradingScale={hasGradingScale}
                 />
-              </>
-            )}
+              </div>
+
+              {hasFinalGradeOnly && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-6 mb-4 sm:mb-8">
+                  <h3 className="text-sm sm:text-base md:text-lg font-medium text-blue-900 mb-2">
+                    Final Grade Set
+                  </h3>
+                  <p className="text-xs sm:text-sm md:text-base text-blue-800">
+                    This course has a final grade of{" "}
+                    <strong>{course.grade?.toFixed(2)}</strong> set directly. No
+                    assessment tracking is configured for this course.
+                  </p>
+                </div>
+              )}
+
+              {!hasFinalGradeOnly && (
+                <>
+                  {lectureAssessments.length > 0 && (
+                    <div className="mb-4">
+                      <AssessmentGradeInput
+                        title={`Lecture Assessments (${lecturePercentage}%)`}
+                        assessments={lectureAssessments}
+                        grades={grades}
+                        onGradeChange={handleGradeChange}
+                      />
+                    </div>
+                  )}
+
+                  {labAssessments.length > 0 && (
+                    <div className="mb-4">
+                      <AssessmentGradeInput
+                        title={`Laboratory Assessments (${laboratoryPercentage}%)`}
+                        assessments={labAssessments}
+                        grades={grades}
+                        onGradeChange={handleGradeChange}
+                      />
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <ActionButtons
+                      onCalculate={handleCalculate}
+                      onSave={handleSaveGrades}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </main>
         </div>
       </div>

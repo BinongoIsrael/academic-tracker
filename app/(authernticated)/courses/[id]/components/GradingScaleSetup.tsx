@@ -130,10 +130,10 @@ export default function GradingScaleSetup({
         ))}
       </div>
 
-      <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
+      <div className="flex flex-col xs:flex-row justify-between items-stretch xs:items-center mt-6 pt-6 border-t border-gray-200 gap-3 xs:gap-0">
         <button
           onClick={handleAddScale}
-          className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-black rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-black rounded-lg hover:bg-gray-50 transition-colors w-full xs:w-auto"
         >
           <Plus className="w-4 h-4" />
           Add Grade Range
@@ -142,7 +142,7 @@ export default function GradingScaleSetup({
         {hasChanges && (
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-6 py-3 bg-brand-green text-black rounded-[20px] font-medium hover:bg-opacity-90 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-brand-green text-black rounded-[20px] font-medium hover:bg-opacity-90 transition-colors w-full xs:w-auto"
           >
             Save Grading Scale
           </button>
