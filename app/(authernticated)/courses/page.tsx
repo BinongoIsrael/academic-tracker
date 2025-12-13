@@ -90,12 +90,7 @@ export default function CoursesPage() {
         course_color: course.course_color,
         created_at: course.created_at || "",
         updated_at: course.updated_at || "",
-        term: course.terms
-          ? {
-              academicYear: course.terms.academic_year,
-              semester: course.terms.semester,
-            }
-          : undefined,
+        term: mappedTerms.find((t) => t.id === course.term_id),
       }));
       setCourses(mappedCourses);
     } catch (error) {
@@ -253,8 +248,13 @@ export default function CoursesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-lg font-medium">Loading...</p>
+      <div className="min-h-screen bg-white">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading courses...</p>
+            </div>
+          </div>
       </div>
     );
   }

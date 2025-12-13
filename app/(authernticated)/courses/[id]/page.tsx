@@ -128,12 +128,7 @@ export default function CourseDetailPage() {
         course_color: courseData.course_color,
         created_at: courseData.created_at,
         updated_at: courseData.updated_at,
-        term: courseData.terms
-          ? {
-              academicYear: courseData.terms.academic_year,
-              semester: courseData.terms.semester,
-            }
-          : undefined,
+        term: mappedTerms.find((t) => t.id === courseData.term_id),
       };
 
       console.log("Mapped course:", mappedCourse);
@@ -475,8 +470,13 @@ export default function CourseDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-lg font-medium">Loading...</p>
+      <div className="min-h-screen bg-white">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading course details...</p>
+            </div>
+          </div>
       </div>
     );
   }
