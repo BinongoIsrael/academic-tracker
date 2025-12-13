@@ -24,7 +24,7 @@ export default function TermsPage() {
 
   useEffect(() => {
     fetchTerms();
-  }, );
+  }, []);
 
   const fetchTerms = async () => {
     try {

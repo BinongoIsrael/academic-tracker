@@ -20,7 +20,7 @@ export default function CoursesPage() {
 
   useEffect(() => {
     fetchData();
-  }, );
+  }, []);
 
   const fetchData = async () => {
     try {
