@@ -10,7 +10,7 @@ export default function GWABreakdown({
       <div className="bg-white border-2 border-black rounded-[45px] p-8 shadow-[0_5px_0_#191A23] min-h-[470px]">
         <h3 className="text-3xl font-medium mb-6">GWA Breakdown</h3>
         <div className="text-center text-gray-400 mt-20">
-          <p>Select "All Academic Terms" or a specific term to view the calculation breakdown.</p>
+          <p>Select &quot;All Academic Terms&quot; or a specific term to view the calculation breakdown.</p>
         </div>
       </div>
     );
