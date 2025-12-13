@@ -1,3 +1,4 @@
+import { User } from "@supabase/supabase-js";
 import { ReactNode } from "react";
 
 export interface UserMenuProps {
@@ -308,4 +309,10 @@ export interface GWABreakdownProps {
   academicYear: string;
   specificRange: string;
   courses: Course[];
+}
+
+export interface AvatarUploaderProps {
+  user: User | null;
+  url: string | null;
+  onUpload: (publicUrl: string) => void;
 }
