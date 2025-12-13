@@ -1,76 +1,222 @@
 @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+@tailwind components;
+@tailwind utilities;
 
-  @layer base {
-    :root {
-      --background: 0 0% 100%;
-      --foreground: 0 0% 3.9%;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
 
-      --card: 0 0% 100%;
-      --card-foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
 
-      --popover: 0 0% 100%;
-      --popover-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
 
-      --primary: 0 0% 9%;
-      --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
 
-      --secondary: 0 0% 96.1%;
-      --secondary-foreground: 0 0% 9%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
 
-      --muted: 0 0% 96.1%;
-      --muted-foreground: 0 0% 45.1%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
 
-      --accent: 0 0% 96.1%;
-      --accent-foreground: 0 0% 9%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
 
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-      --border: 0 0% 89.8%;
-      --input: 0 0% 89.8%;
-      --ring: 0 0% 3.9%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
 
-      --radius: 0.5rem;
-    }
-
-    .dark {
-      --background: 0 0% 3.9%;
-      --foreground: 0 0% 98%;
-
-      --card: 0 0% 3.9%;
-      --card-foreground: 0 0% 98%;
-
-      --popover: 0 0% 3.9%;
-      --popover-foreground: 0 0% 98%;
-
-      --primary: 0 0% 98%;
-      --primary-foreground: 0 0% 9%;
-
-      --secondary: 0 0% 14.9%;
-      --secondary-foreground: 0 0% 98%;
-
-      --muted: 0 0% 14.9%;
-      --muted-foreground: 0 0% 63.9%;
-
-      --accent: 0 0% 14.9%;
-      --accent-foreground: 0 0% 98%;
-
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
-
-      --border: 0 0% 14.9%;
-      --input: 0 0% 14.9%;
-      --ring: 0 0% 83.1%;
-    }
+    --radius: 0.5rem;
   }
 
-  @layer base {
-    * {
-      @apply border-border;
-    }
-    body {
-      @apply bg-background text-foreground;
-    }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
   }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  /* Typography Styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.012em;
+  }
+  
+  h1 {
+    @apply text-5xl md:text-6xl leading-tight;
+  }
+  
+  h2 {
+    @apply text-4xl md:text-5xl leading-tight;
+  }
+  
+  h3 {
+    @apply text-3xl md:text-4xl leading-snug;
+  }
+  
+  h4 {
+    @apply text-2xl md:text-3xl leading-snug;
+  }
+  
+  h5 {
+    @apply text-xl md:text-2xl leading-normal;
+  }
+  
+  h6 {
+    @apply text-lg md:text-xl leading-normal;
+  }
+  
+  p {
+    font-family: var(--font-roboto), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply text-base leading-relaxed;
+  }
+}
+
+@layer components {
+  .text-dashboard-title {
+    font-family: var(--font-poppins), sans-serif;
+    @apply text-5xl leading-[48px] font-bold;
+    letter-spacing: -0.012em;
+  }
+  
+  .text-dashboard-subtitle {
+    font-family: var(--font-poppins), sans-serif;
+    @apply text-2xl leading-8 font-medium;
+    letter-spacing: -0.006em;
+  }
+  
+  .text-card-label {
+    font-family: var(--font-space-grotesk), sans-serif;
+    @apply text-[30px] leading-[38px] font-medium;
+  }
+  
+  .text-card-value {
+    font-family: var(--font-poppins), sans-serif;
+    @apply text-[80px] leading-none font-semibold;
+  }
+  
+  .text-card-description {
+    font-family: var(--font-roboto), sans-serif;
+    @apply text-xl leading-7 font-medium;
+  }
+  
+  .text-body-large {
+    font-family: var(--font-roboto), sans-serif;
+    @apply text-lg md:text-xl leading-relaxed;
+    letter-spacing: -0.005em;
+  }
+  
+  .text-body-medium {
+    font-family: var(--font-inter), sans-serif;
+    @apply text-sm md:text-base leading-normal font-medium;
+  }
+  
+  .text-body-small {
+    font-family: var(--font-inter), sans-serif;
+    @apply text-xs md:text-sm leading-normal font-normal;
+  }
+  
+  .text-button {
+    font-family: var(--font-inter), sans-serif;
+    @apply text-sm leading-6 font-medium;
+  }
+  
+  .text-empty-state {
+    font-family: var(--font-space-grotesk), sans-serif;
+    @apply text-[30px] leading-[38px] font-medium;
+  }
+}
+
+@layer utilities {
+  .bg-brand-green {
+    background-color: #B9FF66;
+  }
+  
+  .hover\:bg-brand-green-dark:hover {
+    background-color: #a8ef55;
+  }
+  
+  .bg-brand-dark {
+    background-color: #191A23;
+  }
+  
+  .text-brand-dark {
+    color: #191A23;
+  }
+  
+  .text-gray-subtle {
+    color: #686363;
+  }
+  
+  .text-slate-900 {
+    color: #0F172A;
+  }
+  
+  .bg-slate-900 {
+    background-color: #0F172A;
+  }
+  
+  .border-slate-300 {
+    border-color: #CBD5E1;
+  }
+  
+  .shadow-brand {
+    box-shadow: 0px 5px 0px #191A23;
+  }
+  
+  .shadow-brand-dark {
+    box-shadow: 0px 5px 0px #000000;
+  }
+  
+  .hover\:shadow-brand-lg:hover {
+    box-shadow: 0px 8px 0px #191A23;
+  }
+  
+  .hover\:shadow-brand-dark-lg:hover {
+    box-shadow: 0px 8px 0px #000000;
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
