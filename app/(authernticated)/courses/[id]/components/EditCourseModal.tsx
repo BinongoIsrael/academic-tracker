@@ -57,7 +57,7 @@ export default function EditCourseModal({
 
   useEffect(() => {
     fetchAssessments();
-  }, );
+  }, []);
 
   const fetchAssessments = async () => {
     try {
