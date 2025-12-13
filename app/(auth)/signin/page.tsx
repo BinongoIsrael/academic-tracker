@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { SignInForm } from "./components/SignInForm";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Sign In",
 };
 
-const SignInPage = () => {
+const SignInContent = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 md:px-8 lg:px-16 py-8">
       <div className="flex flex-col lg:flex-row-reverse items-center justify-center gap-8 lg:gap-16 max-w-7xl w-full">
@@ -33,6 +33,14 @@ const SignInPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const SignInPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 };
 
