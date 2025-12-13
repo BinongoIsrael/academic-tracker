@@ -151,7 +151,7 @@ export default function DashboardPage() {
               Welcome back!
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl font-medium text-gray-subtle">
-              Here's a look at your academic progress.
+              Here&apos;s a look at your academic progress.
             </p>
           </div>
 
