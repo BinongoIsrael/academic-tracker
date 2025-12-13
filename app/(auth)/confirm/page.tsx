@@ -31,7 +31,7 @@ function ConfirmContent() {
             Check Your Email
           </h1>
           <p className="text-subtle text-sm">
-            We've sent a confirmation email to:
+            We&apos;ve sent a confirmation email to:
           </p>
           <p className="text-slate-900 font-medium mt-2 break-all">
             {email || "your email address"}
@@ -45,12 +45,12 @@ function ConfirmContent() {
           <ol className="text-sm text-subtle space-y-2 list-decimal list-inside">
             <li>Open the email from Gradient</li>
             <li>Click the confirmation link</li>
-            <li>You'll be redirected to your dashboard</li>
+            <li>You&apos;ll be redirected to your dashboard</li>
           </ol>
         </div>
 
         <div className="text-xs text-subtle mb-6">
-          <p>Didn't receive the email? Check your spam folder.</p>
+          <p>Didn&apos;t receive the email? Check your spam folder.</p>
           <p className="mt-1">The link will expire in an hour.</p>
         </div>
 
