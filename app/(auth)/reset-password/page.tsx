@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { updatePassword } from "@/lib/auth-actions";
 import { Eye, EyeOff } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { supabase } from "@/utils/supabase/client";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -23,7 +23,6 @@ export default function ResetPasswordPage() {
       const code = searchParams.get('code');
       
       if (code) {
-        const supabase = createClient();
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         
         if (error) {
