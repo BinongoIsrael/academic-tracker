@@ -55,7 +55,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               onClick={() => setIsOpen(false)}
             >
               <Settings className="w-4 h-4" />
-              Settings
+              Profile Settings
             </Link>
             
             <button
