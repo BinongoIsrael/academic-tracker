@@ -288,3 +288,24 @@ export interface DeleteCourseModalProps {
   onConfirm: () => Promise<void>;
   onClose: () => void;
 }
+
+export interface GWATypeSelectionProps {
+  selectionType: "all" | "specific";
+  setSelectionType: (v: "all" | "specific") => void;
+  selectedTermId: string;
+  setSelectedTermId: (v: string) => void;
+  terms: Term[];
+  loadingTerms?: boolean;
+  termsError?: string | null;
+}
+
+export interface GWAResultsProps {
+  academicGWA: string;
+  totalGWA: string;
+}
+
+export interface GWABreakdownProps {
+  academicYear: string;
+  specificRange: string;
+  courses: Course[];
+}
