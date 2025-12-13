@@ -46,10 +46,7 @@ export interface Course {
   course_color?: string;
   created_at?: string;
   updated_at?: string;
-  term?: {
-    academicYear: string;
-    semester: string;
-  };
+  term?: Term;
 }
 export interface CoursesCardProps {
   courses?: Course[];

@@ -80,7 +80,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
-  if (user && (currentPath === "/signin" || currentPath === "/signup")) {
+  if (user && (currentPath === "/signin" || currentPath === "/signup" || currentPath === "/")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

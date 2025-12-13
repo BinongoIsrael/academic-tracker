@@ -233,14 +233,12 @@ export default function TermsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white pb-20 lg:pb-8">
-        <main className="w-full max-w-[1024px] lg:ml-[325px] pt-6 lg:pt-[30px] px-4 sm:px-8 lg:px-12 pb-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
               <p className="text-gray-600">Loading terms...</p>
             </div>
           </div>
-        </main>
       </div>
     );
   }

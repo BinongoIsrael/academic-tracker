@@ -20,6 +20,7 @@ export default function GWACalculator() {
   const [terms, setTerms] = useState<Term[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTerms = async () => {
@@ -82,40 +83,53 @@ export default function GWACalculator() {
     };
 
     fetchTerms();
-  }, [supabase, router, selectedTermId]);
+  }, [supabase, router]);
 
   useEffect(() => {
     const fetchCourses = async () => {
-      setCourses([]); 
-      setAcademicGWA("-.--");
-      setTotalGWA("-.--");
+      setLoading(true);
+      try {
+        setCourses([]);
+        setAcademicGWA("-.--");
+        setTotalGWA("-.--");
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      let query = supabase.from("courses").select("*").eq("user_id", user.id);
-
-      if (selectionType === "specific") {
-        if (!selectedTermId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push("/signin");
           return;
         }
-        query = query.eq("term_id", selectedTermId);
-      }
 
-      const { data, error } = await query;
+        let query = supabase.from("courses").select("*").eq("user_id", user.id);
 
-      if (!error && data) {
-        setCourses(data as Course[]);
-      } else {
-        console.error("Error fetching courses:", error?.message);
-        setCourses([]);
+        if (selectionType === "specific") {
+          if (!selectedTermId) {
+            setCourses([]);
+            return;
+          }
+          query = query.eq("term_id", selectedTermId);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            throw error;
+        }
+
+        if (data) {
+          setCourses(data as Course[]);
+        } else {
+          setCourses([]);
+        }
+      } catch (error: any) {
+          console.error("Error fetching courses:", error.message);
+          setToast({ message: "Failed to fetch courses.", type: "error" });
+          setCourses([]);
+      } finally {
+          setLoading(false);
       }
     };
     fetchCourses();
-  }, [selectionType, selectedTermId, supabase, router]); 
+  }, [selectionType, selectedTermId, supabase, router]);
 
    useEffect(() => {
 
@@ -162,6 +176,19 @@ export default function GWACalculator() {
     setTotalGWA(finalTotalGWA);
 
   }, [courses]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading calculate...</p>
+            </div>
+          </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
