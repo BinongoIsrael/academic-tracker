@@ -6,9 +6,9 @@ import CreateNewTerm from "./components/CreateNewTerm";
 import MyTerms from "./components/MyTerms";
 import EditTermModal from "./components/EditTermModal";
 import { Term, Course } from "@/types";
-import { createClient } from "@/utils/supabase/client";
+import { supabase } from "@/utils/supabase/client";
 import DeleteTermModal from "./components/DeleteTermModal";
-import Toast from "./components/Toast";
+import Toast from "../components/Toast";
 
 export default function TermsPage() {
   const [terms, setTerms] = useState<Term[]>([]);
@@ -21,7 +21,6 @@ export default function TermsPage() {
     type: "success" | "error";
   } | null>(null);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     fetchTerms();

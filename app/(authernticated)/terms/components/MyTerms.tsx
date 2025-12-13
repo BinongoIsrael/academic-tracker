@@ -5,22 +5,26 @@ import TermCard from "./TermCard";
 import { Calendar } from "lucide-react";
 
 export default function MyTerms({ terms, onEditTerm, onAddCourse }: MyTermsProps) {
-  const currentDate = new Date();
+   const currentDate = new Date();
 
-  const activeTerm = terms.find((term) => {
-    const startDate = new Date(term.startDate);
-    const endDate = new Date(term.endDate);
+  const termsWithDates = terms.filter(
+    (term) => term.startDate && term.endDate
+  );
+
+  const activeTerm = termsWithDates.find((term) => {
+    const startDate = new Date(term.startDate!);
+    const endDate = new Date(term.endDate!);
     
     return currentDate >= startDate && currentDate <= endDate;
   });
 
-  const pastTerms = terms.filter((term) => {
-    const endDate = new Date(term.endDate);
+  const pastTerms = termsWithDates.filter((term) => {
+    const endDate = new Date(term.endDate!);
     return currentDate > endDate;
   });
 
-  const futureTerms = terms.filter((term) => {
-    const startDate = new Date(term.startDate);
+  const futureTerms = termsWithDates.filter((term) => {
+    const startDate = new Date(term.startDate!);
     return currentDate < startDate;
   });
 
