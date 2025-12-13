@@ -43,7 +43,7 @@ export default function MyTerms({ terms, onEditTerm, onAddCourse }: MyTermsProps
           </div>
           <h3 className="text-xl font-bold text-black mb-2">No Terms Yet</h3>
           <p className="text-center text-gray-600 max-w-md mb-6">
-            You haven't created any academic terms yet. Start by creating your first term using the form above to organize your courses and track your academic progress.
+            You haven&apos;t created any academic terms yet. Start by creating your first term using the form above to organize your courses and track your academic progress.
           </p>
         </div>
       ) : (
