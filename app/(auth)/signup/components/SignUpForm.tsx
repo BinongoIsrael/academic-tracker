@@ -155,7 +155,7 @@ export function SignUpForm() {
         Create an Account
       </h4>
       <p className="text-center text-subtle text-sm leading-5 mb-8">
-        Ready to enhance your academic journey? Let's get started
+        Ready to enhance your academic journey? Let&apos;s get started
       </p>
 
       {serverError && (

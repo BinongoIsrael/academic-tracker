@@ -83,7 +83,7 @@ export default function GWACalculator() {
     };
 
     fetchTerms();
-  }, [supabase, router]);
+  }, [router, selectedTermId]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -129,7 +129,7 @@ export default function GWACalculator() {
       }
     };
     fetchCourses();
-  }, [selectionType, selectedTermId, supabase, router]);
+  }, [selectionType, selectedTermId, router]);
 
    useEffect(() => {
 

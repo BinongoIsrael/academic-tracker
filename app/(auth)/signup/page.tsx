@@ -25,7 +25,7 @@ const SignUpPage = () => {
             Sign up today and take control of your academic success
           </h2>
           <p className="text-center text-gray-600 leading-7 max-w-[652px]">
-            By creating your account, you'll unlock powerful tools to help you track grades, 
+            By creating your account, you&apos;ll unlock powerful tools to help you track grades, 
             calculate GPA and GWA, and predict the scores you need to achieve your goals. 
             Gradient gives you clear insights into your academic progress and helps you plan 
             smarter, so you can focus on what matters most — <span className="font-semibold">learning</span> and <span className="font-semibold">succeeding</span>.

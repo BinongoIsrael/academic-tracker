@@ -53,7 +53,7 @@ export default function RecommendationPage() {
                 <Sparkles className="w-12 h-12 text-purple-500 mb-4" />
                 <h2 className="text-2xl font-medium mb-2">Ready for your analysis?</h2>
                 <p className="text-slate-600 max-w-lg mb-6">
-                  I'll analyze your current term's courses and assessments to provide proactive advice on where to focus your efforts.
+                  I&apos;ll analyze your current term&apos;s courses and assessments to provide proactive advice on where to focus your efforts.
                 </p>
                 
                 <button

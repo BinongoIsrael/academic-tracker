@@ -317,7 +317,7 @@ export default function EditTermModal({
                     No courses added yet
                   </p>
                   <p className="text-[10px] sm:text-xs text-gray-400 mt-1">
-                    Click "Add Course" to get started
+                    Click &quot;Add Course&quot; to get started
                   </p>
                 </div>
               )}

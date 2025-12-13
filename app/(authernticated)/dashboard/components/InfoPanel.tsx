@@ -23,7 +23,7 @@ export default function InfoPanel() {
             <div>
               <div className="flex justify-between mb-1">
                 <span className="text-sm text-gray-subtle">
-                  Dean's List Goal
+                  Dean&apos;s List Goal
                 </span>
                 <span className="text-sm font-semibold text-black">1.50</span>
               </div>
