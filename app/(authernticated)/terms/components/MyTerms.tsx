@@ -5,10 +5,15 @@ import TermCard from "./TermCard";
 import { Calendar } from "lucide-react";
 
 export default function MyTerms({ terms, onEditTerm, onAddCourse }: MyTermsProps) {
-   const currentDate = new Date();
+  
+  const currentDate = new Date();
 
   const termsWithDates = terms.filter(
     (term) => term.startDate && term.endDate
+  );
+
+  const termsWithoutDates = terms.filter(
+    (term) => !term.startDate || !term.endDate
   );
 
   const activeTerm = termsWithDates.find((term) => {
@@ -88,12 +93,34 @@ export default function MyTerms({ terms, onEditTerm, onAddCourse }: MyTermsProps
                 <div className="flex-1 h-px bg-gray-300"></div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mb-8">
                 {pastTerms.map((term) => (
+                  <TermCard 
+                    key={term.id}
+                    term={{ ...term, isActive: false }} 
+                    onEdit={onEditTerm} 
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {termsWithoutDates.length > 0 && (
+            <>
+              <div className="flex items-center gap-3 mb-5">
+                <h3 className="text-lg sm:text-xl font-bold text-black">
+                  Unscheduled Terms
+                </h3>
+                <div className="flex-1 h-px bg-gray-300"></div>
+              </div>
+
+              <div className="space-y-4">
+                {termsWithoutDates.map((term) => (
                   <TermCard 
                     key={term.id} 
                     term={{ ...term, isActive: false }} 
-                    onEdit={onEditTerm} 
+                    onEdit={onEditTerm}
+                    onAddCourse={onAddCourse}
                   />
                 ))}
               </div>
