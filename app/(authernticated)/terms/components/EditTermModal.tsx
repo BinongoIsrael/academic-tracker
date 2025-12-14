@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, XCircle, Plus, Calendar, BookOpen, Award, AlertCircle, AlertTriangle } from "lucide-react";
 import { Term, Course, EditTermModalProps } from "@/types";
+import DeleteCourseModal from "../../courses/[id]/components/DeleteCourseModal";
 
 export default function EditTermModal({
   term,
@@ -20,6 +21,7 @@ export default function EditTermModal({
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
 
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
@@ -114,6 +116,13 @@ export default function EditTermModal({
       return `Summer (${term.academicYear})`;
     }
     return `${term.semester} Semester (${term.academicYear})`;
+  };
+
+  const handleConfirmRemoveCourse = async () => {
+    if (courseToDelete) {
+      await onRemoveCourse(courseToDelete.id);
+      setCourseToDelete(null);
+    }
   };
 
   return (
@@ -354,6 +363,13 @@ export default function EditTermModal({
           </div>
         </div>
       </div>
+      {courseToDelete && (
+        <DeleteCourseModal
+          courseName={courseToDelete.course_name}
+          onConfirm={handleConfirmRemoveCourse}
+          onClose={() => setCourseToDelete(null)}
+        />
+      )}
     </>
   );
 }

@@ -50,6 +50,39 @@ export default function TermsPage() {
         .order("start_date", { ascending: false });
 
       if (error) throw error;
+      const currentDate = new Date();
+      let activeTermId: string | null = null;
+
+      const activeTerm = termsData.find((term: any) => {
+        if (!term.start_date || !term.end_date) return false;
+        const startDate = new Date(term.start_date);
+        const endDate = new Date(term.end_date);
+        return currentDate >= startDate && currentDate <= endDate;
+      });
+
+      if (activeTerm) {
+        activeTermId = activeTerm.id;
+      }
+
+      const currentlyActiveInDB = termsData.find((term: any) => term.is_active);
+
+      if (currentlyActiveInDB?.id !== activeTermId) {
+        await supabase
+          .from("terms")
+          .update({ is_active: false })
+          .eq("user_id", user.id);
+
+        if (activeTermId) {
+          await supabase
+            .from("terms")
+            .update({ is_active: true })
+            .eq("id", activeTermId);
+        }
+
+        termsData.forEach((term: any) => {
+          term.is_active = term.id === activeTermId;
+        });
+      }
 
       const termsWithStats: Term[] = termsData.map((term: any) => ({
         id: term.id,
