@@ -63,7 +63,7 @@ export default function DeleteTermModal({
           <ul className="text-sm text-red-800 space-y-1">
             <li>• {term.courses} course{term.courses !== 1 ? "s" : ""}</li>
             <li>• {term.units} unit{term.units !== 1 ? "s" : ""} of credit</li>
-            {term.gpa && <li>• GPA data ({term.gpa.toFixed(2)})</li>}
+            {term.gpa && <li>• GWA data ({term.gpa.toFixed(2)})</li>}
           </ul>
         </div>
 
