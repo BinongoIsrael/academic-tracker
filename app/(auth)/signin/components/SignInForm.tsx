@@ -73,7 +73,7 @@ export function SignInForm() {
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
             <label className="text-xs font-bold uppercase tracking-wider text-on-surface" htmlFor="password">Password</label>
-            <Link href="/forgot-password" size="sm" className="text-xs font-bold text-primary hover:underline">
+            <Link href="/forgot-password" title="Forgot password" className="text-xs font-bold text-primary hover:underline">
               Forgot?
             </Link>
           </div>
