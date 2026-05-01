@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { signin, signInWithGoogle } from "@/lib/auth-actions";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
 
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +19,7 @@ export function SignInForm() {
       setSuccessMessage(message);
       const timer = setTimeout(() => {
         setSuccessMessage("");
-      }, 10000); //10 secs
+      }, 10000);
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
@@ -41,112 +38,119 @@ export function SignInForm() {
   };
 
   return (
-    <div className="w-full max-w-[604px] bg-white border border-slate-300 rounded-lg p-8">
-      <h4 className="text-center text-slate-900 font-medium text-xl leading-7 mb-3">
-        Welcome Back
-      </h4>
-      <p className="text-center text-subtle text-sm leading-5 mb-8">
-        Fill in your information to pick up right where you left off
-      </p>
+    <div className="w-full">
+      <div className="mb-10">
+        <h2 className="text-3xl font-bold tracking-tight text-on-surface mb-2">Welcome Back</h2>
+        <p className="text-on-surface-variant">Enter your credentials to access your curator tools.</p>
+      </div>
 
       {successMessage && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-sm text-green-600">{successMessage}</p>
+        <div className="mb-6 p-4 bg-secondary-container text-on-secondary-container rounded-lg border border-primary/10">
+          <p className="text-sm font-medium">{successMessage}</p>
         </div>
       )}
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="mb-6 p-4 bg-error-container text-on-error-container rounded-lg border border-error/10">
+          <p className="text-sm font-medium">{error}</p>
         </div>
       )}
 
-      <form action={handleSignIn} className="space-y-4">
-        <div className="w-full">
-          <Input
+      <form action={handleSignIn} className="space-y-6">
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold uppercase tracking-wider text-on-surface" htmlFor="email">Email Address</label>
+          <input
             name="email"
             id="email"
             type="email"
-            placeholder="Email Address"
-            autoComplete="email"
-            className="w-full h-9 px-3 py-2 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
+            placeholder="name@university.edu"
+            className="w-full px-4 py-3 bg-surface-container-high border-none rounded focus:ring-2 focus:ring-primary transition-all text-sm placeholder:text-on-surface-variant/50"
             required
             disabled={isLoading}
           />
         </div>
-        <div className="w-full">
+
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <label className="text-xs font-bold uppercase tracking-wider text-on-surface" htmlFor="password">Password</label>
+            <Link href="/forgot-password" size="sm" className="text-xs font-bold text-primary hover:underline">
+              Forgot?
+            </Link>
+          </div>
           <div className="relative">
-            <Input
+            <input
               name="password"
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              autoComplete="current-password"
-              className="w-full h-9 px-3 py-2 pr-10 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
+              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-surface-container-high border-none rounded focus:ring-2 focus:ring-primary transition-all text-sm placeholder:text-on-surface-variant/50"
               required
               disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface flex items-center justify-center"
               disabled={isLoading}
             >
-              {showPassword ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
+              <span className="material-symbols-outlined text-xl">
+                {showPassword ? "visibility_off" : "visibility"}
+              </span>
             </button>
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <Link
-            href="/forgot-password"
-            className="text-xs text-slate-900 hover:underline"
-          >
-            Forgot password?
-          </Link>
+        <div className="flex items-center gap-3 py-2">
+          <input
+            type="checkbox"
+            id="remember"
+            className="rounded-sm text-primary focus:ring-primary border-outline-variant bg-surface-container w-4 h-4"
+          />
+          <label className="text-sm text-on-surface-variant" htmlFor="remember">
+            Keep me signed in for 30 days
+          </label>
         </div>
 
-        <Button
+        <button
           type="submit"
-          className="w-full h-10 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-md mt-5"
           disabled={isLoading}
+          className="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded neo-shadow-hover transition-all active:scale-95 flex items-center justify-center gap-2"
         >
-          {isLoading ? "Signing in..." : "Sign in with Email"}
-        </Button>
+          {isLoading ? "Authenticating..." : "Sign In to Dashboard"}
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
+        </button>
       </form>
 
-      <div className="relative flex items-center justify-center my-6">
-        <div className="flex-grow border-t border-gray-400"></div>
-        <span className="px-4 text-sm font-medium text-subtle">
-          OR CONTINUE WITH
-        </span>
-        <div className="flex-grow border-t border-gray-400"></div>
+      <div className="relative my-10">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-outline-variant/30"></div>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase tracking-widest font-bold">
+          <span className="bg-surface px-4 text-on-surface-variant">OR CONTINUE WITH</span>
+        </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => signInWithGoogle()}
-        className="w-full h-11 flex items-center justify-center gap-3 bg-white border border-gray-400 rounded-md hover:bg-gray-50 transition-colors"
-        disabled={isLoading}
-      >
-        <Image
-          src="/Google-G-logo.svg"
-          alt="Google"
-          width={24}
-          height={24}
-          className="w-6 h-6"
-        />
-        <span className="text-sm font-medium text-black">Google</span>
-      </button>
+      <div className="grid grid-cols-1 gap-4">
+        <button
+          type="button"
+          onClick={() => signInWithGoogle()}
+          disabled={isLoading}
+          className="flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-lowest border border-outline-variant/20 rounded font-semibold text-sm hover:bg-surface-container-low transition-colors"
+        >
+          <Image
+            src="/Google-G-logo.svg"
+            alt="Google"
+            width={20}
+            height={20}
+          />
+          Authenticate with Google
+        </button>
+      </div>
 
-      <p className="text-center text-subtle text-sm mt-6">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-slate-900 hover:underline">
-          Sign Up
+      <p className="mt-10 text-center text-sm text-on-surface-variant">
+        Don&apos;t have an account yet?{" "}
+        <Link href="/signup" className="text-primary font-bold hover:underline">
+          Join the community
         </Link>
       </p>
     </div>
