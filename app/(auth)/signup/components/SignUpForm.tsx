@@ -5,9 +5,33 @@ import Image from "next/image";
 import { signup, signInWithGoogle } from "@/lib/auth-actions";
 import { useState } from "react";
 import { SignUpErrors } from "@/types";
+import { useFormStatus } from "react-dom";
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending || disabled}
+      className="w-full bg-primary-container text-on-primary-container py-4 rounded font-bold transition-all hover:translate-y-[-2px] active:scale-95 shadow-[4px_4px_0px_#191A23] hover:shadow-[6px_6px_0px_#191A23] mt-6 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+    >
+      {pending ? (
+        <>
+          <div className="w-5 h-5 border-2 border-on-primary-container/30 border-t-on-primary-container rounded-full animate-spin" />
+          Creating Account...
+        </>
+      ) : (
+        <>
+          Create Account
+          <span className="material-symbols-outlined text-lg">person_add</span>
+        </>
+      )}
+    </button>
+  );
+}
 
 export function SignUpForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,19 +39,6 @@ export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<SignUpErrors>({});
   const [serverError, setServerError] = useState("");
-
-  const validatePassword = (pwd: string) => {
-    const minLength = pwd.length >= 8;
-    const hasLowercase = /[a-z]/.test(pwd);
-    const hasUppercase = /[A-Z]/.test(pwd);
-    const hasDigit = /\d/.test(pwd);
-    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-
-    if (!minLength || !hasLowercase || !hasUppercase || !hasDigit || !hasSymbol) {
-      return "Password does not meet requirements";
-    }
-    return null;
-  };
 
   const checkEmailExists = async (emailToCheck: string) => {
     if (!emailToCheck || !emailToCheck.includes("@")) return;
@@ -52,21 +63,18 @@ export function SignUpForm() {
   };
 
   const handleEmailSignup = async (formData: FormData) => {
-    setIsLoading(true);
     setServerError("");
     const pwd = formData.get("password") as string;
     const confirmPwd = formData.get("confirm-password") as string;
 
     if (pwd !== confirmPwd) {
       setErrors((prev) => ({ ...prev, confirmPassword: "Passwords do not match" }));
-      setIsLoading(false);
       return;
     }
 
     const result = await signup(formData);
     if (result?.error) {
       setServerError(result.error);
-      setIsLoading(false);
     }
   };
 
@@ -101,7 +109,6 @@ export function SignUpForm() {
             placeholder="username"
             className="w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all placeholder:text-outline/50 text-sm"
             required
-            disabled={isLoading}
           />
         </div>
 
@@ -118,7 +125,6 @@ export function SignUpForm() {
               onBlur={() => checkEmailExists(email)}
               className={`w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all placeholder:text-outline/50 text-sm ${errors.email ? "ring-2 ring-error" : ""}`}
               required
-              disabled={isLoading}
             />
             {isCheckingEmail && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -141,7 +147,6 @@ export function SignUpForm() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all text-sm"
               required
-              disabled={isLoading}
             />
             <button
               type="button"
@@ -175,19 +180,11 @@ export function SignUpForm() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className={`w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all text-sm ${errors.confirmPassword ? "ring-2 ring-error" : ""}`}
             required
-            disabled={isLoading}
           />
           {errors.confirmPassword && <p className="text-xs text-error mt-1">{errors.confirmPassword}</p>}
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading || !!errors.email || !!errors.confirmPassword}
-          className="w-full bg-primary-container text-on-primary-container py-4 rounded font-bold transition-all hover:translate-y-[-2px] active:scale-95 shadow-[4px_4px_0px_#191A23] hover:shadow-[6px_6px_0px_#191A23] mt-6 flex items-center justify-center gap-2"
-        >
-          {isLoading ? "Creating Account..." : "Create Account"}
-          <span className="material-symbols-outlined text-lg">person_add</span>
-        </button>
+        <SubmitButton disabled={isCheckingEmail || !!errors.email || !!errors.confirmPassword} />
       </form>
 
       <div className="relative my-8">
@@ -202,7 +199,6 @@ export function SignUpForm() {
       <button
         type="button"
         onClick={() => signInWithGoogle()}
-        disabled={isLoading}
         className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-surface-container rounded transition-all hover:bg-surface-container-high active:scale-[0.98] font-semibold text-sm text-on-surface"
       >
         <Image src="/Google-G-logo.svg" alt="Google" width={20} height={20} />

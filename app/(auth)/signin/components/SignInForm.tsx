@@ -5,10 +5,33 @@ import Image from "next/image";
 import { signin, signInWithGoogle } from "@/lib/auth-actions";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded neo-shadow-hover transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+    >
+      {pending ? (
+        <>
+          <div className="w-5 h-5 border-2 border-on-primary-container/30 border-t-on-primary-container rounded-full animate-spin" />
+          Authenticating...
+        </>
+      ) : (
+        <>
+          Sign In to Dashboard
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
+        </>
+      )}
+    </button>
+  );
+}
 
 export function SignInForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const searchParams = useSearchParams();
@@ -24,8 +47,9 @@ export function SignInForm() {
     }
   }, [searchParams]);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleSignIn = async (formData: FormData) => {
-    setIsLoading(true);
     setError("");
     setSuccessMessage("");
 
@@ -33,7 +57,6 @@ export function SignInForm() {
 
     if (result?.error) {
       setError(result.error);
-      setIsLoading(false);
     }
   };
 
@@ -41,7 +64,7 @@ export function SignInForm() {
     <div className="w-full">
       <div className="mb-10">
         <h2 className="text-3xl font-bold tracking-tight text-on-surface mb-2">Welcome Back</h2>
-        <p className="text-on-surface-variant">Enter your credentials to access your curator tools.</p>
+        <p className="text-on-surface-variant text-sm">Enter your credentials to access your curator tools.</p>
       </div>
 
       {successMessage && (
@@ -66,7 +89,6 @@ export function SignInForm() {
             placeholder="name@university.edu"
             className="w-full px-4 py-3 bg-surface-container-high border-none rounded focus:ring-2 focus:ring-primary transition-all text-sm placeholder:text-on-surface-variant/50"
             required
-            disabled={isLoading}
           />
         </div>
 
@@ -85,13 +107,11 @@ export function SignInForm() {
               placeholder="••••••••"
               className="w-full px-4 py-3 bg-surface-container-high border-none rounded focus:ring-2 focus:ring-primary transition-all text-sm placeholder:text-on-surface-variant/50"
               required
-              disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface flex items-center justify-center"
-              disabled={isLoading}
             >
               <span className="material-symbols-outlined text-xl">
                 {showPassword ? "visibility_off" : "visibility"}
@@ -111,14 +131,7 @@ export function SignInForm() {
           </label>
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded neo-shadow-hover transition-all active:scale-95 flex items-center justify-center gap-2"
-        >
-          {isLoading ? "Authenticating..." : "Sign In to Dashboard"}
-          <span className="material-symbols-outlined text-lg">arrow_forward</span>
-        </button>
+        <SubmitButton />
       </form>
 
       <div className="relative my-10">
@@ -134,7 +147,6 @@ export function SignInForm() {
         <button
           type="button"
           onClick={() => signInWithGoogle()}
-          disabled={isLoading}
           className="flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-lowest border border-outline-variant/20 rounded font-semibold text-sm hover:bg-surface-container-low transition-colors"
         >
           <Image
