@@ -1,41 +1,57 @@
 import React from "react";
 import { SignUpForm } from "./components/SignUpForm";
 import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign Up",
+  title: "Sign Up | Gradient",
 };
 
 const SignUpPage = () => {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 md:px-8 lg:px-16 py-8">
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 max-w-7xl w-full">
-        <div className="flex flex-col items-center max-w-[654px] space-y-6 lg:space-y-8 order-1">
-          <div className="relative w-full max-w-[400px] lg:max-w-full h-[300px] lg:h-[407px]">
-            <Image
-              src="/signup-illustration.svg"
-              alt="Academic success illustration"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-          <h2 className="text-center font-semibold text-2xl lg:text-[32px] leading-9 tracking-tight max-w-[499px]">
+    <main className="h-screen flex items-stretch overflow-hidden">
+      <section className="hidden lg:flex lg:w-1/2 bg-on-background relative overflow-hidden flex-col justify-center p-16">
+        <div className="z-10">
+          <h1 className="text-5xl font-bold text-surface-container-lowest tracking-tight leading-tight max-w-lg mb-16">
             Sign up today and take control of your academic success
-          </h2>
-          <p className="text-center text-gray-600 leading-7 max-w-[652px]">
-            By creating your account, you&apos;ll unlock powerful tools to help you track grades, 
-            calculate GPA and GWA, and predict the scores you need to achieve your goals. 
-            Gradient gives you clear insights into your academic progress and helps you plan 
-            smarter, so you can focus on what matters most — <span className="font-semibold">learning</span> and <span className="font-semibold">succeeding</span>.
-          </p>
+          </h1>
+          
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="text-sm font-bold text-primary-container tracking-widest uppercase">Academic Precision</div>
+              <div className="h-px w-12 bg-primary-container/30"></div>
+            </div>
+            <p className="text-outline-variant text-lg max-w-md leading-relaxed">
+              By creating your account, you&apos;ll unlock powerful tools to help you track grades, 
+              calculate GPA and GWA, and predict the scores you need to achieve your goals. 
+              Gradient gives you clear insights into your academic progress.
+            </p>
+          </div>
         </div>
-        <div className="w-full max-w-[604px] order-2">
-          <SignUpForm />
+        
+        <div className="absolute inset-0 opacity-40 mix-blend-overlay pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[80%] bg-primary-fixed-dim rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-5%] left-[-5%] w-[60%] h-[60%] bg-primary rounded-full blur-[100px]"></div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      <section className="w-full lg:w-1/2 flex flex-col bg-surface-container-lowest overflow-y-auto relative">
+        <div className="flex justify-between items-center px-8 py-6 z-20 w-full lg:absolute lg:top-4 lg:left-0 lg:px-8 lg:py-0">
+          <Link href="/" className="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors group">
+            <span className="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            Back to Home
+          </Link>
+          <div className="lg:hidden text-xl font-bold tracking-tighter text-on-surface">Gradient</div>
+        </div>
+
+        <div className="flex-grow flex flex-col items-center justify-center p-8 lg:p-16">
+          <div className="w-full max-w-md">
+            <SignUpForm />
+          </div>
+        </div>
+      </section>
+    </main>
   );
 };
 

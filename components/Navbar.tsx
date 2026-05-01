@@ -9,16 +9,16 @@ export default async function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_rgba(26,27,36,0.06)] border-b border-zinc-100">
-      <div className="flex justify-between items-center h-16 px-8 max-w-[1440px] mx-auto">
-        <Link href="/" className="text-xl font-bold tracking-tighter text-zinc-900 uppercase hover:opacity-80 transition-opacity flex items-center gap-2">
+      <div className="flex justify-between items-center h-16 px-4 md:px-8 max-w-[1440px] mx-auto">
+        <Link href="/" className="text-lg sm:text-xl font-bold tracking-tighter text-zinc-900 uppercase hover:opacity-80 transition-opacity flex items-center gap-2">
           <Image 
             src="/starlogo.svg" 
             alt="Gradient Logo" 
             width={24} 
             height={24}
-            className="w-6 h-6"
+            className="w-5 h-5 sm:w-6 sm:h-6"
           />
-          Gradient
+          <span className="hidden xs:inline">Gradient</span>
         </Link>
         
         {!user && (
@@ -35,15 +35,15 @@ export default async function Navbar() {
           </div>
         )}
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-1 sm:gap-4">
           {user ? (
             <UserMenu user={user} />
           ) : (
             <>
-              <Link href="/signin" className="px-4 py-2 text-sm font-semibold text-zinc-900 transition-all hover:bg-zinc-100/50">
+              <Link href="/signin" className="px-3 sm:px-4 py-2 text-[10px] sm:text-sm font-semibold text-zinc-900 transition-all hover:bg-zinc-100/50">
                 Sign In
               </Link>
-              <Link href="/signup" className="px-5 py-2 text-sm font-bold bg-primary-container text-on-primary-container rounded hover:translate-y-[-1px] active:scale-95 transition-all">
+              <Link href="/signup" className="px-3 xs:px-4 sm:px-5 py-2 text-[10px] sm:text-sm font-bold bg-primary-container text-on-primary-container rounded hover:translate-y-[-1px] active:scale-95 transition-all">
                 Sign Up
               </Link>
             </>
