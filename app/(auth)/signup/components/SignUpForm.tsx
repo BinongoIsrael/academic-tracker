@@ -39,6 +39,7 @@ export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<SignUpErrors>({});
   const [serverError, setServerError] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const checkEmailExists = async (emailToCheck: string) => {
     if (!emailToCheck || !emailToCheck.includes("@")) return;
@@ -75,6 +76,8 @@ export function SignUpForm() {
     const result = await signup(formData);
     if (result?.error) {
       setServerError(result.error);
+    } else if (result?.success) {
+      setIsSuccess(true);
     }
   };
 
@@ -85,6 +88,28 @@ export function SignUpForm() {
     { label: "One digit", valid: /\d/.test(password) },
     { label: "One symbol (!@#$%^&*...)", valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
   ];
+
+  if (isSuccess) {
+    return (
+      <div className="w-full text-center py-12">
+        <div className="mb-8 w-20 h-20 bg-primary-container flex items-center justify-center rounded-full mx-auto">
+          <span className="material-symbols-outlined text-4xl text-on-primary-container">mail</span>
+        </div>
+        <h2 className="text-3xl font-bold text-on-surface tracking-tight mb-4">Check Your Email</h2>
+        <p className="text-on-surface-variant text-lg leading-relaxed mb-10 max-w-sm mx-auto">
+          We&apos;ve sent a confirmation link to <span className="font-bold text-primary">{email}</span>. 
+          Please check your inbox to activate your account.
+        </p>
+        <Link 
+          href="/signin" 
+          className="inline-flex items-center gap-2 px-10 py-4 bg-primary-container text-on-primary-container font-black text-lg rounded neo-shadow-hover transition-all"
+        >
+          Go to Sign In
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
