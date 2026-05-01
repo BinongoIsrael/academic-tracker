@@ -32,18 +32,25 @@ export default function CoursesCard({ courses = [] }: CoursesCardProps) {
   });
 
   return (
-    <div className="w-full bg-white border-2 border-black rounded-[45px] shadow-[0_5px_0_0_#191A23] p-4 sm:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-[30px] font-medium mb-4 sm:mb-0">
-          My Courses
-        </h2>
-        <div className="flex gap-4">
-           <AddCourseButton onClick={() => router.push('/courses')} />
-           {hasCourses && (
+    <div className="col-span-12 bg-surface-container-lowest p-0 rounded-xl overflow-hidden border border-outline-variant/10 shadow-[0_20px_40px_rgba(26,27,36,0.02)]">
+      <div className="p-8 lg:p-10 pb-6 flex justify-between items-center">
+        <div>
+          <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Active Curriculum</h3>
+          <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Academic Year {new Date().getFullYear()}</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => router.push('/courses')}
+            className="bg-primary text-on-primary px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm"
+          >
+            <span className="material-symbols-outlined text-sm">add</span>
+            Add Course
+          </button>
+          {hasCourses && (
             <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="h-12 px-4 border-2 border-gray-300 rounded-xl focus:border-brand-green focus:outline-none text-sm bg-white cursor-pointer"
+                className="h-9 px-3 border border-outline-variant/30 rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none text-[10px] font-bold uppercase tracking-widest bg-white cursor-pointer"
             >
                 <option value="course_name-asc">Name (A-Z)</option>
                 <option value="course_name-desc">Name (Z-A)</option>
@@ -54,80 +61,59 @@ export default function CoursesCard({ courses = [] }: CoursesCardProps) {
         </div>
       </div>
 
-      {/* Mobile View */}
-      <div className="block md:hidden space-y-4">
-        {!hasCourses ? (
-          <div className="text-center py-8 text-gray-500">
-            You currently have no courses added.
-          </div>
-        ) : (
-          sortedCourses.map((course) => (
-            <div
-              key={course.id}
-              onClick={() => router.push(`/courses/${course.id}`)}
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3 flex-1">
-                  <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: course.course_color || "#3B82F6" }}
-                  ></div>
-                  <span className="font-bold text-base text-slate-900">
-                    {course.course_name}
-                  </span>
-                </div>
-                <span className="font-bold text-base text-slate-900 ml-2">
-                  {course.grade ? course.grade.toFixed(2) : "-.--"}
-                </span>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Desktop View */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-black">
-              <th className="text-left py-4 px-4 font-bold text-base">Course Name</th>
-              <th className="text-left py-4 px-4 font-bold text-base">GPA</th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-surface-container-low/50">
+            <tr>
+              <th className="px-10 py-4 text-[10px] font-extrabold uppercase tracking-widest text-outline">Course Code</th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-outline">Description</th>
+              <th className="px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-outline text-right">Grade</th>
+              <th className="px-10 py-4 text-[10px] font-extrabold uppercase tracking-widest text-outline text-right">Status</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-outline-variant/10">
             {!hasCourses ? (
               <tr>
-                <td colSpan={2} className="text-center py-8 text-gray-500">
-                  You currently have no courses added.
+                <td colSpan={4} className="px-10 py-12 text-center text-sm text-slate-500 italic">
+                  No courses found for this curriculum cycle.
                 </td>
               </tr>
             ) : (
               sortedCourses.map((course) => (
-                <tr
+                <tr 
                   key={course.id}
                   onClick={() => router.push(`/courses/${course.id}`)}
-                  className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="hover:bg-primary-container/5 transition-colors group cursor-pointer"
                 >
-                  <td className="py-4 px-4">
+                  <td className="px-10 py-6 text-sm font-bold text-zinc-900">
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: course.course_color || "#3B82F6" }}
-                      ></div>
-                      <span className="font-bold text-sm text-slate-900">
-                        {course.course_name}
-                      </span>
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: course.course_color || "#3f6900" }} />
+                      {course.course_code || "N/A"}
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-bold text-sm">
-                    {course.grade ? course.grade.toFixed(2) : "-.--"}
+                  <td className="px-6 py-6 text-sm text-slate-600 font-medium">{course.course_name}</td>
+                  <td className="px-6 py-6 text-right font-bold text-zinc-900">{course.grade ? course.grade.toFixed(2) : "---"}</td>
+                  <td className="px-10 py-6 text-right">
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${
+                      course.grade ? "bg-lime-100 text-lime-700" : "bg-surface-container-high text-outline"
+                    }`}>
+                      {course.grade ? "Completed" : "Ongoing"}
+                    </span>
                   </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+      </div>
+      
+      <div className="p-6 bg-slate-50/50 border-t border-outline-variant/10 flex justify-center">
+        <button 
+          onClick={() => router.push('/courses')}
+          className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline"
+        >
+          View All Courses
+        </button>
       </div>
     </div>
   );
