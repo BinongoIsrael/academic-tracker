@@ -213,11 +213,11 @@ export default function DashboardPageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white pb-20 lg:pb-8">
+      <div className="min-h-screen bg-surface pb-20 lg:pb-8">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto mb-4"></div>
-              <p className="text-zinc-600">Loading dashboard...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-on-surface-variant font-medium">Loading dashboard...</p>
             </div>
           </div>
       </div>
@@ -235,7 +235,7 @@ export default function DashboardPageClient() {
         <div className="flex gap-4">
           <div className="bg-surface-container-low px-5 py-2.5 rounded-xl border border-outline-variant/10">
             <span className="block text-[0.65rem] uppercase font-bold text-outline tracking-wider mb-0.5">System Status</span>
-            <span className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
+            <span className="text-sm font-semibold flex items-center gap-2 text-on-surface">
               <span className="w-2 h-2 rounded-full bg-lime-500 animate-pulse"></span> Optimal
             </span>
           </div>

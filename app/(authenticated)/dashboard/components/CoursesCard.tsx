@@ -105,7 +105,7 @@ export default function CoursesCard({ courses = [], onAddCourse }: ExtendedCours
         </table>
       </div>
       
-      <div className="p-6 bg-slate-50/50 border-t border-outline-variant/10 flex justify-center">
+      <div className="p-6 bg-surface-container-low/50 border-t border-outline-variant/10 flex justify-center">
         <button 
           onClick={() => router.push('/courses')}
           className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline"
