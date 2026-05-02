@@ -5,25 +5,44 @@ export default function GWAResults({
   totalGWA,
 }: GWAResultsProps) {
   return (
-    <div className="bg-white border-2 border-black rounded-[45px] p-4 sm:p-6 shadow-[0_5px_0_#191A23] h-full">
-      <div className="grid grid-cols-2 h-full divide-x-2 divide-gray-100">
-        <div className="flex flex-col items-center justify-center p-2 text-center">
-          <p className="text-sm sm:text-base font-medium text-slate-600 mb-2">
-            Academic GWA
-          </p>
-          <p className="text-5xl sm:text-6xl font-bold text-slate-800 tracking-tighter">
-            {academicGWA}
-          </p>
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+      {/* Academic GWA Card */}
+      <div className="relative overflow-hidden bg-primary p-10 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.1)] group">
+        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+          <span className="material-symbols-outlined text-9xl">school</span>
         </div>
-        <div className="flex flex-col items-center justify-center p-2 text-center">
-          <p className="text-sm sm:text-base font-medium text-slate-600 mb-2">
-            Total GWA
-          </p>
-          <p className="text-5xl sm:text-6xl font-bold text-slate-800 tracking-tighter">
-            {totalGWA}
+        <div className="relative z-10">
+          <span className="inline-block px-3 py-1 bg-primary-container/20 text-primary-container text-xs font-bold uppercase tracking-widest rounded-sm mb-6">
+            Academic Average
+          </span>
+          <div className="text-7xl md:text-8xl font-black text-primary-container tracking-tighter mb-2">
+            {academicGWA}
+          </div>
+          <p className="text-primary-container/80 font-medium">
+            Weighted Major Courses
           </p>
         </div>
       </div>
-    </div>
+
+      {/* Total GWA Card */}
+      <div className="relative overflow-hidden bg-on-surface p-10 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.1)] group">
+        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+          <span className="material-symbols-outlined text-9xl text-white">
+            analytics
+          </span>
+        </div>
+        <div className="relative z-10">
+          <span className="inline-block px-3 py-1 bg-surface-container-highest/20 text-surface-container-lowest text-xs font-bold uppercase tracking-widest rounded-sm mb-6">
+            Total Curriculum
+          </span>
+          <div className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-2">
+            {totalGWA}
+          </div>
+          <p className="text-white/60 font-medium">
+            Full Institutional Weighted Average
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
