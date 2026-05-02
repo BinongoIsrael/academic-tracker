@@ -1,6 +1,8 @@
 import Footer from "@/components/Footer";
-import CallToAction from "@/components/CallToAction";
 import Navbar from "@/components/Navbar";
+import CallToAction from "@/components/CallToAction";
+import Link from "next/link";
+import Image from "next/image";
 
 import type { Metadata } from "next";
 
@@ -11,292 +13,192 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-surface font-body text-on-surface">
       <Navbar />
-      <section className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24 py-1 md:py-5">
-        <div className="flex flex-col items-center text-center space-y-8">
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight max-w-md">
-            Plan Smarter Study Better Grow Stronger
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed">
-            Aiming to help students monitor grades, compute GPA/GWA, and predict
-            the scores needed to reach their goals. With personalized insights
-            and simple tools, Gradient empowers learners to stay on track,
-            improve performance, and achieve academic success.
-          </p>
-        </div>
-      </section>
-
-      <section
-        id="features"
-        className="bg-white py-16 md:py-8"
-      >
-        <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24">
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex px-4 py-2 bg-brand-green rounded-lg">
-              <span className="text-3xl font-medium">Features</span>
-            </div>
+      
+      <main className="pt-16">
+        {/* Hero Section */}
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-surface-container-low px-6">
+          <div className="absolute inset-0 opacity-10 pointer-events-none">
+            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-primary-container blur-[120px]"></div>
+            <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-secondary-container blur-[100px]"></div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="relative bg-white border border-black rounded-[45px] p-10 shadow-brand hover:shadow-brand-lg hover:-translate-y-1 transition-all duration-200">
-              <div className="flex flex-wrap gap-2 mb-6">
-                <span className="inline-block px-3 py-1 bg-brand-green rounded-lg text-3xl font-medium">
-                  Grade Input
-                </span>
-                <span className="inline-block px-3 py-1 bg-brand-green rounded-lg text-3xl font-medium">
-                  System
-                </span>
-              </div>
-              <p className="text-2xl font-medium text-brand-dark leading-8">
-                Manual entry of grades per subject and assessment, and custom grading criteria
-              </p>
-            </div>
-
-            <div className="relative bg-brand-green border border-black rounded-[45px] p-10 shadow-brand-dark hover:shadow-brand-dark-lg hover:-translate-y-1 transition-all duration-200">
-              <div className="flex flex-wrap gap-2 mb-6">
-                <span className="inline-block px-3 py-1 bg-gray-200 rounded-lg text-3xl font-medium">
-                  Subject Grade
-                </span>
-                <span className="inline-block px-3 py-1 bg-gray-200 rounded-lg text-3xl font-medium">
-                  Computation
-                </span>
-              </div>
-              <p className="text-2xl font-medium text-black leading-8">
-                Automatic calculation of subject grades from weighted assessments
-              </p>
-            </div>
-
-            <div className="relative bg-brand-green border border-black rounded-[45px] p-10 shadow-brand hover:shadow-brand-lg hover:-translate-y-1 transition-all duration-200">
-              <div className="flex flex-wrap gap-2 mb-6">
-                <span className="inline-block px-3 py-1 bg-white rounded-lg text-3xl font-medium">
-                  Target Score
-                </span>
-                <span className="inline-block px-3 py-1 bg-white rounded-lg text-3xl font-medium">
-                  Prediction
-                </span>
-              </div>
-              <p className="text-2xl font-medium text-black leading-8">
-                Predict the minimum score required to pass a subject/reach target GPA
-              </p>
-            </div>
-
-            <div className="relative bg-brand-green border border-black rounded-[45px] p-10 shadow-brand hover:shadow-brand-lg hover:-translate-y-1 transition-all duration-200">
-              <div className="flex flex-wrap gap-2 mb-6">
-                <span className="inline-block px-3 py-1 bg-white rounded-lg text-3xl font-medium">
-                  GWA
-                </span>
-                <span className="inline-block px-3 py-1 bg-white rounded-lg text-3xl font-medium">
-                  Calculator
-                </span>
-              </div>
-              <p className="text-2xl font-medium text-brand-dark leading-8">
-                Calculate your GWA from different contexts
-              </p>
-            </div>
-
-            <div className="relative bg-gray-100 border border-black rounded-[45px] p-10 shadow-brand hover:shadow-brand-lg hover:-translate-y-1 transition-all duration-200 md:col-span-2 md:max-w-xl md:mx-auto md:w-full">
-              <div className="flex flex-wrap gap-2 mb-6">
-                <span className="inline-block px-3 py-1 bg-brand-green rounded-lg text-3xl font-medium">
-                  Recommendation
-                </span>
-                <span className="inline-block px-3 py-1 bg-brand-green rounded-lg text-3xl font-medium">
-                  System
-                </span>
-              </div>
-              <p className="text-2xl font-medium text-brand-dark leading-8">
-                Personalized advice on what to focus on
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="how-it-works" className="bg-gray-50 py-16 md:py-8">
-        <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24">
-          <div className="text-center mb-16">
-            <div className="inline-flex px-4 py-2 bg-brand-green rounded-lg mb-6">
-              <span className="text-3xl font-medium">How It Works</span>
-            </div>
-            <h2 className="mb-6">
-              Simple Steps to Track Your Academic Success
-            </h2>
-            <p className="text-body-large text-gray-600 max-w-3xl mx-auto">
-              Gradient streamlines your academic tracking process through an
-              intuitive workflow designed to help you stay on top of your
-              performance.
+          <div className="relative z-10 text-center max-w-4xl mx-auto">
+            <span className="inline-block px-4 py-1.5 mb-6 text-[0.75rem] font-bold tracking-[0.2em] uppercase bg-primary-container/30 text-primary border border-primary/10 rounded-full">Editorial Academic Tracking</span>
+            <h1 className="text-[3.5rem] md:text-[5rem] font-black leading-[1.1] tracking-tight text-on-surface mb-8">
+              Plan Smarter <br />Study Better <br /><span className="text-primary italic">Grow Stronger</span>
+            </h1>
+            <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto font-medium">
+              Aiming to help students monitor grades, compute GPA/GWA, and predict the scores needed to reach their goals. With personalized insights and simple tools, Gradient empowers learners to stay on track, improve performance, and achieve academic success.
             </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white border border-black rounded-3xl p-8 shadow-brand">
-              <div className="w-12 h-12 bg-brand-green rounded-full flex items-center justify-center text-2xl font-bold mb-4">
-                1
-              </div>
-              <h4 className="mb-3">Input Your Courses</h4>
-              <p className="text-gray-600">
-                Add your subjects and define grading criteria including course
-                assessments like quizzes, activities, projects, and term exams
-                with their weight percentages.
-              </p>
-            </div>
-
-            <div className="bg-white border border-black rounded-3xl p-8 shadow-brand">
-              <div className="w-12 h-12 bg-brand-green rounded-full flex items-center justify-center text-2xl font-bold mb-4">
-                2
-              </div>
-              <h4 className="mb-3">Record Your Grades</h4>
-              <p className="text-gray-600">
-                Enter your scores for completed assessments. The system
-                automatically calculates your current subject grade based on
-                weighted components.
-              </p>
-            </div>
-
-            <div className="bg-white border border-black rounded-3xl p-8 shadow-brand">
-              <div className="w-12 h-12 bg-brand-green rounded-full flex items-center justify-center text-2xl font-bold mb-4">
-                3
-              </div>
-              <h4 className="mb-3">Get Predictions</h4>
-              <p className="text-gray-600">
-                For upcoming assessments, Gradient predicts the minimum score
-                you need to pass the subject or reach your target grade.
-              </p>
-            </div>
-
-            <div className="bg-white border border-black rounded-3xl p-8 shadow-brand">
-              <div className="w-12 h-12 bg-brand-green rounded-full flex items-center justify-center text-2xl font-bold mb-4">
-                4
-              </div>
-              <h4 className="mb-3">Monitor & Improve</h4>
-              <p className="text-gray-600">
-                View your term GPA, academic year GWA, and running totals. Get
-                personalized recommendations on which areas to focus on for
-                improvement.
-              </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/signup" className="w-full sm:w-auto px-10 py-4 bg-primary-container text-on-primary-container font-black text-lg rounded neo-shadow-hover transition-all text-center">
+                Get Started Now
+              </Link>
+              <button className="w-full sm:w-auto px-10 py-4 bg-surface-container-highest text-on-surface font-bold text-lg rounded transition-all hover:bg-surface-variant flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined">play_circle</span>
+                View Demo
+              </button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="about" className="bg-white py-16 md:py-8">
-        <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-24">
-          <div className="text-center mb-16">
-            <div className="inline-flex px-4 py-2 bg-brand-green rounded-lg mb-6">
-              <span className="text-3xl font-medium">About Gradient</span>
-            </div>
-            <h2 className="mb-6">
-              Empowering Students Through Data-Driven Insights
-            </h2>
+        {/* Features Bento Grid */}
+        <section className="py-32 px-6 max-w-[1400px] mx-auto scroll-mt-24" id="features">
+          <div className="mb-20 text-center">
+            <h2 className="text-4xl font-black tracking-tight mb-4 uppercase">Advanced Gradient Curators</h2>
+            <p className="text-on-surface-variant text-lg">Sophisticated tools for the modern scholar.</p>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-            <div className="bg-gray-50 border border-gray-200 rounded-3xl p-10">
-              <h3 className="mb-6">The Challenge</h3>
-              <p className="text-gray-600 mb-4">
-                Students often face difficulties in monitoring their academic
-                performance due to ambiguous grade records, varied grading
-                systems, and the lack of predictive tools to know how much more
-                they need to score to achieve their goals.
-              </p>
-              <p className="text-gray-600">
-                While GPA and GWA are key measures of academic standing, many
-                students do not have a centralized platform that combines grade
-                tracking, GPA/GWA computation, and predictive grade calculation
-                in one system. This leads to uncertainty in planning and
-                prioritizing academic efforts.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {/* Grade Input */}
+            <div className="md:col-span-8 bg-surface-container-high p-10 rounded-xl flex flex-col justify-between neo-shadow-hover transition-all">
+              <div>
+                <div className="mb-8 w-14 h-14 bg-primary-container flex items-center justify-center rounded">
+                  <span className="material-symbols-outlined text-3xl">edit_note</span>
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Grade Input System</h3>
+                <p className="text-on-surface-variant max-w-md">Manual entry of grades per subject and assessment, and custom grading criteria.</p>
+              </div>
+              <div className="mt-12 h-40 bg-surface rounded-lg overflow-hidden relative border border-outline-variant/20">
+                <Image 
+                  className="w-full h-full object-cover" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeusJ7ay5enNQyV6CZeFP-nTHki3i5HcMd7gKcwFyn5UlPZFlL01edQJfZCaJ5UiLAioQQiMjO4czfzeba2lRBitvJ-lqI0Q48h2I8gTiao9ugEz45IM617WDHztsfL0a5xY4r1PnlcDywndpLLiI-2WAS5V8TCZnHy66O6uOozlMzR2ZUnJFOm9LMu4XDnakW2A64uoMxuXZxDqNFeF4a1mDiRowBImCqr0Skl15QzEOEtZvs2GF_GFmRJZqWg05_eMii9mtjkGxi" 
+                  alt="Dashboard Preview"
+                  fill
+                />
+              </div>
             </div>
-            <div className="bg-brand-green border border-black rounded-3xl p-10 shadow-brand">
-              <h3 className="mb-6">Our Solution</h3>
-              <p className="text-brand-dark mb-4">
-                Gradient is an Academic Tracker system that enables students to
-                track their academic performance from the subject level to their
-                final graduation standing.
-              </p>
-              <p className="text-brand-dark">
-                We provide automatic grade calculation, predictive scoring, and
-                personalized recommendations to help students understand their
-                current standing, set performance goals, and plan their study
-                efforts effectively.
-              </p>
+            {/* Computation */}
+            <div className="md:col-span-4 bg-surface-container-low p-10 rounded-xl flex flex-col neo-shadow-hover transition-all">
+              <div className="mb-8 w-14 h-14 bg-secondary-container flex items-center justify-center rounded">
+                <span className="material-symbols-outlined text-3xl">calculate</span>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Subject Grade Computation</h3>
+              <p className="text-on-surface-variant">Automatic calculation of subject grades from weighted assessments.</p>
+            </div>
+            {/* Prediction */}
+            <div className="md:col-span-4 bg-surface-container-lowest p-10 rounded-xl flex flex-col border border-outline-variant/10 neo-shadow-hover transition-all">
+              <div className="mb-8 w-14 h-14 bg-primary flex items-center justify-center rounded">
+                <span className="material-symbols-outlined text-3xl text-white">query_stats</span>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Target Score Prediction</h3>
+              <p className="text-on-surface-variant">Predict the minimum score required to pass a subject or reach your target GPA.</p>
+            </div>
+            {/* GWA & Recommendation */}
+            <div className="md:col-span-8 bg-on-background text-white p-10 rounded-xl grid md:grid-cols-2 gap-8 neo-shadow-hover transition-all">
+              <div className="flex flex-col justify-center">
+                <h3 className="text-2xl font-bold mb-4 text-primary-container">Recommendation System</h3>
+                <p className="text-surface-variant opacity-80">Personalized advice on what to focus on based on your current performance.</p>
+              </div>
+              <div className="flex flex-col justify-center border-l border-white/10 pl-8">
+                <h3 className="text-2xl font-bold mb-4 text-primary-container">GWA Calculator</h3>
+                <p className="text-surface-variant opacity-80">Calculate your GWA from different contexts to stay on top of your academic standing.</p>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 border border-gray-200 rounded-3xl p-8 text-center">
-              <div className="w-16 h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+        {/* How It Works */}
+        <section className="py-32 bg-surface-container-low scroll-mt-24" id="how-it-works">
+          <div className="max-w-[1200px] mx-auto px-6">
+            <div className="mb-20">
+              <h2 className="text-4xl font-black tracking-tight mb-2 uppercase">Simple Steps to Track Your Academic Success</h2>
+              <div className="w-24 h-2 bg-primary-container"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+              <div className="relative">
+                <span className="text-8xl font-black text-on-surface/5 absolute -top-10 -left-4">01</span>
+                <div className="relative z-10">
+                  <h4 className="text-xl font-bold mb-4">Input Your Courses</h4>
+                  <p className="text-on-surface-variant">Add your subjects and define grading criteria including course assessments like quizzes, activities, projects, and term exams with their weight percentages.</p>
+                </div>
+              </div>
+              <div className="relative">
+                <span className="text-8xl font-black text-on-surface/5 absolute -top-10 -left-4">02</span>
+                <div className="relative z-10">
+                  <h4 className="text-xl font-bold mb-4">Record Your Grades</h4>
+                  <p className="text-on-surface-variant">Enter your scores for completed assessments. The system automatically calculates your current subject grade based on weighted components.</p>
+                </div>
+              </div>
+              <div className="relative">
+                <span className="text-8xl font-black text-on-surface/5 absolute -top-10 -left-4">03</span>
+                <div className="relative z-10">
+                  <h4 className="text-xl font-bold mb-4">Get Predictions</h4>
+                  <p className="text-on-surface-variant">For upcoming assessments, Gradient predicts the minimum score you need to pass the subject or reach your target grade.</p>
+                </div>
+              </div>
+              <div className="relative">
+                <span className="text-8xl font-black text-on-surface/5 absolute -top-10 -left-4">04</span>
+                <div className="relative z-10">
+                  <h4 className="text-xl font-bold mb-4">Monitor & Improve</h4>
+                  <p className="text-on-surface-variant">View your term GPA, academic year GWA, and running totals. Get personalized recommendations on which areas to focus on for improvement.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* User Segments */}
+        <section className="py-32 px-6">
+          <div className="max-w-[1200px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="p-8 border border-outline-variant/30 rounded-lg hover:bg-surface-container-high transition-colors">
+                <span className="material-symbols-outlined text-primary text-4xl mb-6">school</span>
+                <h4 className="text-xl font-bold mb-3 uppercase">Students</h4>
+                <p className="text-on-surface-variant">From elementary to college level, track your academic progress effectively.</p>
+              </div>
+              <div className="p-8 border border-outline-variant/30 rounded-lg hover:bg-surface-container-high transition-colors">
+                <span className="material-symbols-outlined text-primary text-4xl mb-6">work</span>
+                <h4 className="text-xl font-bold mb-3 uppercase">Professionals</h4>
+                <p className="text-on-surface-variant">Monitor grades in courses or certifications with cumulative grading systems.</p>
+              </div>
+              <div className="p-8 border border-outline-variant/30 rounded-lg hover:bg-surface-container-high transition-colors">
+                <span className="material-symbols-outlined text-primary text-4xl mb-6">auto_stories</span>
+                <h4 className="text-xl font-bold mb-3 uppercase">Lifelong Learners</h4>
+                <p className="text-on-surface-variant">Anyone committed to tracking and improving their educational performance.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section className="py-32 bg-on-background text-white overflow-hidden scroll-mt-24" id="about">
+          <div className="max-w-[1200px] mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
+              <div className="space-y-12">
+                <div>
+                  <h2 className="text-3xl font-black mb-6 uppercase text-primary-container">The Challenge</h2>
+                  <p className="text-xl text-surface-variant leading-relaxed opacity-90">
+                    Students often face difficulties in monitoring their academic performance due to ambiguous grade records, varied grading systems, and the lack of predictive tools. Gradient creates a unified source of truth.
+                  </p>
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black mb-6 uppercase text-primary-container">Our Solution</h2>
+                  <p className="text-xl text-surface-variant leading-relaxed opacity-90">
+                    Gradient is an Academic Tracker system that enables students to track their academic performance from the subject level to their final graduation standing. We provide automatic grade calculation and predictive scoring.
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="aspect-square bg-surface-container-highest/10 rounded-2xl p-4 overflow-hidden relative">
+                  <Image 
+                    className="w-full h-full object-cover rounded-xl" 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxOEMFMb8p005mCfy55W0Ka_CL4p9KogGVrZCplWmZKcw9whh5PDu6RMUaCkFDhqWGc4IfT4aZPCf_3rwVyq4qxKz39fLgkuqmpCekct-ANXdm5XSbQs5zKmW9Jgcmelt78S1jWHq-IMqKvrayBwpghtu5Kp4RrAxPQg8-cqRdFV3emyaWcORYYtrgxuICRubqmt4SE5y574w3gzGQdul5ukV_gO-2mGLmesNUH56YL6wy_mk3H2ejjZaiKsX3WxHgGuyh8C3CZfLn" 
+                    alt="Study Setup"
+                    fill
                   />
-                </svg>
+                </div>
+                <div className="absolute -bottom-8 -left-8 bg-primary-container p-8 rounded-lg shadow-2xl">
+                  <div className="text-on-primary-container font-black text-4xl">98%</div>
+                  <div className="text-on-primary-container/80 font-bold uppercase text-xs tracking-widest">Accuracy in Grade Predictions</div>
+                </div>
               </div>
-              <h4 className="mb-3">Students</h4>
-              <p className="text-gray-600">
-                From elementary to college level, track your academic progress
-                effectively.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 border border-gray-200 rounded-3xl p-8 text-center">
-              <div className="w-16 h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h4 className="mb-3">Professionals</h4>
-              <p className="text-gray-600">
-                Monitor grades in courses or certifications with cumulative
-                grading systems.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 border border-gray-200 rounded-3xl p-8 text-center">
-              <div className="w-16 h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
-              <h4 className="mb-3">Lifelong Learners</h4>
-              <p className="text-gray-600">
-                Anyone committed to tracking and improving their educational
-                performance.
-              </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      <CallToAction/>
+      <CallToAction />
       <Footer />
     </div>
   );
