@@ -470,11 +470,11 @@ export default function CourseDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-surface">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading course details...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-on-surface-variant font-medium">Synchronizing Academic Records...</p>
             </div>
           </div>
       </div>
@@ -483,8 +483,18 @@ export default function CourseDetailPage() {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-lg font-medium">Course not found</p>
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4">
+        <div className="text-center space-y-6 max-w-md">
+            <div className="w-20 h-20 bg-surface-container-high rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="material-symbols-outlined text-4xl text-on-surface-variant">search_off</span>
+            </div>
+            <h1 className="text-2xl font-bold text-on-surface">Portfolio Link Not Detected</h1>
+            <p className="text-on-surface-variant font-medium leading-relaxed">The specific course entry you are attempting to access has been relocated or removed from your curriculum database.</p>
+            <button onClick={() => router.push("/courses")} className="text-primary font-bold hover:underline flex items-center gap-2 mx-auto transition-all">
+                <span className="material-symbols-outlined">arrow_back</span>
+                Return to Portfolio
+            </button>
+        </div>
       </div>
     );
   }
@@ -513,10 +523,9 @@ export default function CourseDetailPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-white">
-        <div className="flex flex-col lg:flex-row">
-          <main className="flex-1 p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12 ml-0 lg:ml-[325px] max-w-full pb-24 sm:pb-12">
-            <div className="max-w-3xl mx-auto w-full">
+      <div className="min-h-screen bg-surface">
+          <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-24 sm:pb-12">
+            <div className="max-w-4xl mx-auto w-full space-y-8">
               <CourseHeader
                 course={course}
                 courseColor={courseColor}
@@ -528,7 +537,7 @@ export default function CourseDetailPage() {
               />
 
               {showGradingSetup && (
-                <div className="mb-4 sm:mb-6">
+                <div className="animate-in slide-in-from-top-2 duration-300">
                   <GradingScaleSetup
                     courseId={courseId}
                     onSave={handleSaveGradingScale}
@@ -538,15 +547,18 @@ export default function CourseDetailPage() {
               )}
 
               {!hasGradingScale && !hasFinalGradeOnly && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-8">
-                  <p className="text-xs sm:text-sm md:text-base text-yellow-800">
-                    No grading scale configured. Please set up your grading
-                    scale to see GPA calculations.
-                  </p>
+                <div className="bg-primary-container/10 border border-primary/10 rounded-lg p-6 flex items-start gap-4">
+                  <span className="material-symbols-outlined text-primary">info</span>
+                  <div>
+                    <p className="text-sm font-bold text-on-primary-container uppercase tracking-wider mb-1">Configuration Required</p>
+                    <p className="text-sm text-on-surface-variant font-medium leading-relaxed">
+                        No grading scale established for this course. Initialize your grading metrics to unlock real-time GPA projections and tracking.
+                    </p>
+                  </div>
                 </div>
               )}
 
-              <div className="mb-4 sm:mb-8">
+              <div className="grid grid-cols-1 gap-8">
                 <GradeSummaryCard
                   targetGPA={targetGPA}
                   currentGPA={displayCurrentGPA ?? null}
@@ -558,22 +570,22 @@ export default function CourseDetailPage() {
               </div>
 
               {hasFinalGradeOnly && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-6 mb-4 sm:mb-8">
-                  <h3 className="text-sm sm:text-base md:text-lg font-medium text-blue-900 mb-2">
-                    Final Grade Set
-                  </h3>
-                  <p className="text-xs sm:text-sm md:text-base text-blue-800">
-                    This course has a final grade of{" "}
-                    <strong>{course.grade?.toFixed(2)}</strong> set directly. No
-                    assessment tracking is configured for this course.
+                <div className="bg-surface-container-high rounded-xl p-8 border border-outline-variant/10 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <span className="material-symbols-outlined text-primary">analytics</span>
+                    <h3 className="text-lg font-black text-on-surface uppercase tracking-tight">Direct Grade Entry Mode</h3>
+                  </div>
+                  <p className="text-on-surface-variant font-medium leading-relaxed max-w-2xl">
+                    This course portfolio utilizes a static final grade of <span className="font-black text-on-surface">{course.grade?.toFixed(2)}</span>. Dynamic assessment tracking is currently bypassed for this record.
                   </p>
                 </div>
               )}
 
               {!hasFinalGradeOnly && (
-                <>
+                <div className="space-y-12">
                   {lectureAssessments.length > 0 && (
-                    <div className="mb-4">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
                       <AssessmentGradeInput
                         title={`Lecture Assessments (${lecturePercentage}%)`}
                         assessments={lectureAssessments}
@@ -584,7 +596,7 @@ export default function CourseDetailPage() {
                   )}
 
                   {labAssessments.length > 0 && (
-                    <div className="mb-4">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
                       <AssessmentGradeInput
                         title={`Laboratory Assessments (${laboratoryPercentage}%)`}
                         assessments={labAssessments}
@@ -594,17 +606,16 @@ export default function CourseDetailPage() {
                     </div>
                   )}
 
-                  <div className="mb-4">
+                  <div className="pt-8 animate-in fade-in duration-700 delay-500">
                     <ActionButtons
                       onCalculate={handleCalculate}
                       onSave={handleSaveGrades}
                     />
                   </div>
-                </>
+                </div>
               )}
             </div>
           </main>
-        </div>
       </div>
 
       {showEditModal && course && (
