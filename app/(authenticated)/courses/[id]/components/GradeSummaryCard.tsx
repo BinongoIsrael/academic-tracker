@@ -44,7 +44,7 @@ export default function GradeSummaryCard({
         </div>
 
         {/* Final GPA Projection */}
-        <div className="bg-on-background p-8 rounded-lg relative overflow-hidden group">
+        <div className="bg-brand-dark p-8 rounded-lg relative overflow-hidden group shadow-lg">
           <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-white opacity-5 text-7xl rotate-12 group-hover:scale-110 transition-transform">analytics</span>
           <div className="relative z-10">
             <p className="text-[10px] font-black uppercase text-white/40 mb-2 tracking-widest">Projected Grade</p>

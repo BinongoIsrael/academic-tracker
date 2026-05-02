@@ -25,14 +25,14 @@ export default function GWAResults({
       </div>
 
       {/* Total GWA Card */}
-      <div className="relative overflow-hidden bg-on-surface p-10 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.1)] group">
+      <div className="relative overflow-hidden bg-brand-dark p-10 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.1)] group">
         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
           <span className="material-symbols-outlined text-9xl text-white">
             analytics
           </span>
         </div>
         <div className="relative z-10">
-          <span className="inline-block px-3 py-1 bg-surface-container-highest/20 text-surface-container-lowest text-xs font-bold uppercase tracking-widest rounded-sm mb-6">
+          <span className="inline-block px-3 py-1 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-sm mb-6 border border-white/10">
             Total Curriculum
           </span>
           <div className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-2">

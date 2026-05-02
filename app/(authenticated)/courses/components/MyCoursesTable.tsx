@@ -62,7 +62,7 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
             <h4 className="text-4xl font-black text-on-primary-container">{averageGPA.toFixed(2)}</h4>
           </div>
         </div>
-        <div className="bg-on-background p-6 rounded-lg relative overflow-hidden group">
+        <div className="bg-brand-dark p-6 rounded-lg relative overflow-hidden group shadow-lg">
           <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-white opacity-10 text-7xl rotate-12 group-hover:scale-125 transition-transform duration-500">analytics</span>
           <div className="relative z-10">
             <p className="text-[10px] font-black uppercase text-white/60 mb-1">Total Units</p>

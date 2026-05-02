@@ -48,7 +48,7 @@ export default function CourseAssessmentSection({
                   onUpdate(index, "assessment_name", e.target.value)
                 }
                 placeholder="Midterm Exams"
-                className="w-full h-10 px-3 bg-white border border-black/10 rounded-sm text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary font-medium"
+                className="w-full h-10 px-3 bg-surface border border-outline-variant/30 rounded-sm text-base placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary font-medium text-on-surface"
               />
             </div>
             <div className="md:col-span-3">
@@ -58,7 +58,7 @@ export default function CourseAssessmentSection({
                 onChange={(e) => onUpdate(index, "occurrences", e.target.value)}
                 placeholder="Qty"
                 min="1"
-                className="w-full h-10 px-3 bg-white border border-black/10 rounded-sm text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary font-medium"
+                className="w-full h-10 px-3 bg-surface border border-outline-variant/30 rounded-sm text-base placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary font-medium text-on-surface"
               />
             </div>
             <div className="md:col-span-3">
@@ -70,9 +70,9 @@ export default function CourseAssessmentSection({
                     onUpdate(index, "percentage", e.target.value)
                   }
                   placeholder="25"
-                  className="w-full h-10 px-3 pr-8 bg-white border border-black/10 rounded-sm text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary font-medium"
+                  className="w-full h-10 px-3 pr-8 bg-surface border border-outline-variant/30 rounded-sm text-base placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary font-medium text-on-surface"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium">
                   %
                 </span>
               </div>

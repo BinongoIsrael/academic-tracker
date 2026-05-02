@@ -233,7 +233,7 @@ export default function CreateCourseModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
       <div 
-        className="fixed inset-0 bg-on-background/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-brand-dark/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       

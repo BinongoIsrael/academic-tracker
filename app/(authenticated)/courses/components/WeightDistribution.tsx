@@ -25,7 +25,7 @@ export default function WeightDistribution({
               value={lecturePercentage}
               onChange={(e) => onLecturePercentageChange(e.target.value)}
               placeholder="70"
-              className="w-full bg-surface-container-lowest border border-black/10 rounded-sm py-2 px-3 focus:ring-2 focus:ring-primary font-semibold"
+              className="w-full bg-surface border border-outline-variant/30 rounded-sm py-2 px-3 focus:ring-2 focus:ring-primary font-semibold text-on-surface"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium">%</span>
           </div>
@@ -38,7 +38,7 @@ export default function WeightDistribution({
               value={laboratoryPercentage}
               onChange={(e) => onLaboratoryPercentageChange(e.target.value)}
               placeholder="30"
-              className="w-full bg-surface-container-lowest border border-black/10 rounded-sm py-2 px-3 focus:ring-2 focus:ring-primary font-semibold"
+              className="w-full bg-surface border border-outline-variant/30 rounded-sm py-2 px-3 focus:ring-2 focus:ring-primary font-semibold text-on-surface"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium">%</span>
           </div>
@@ -46,7 +46,7 @@ export default function WeightDistribution({
       </div>
       
       {!isInvalid && (
-        <div className="mt-4 h-3 w-full bg-surface-container-lowest rounded-sm overflow-hidden flex shadow-inner border border-black/5">
+        <div className="mt-4 h-3 w-full bg-surface-container-high rounded-sm overflow-hidden flex shadow-inner border border-outline-variant/10">
           <div className="h-full bg-primary transition-all duration-500" style={{ width: `${lecturePercentage}%` }}></div>
           <div className="h-full bg-secondary transition-all duration-500" style={{ width: `${laboratoryPercentage}%` }}></div>
         </div>
