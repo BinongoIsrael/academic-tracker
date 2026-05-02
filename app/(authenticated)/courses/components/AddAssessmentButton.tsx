@@ -7,10 +7,11 @@ export default function AddAssessmentButton({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-4 py-2 bg-brand-green border border-black rounded-[30px] text-sm font-medium hover:bg-green-light transition-colors"
+      type="button"
+      className="flex items-center gap-1 text-primary text-sm font-bold hover:underline transition-all"
     >
-      <Plus className="w-4 h-4" />
-      Add Assessment
+      <span className="material-symbols-outlined text-sm">add_circle</span>
+      ADD ASSESSMENT
     </button>
   );
 }

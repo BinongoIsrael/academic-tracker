@@ -50,7 +50,7 @@ export default function CoursesCard({ courses = [] }: CoursesCardProps) {
             <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="h-9 px-3 border border-outline-variant/30 rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none text-[10px] font-bold uppercase tracking-widest bg-white cursor-pointer"
+                className="h-9 px-3 border border-outline-variant/30 rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none text-[10px] font-bold uppercase tracking-widest bg-white cursor-pointer custom-select pr-10"
             >
                 <option value="course_name-asc">Name (A-Z)</option>
                 <option value="course_name-desc">Name (Z-A)</option>

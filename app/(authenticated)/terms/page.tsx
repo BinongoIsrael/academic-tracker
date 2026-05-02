@@ -263,13 +263,18 @@ export default function TermsPage() {
     router.push(`/courses?term=${termId}`);
   };
 
+  const activeTermsCount = terms.filter(t => t.isActive).length;
+  const totalTermsCount = terms.length;
+  const termsWithGpa = terms.filter(t => t.gpa !== null).length;
+  const completionRate = totalTermsCount > 0 ? Math.round((termsWithGpa / totalTermsCount) * 100) : 0;
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-white pb-20 lg:pb-8">
+      <div className="min-h-screen bg-surface pb-20 lg:pb-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading terms...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-on-surface-variant">Loading academic terms...</p>
             </div>
           </div>
       </div>
@@ -277,11 +282,46 @@ export default function TermsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 lg:pb-8">
-      <main className="w-full max-w-[1024px] lg:ml-[325px] pt-6 lg:pt-[30px] px-4 sm:px-8 lg:px-12 pb-8">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-black mb-8 lg:mb-12">
-          Academic Terms
-        </h1>
+    <div className="min-h-screen bg-surface pb-20 lg:pb-8">
+      <main className="w-full max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-8">
+        <header className="mb-12">
+          <h1 className="text-dashboard-title text-on-surface mb-2">
+            Terms Management
+          </h1>
+          <p className="text-body-large text-on-surface-variant">
+            Manage your academic lifecycle and track progress across semesters.
+          </p>
+        </header>
+
+        {/* Dashboard Summary Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.06)] border border-outline-variant/10">
+            <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-2">Active Terms</div>
+            <div className="text-3xl font-bold text-on-surface">{activeTermsCount.toString().padStart(2, '0')}</div>
+            <div className="mt-2 text-xs text-secondary font-semibold flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">trending_up</span>
+              In-Progress
+            </div>
+          </div>
+          <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.06)] border border-outline-variant/10">
+            <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-2">Total Records</div>
+            <div className="text-3xl font-bold text-on-surface">{totalTermsCount.toString().padStart(2, '0')}</div>
+            <div className="mt-2 text-xs text-on-surface-variant font-medium">Academic History</div>
+          </div>
+          <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.06)] border border-outline-variant/10">
+            <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-2">Completion Rate</div>
+            <div className="text-3xl font-bold text-on-surface">{completionRate}%</div>
+            <div className="mt-2 text-xs text-primary font-semibold flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">check_circle</span>
+              On Track
+            </div>
+          </div>
+          <div className="bg-primary-container p-6 rounded-lg shadow-[4px_4px_0px_#191A23] border border-on-surface">
+            <div className="text-[10px] uppercase tracking-widest text-on-primary-container font-bold mb-2">Next Deadline</div>
+            <div className="text-lg font-bold text-on-primary-container">Term Grading</div>
+            <div className="mt-2 text-xs text-on-primary-container font-bold">Stay Updated</div>
+          </div>
+        </div>
 
         <CreateNewTerm onCreateTerm={handleCreateTerm} />
 

@@ -4,15 +4,16 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Assessment, Course, Term } from "@/types";
-import CreateCourseForm from "./components/CreateCourseForm";
 import MyCoursesTable from "./components/MyCoursesTable";
 import Toast from "../components/Toast";
+import CreateCourseModal from "./components/CreateCourseModal";
 
 export default function CoursesPage() {
   const router = useRouter();
   const [terms, setTerms] = useState<Term[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -248,11 +249,11 @@ export default function CoursesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-surface">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading courses...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-on-surface-variant">Loading academic portfolio...</p>
             </div>
           </div>
       </div>
@@ -261,18 +262,46 @@ export default function CoursesPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-white">
-        <div className="flex">
-          <main className="flex-1 p-4 sm:p-8 lg:p-12 ml-0 lg:ml-[325px]">
-            <h1 className="text-3xl sm:text-4xl lg:text-[48px] font-bold leading-tight tracking-[-0.012em] mb-6 sm:mb-8">
-              Course
-            </h1>
+      <div className="min-h-screen bg-surface">
+        <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-12">
+          <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-dashboard-title text-on-surface mb-2">
+                Academic Portfolio
+              </h1>
+              <p className="text-body-large text-on-surface-variant max-w-xl">
+                Curate and manage your academic trajectory. Define course structures, assessment metrics, and track performance indicators.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-8 py-3 bg-primary text-on-primary rounded font-bold text-sm hover:shadow-[4px_4px_0px_#191A23] transition-all flex items-center justify-center gap-2 shrink-0"
+            >
+              REGISTER NEW COURSE
+              <span className="material-symbols-outlined text-lg">add</span>
+            </button>
+          </header>
 
-            <CreateCourseForm terms={terms} onSubmit={handleCreateCourse} />
+          <div className="space-y-12">
             <MyCoursesTable courses={courses} />
-          </main>
-        </div>
+          </div>
+        </main>
+
+        {/* Mobile Floating Action Button */}
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="md:hidden fixed right-6 bottom-24 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center z-40 animate-in slide-in-from-bottom-10 duration-300"
+        >
+          <span className="material-symbols-outlined text-3xl">add</span>
+        </button>
       </div>
+
+      <CreateCourseModal 
+        terms={terms} 
+        onSubmit={handleCreateCourse} 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+      />
 
       {toast && (
         <Toast

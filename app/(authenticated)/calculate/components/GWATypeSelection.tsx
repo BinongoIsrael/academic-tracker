@@ -57,7 +57,7 @@ export default function GWATypeSelection({
           <select
             value={selectedTermId}
             onChange={(e) => setSelectedTermId(e.target.value)}
-            className="w-full px-3 py-2 border border-black rounded-md bg-white text-base appearance-none cursor-pointer disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed"
+            className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold text-sm sm:text-base custom-select appearance-none cursor-pointer disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed"
             disabled={isSpecificTermSelectionDisabled || loadingTerms || !!termsError || terms.length === 0}
           >
             <option value="">Select a Term</option>
@@ -67,7 +67,6 @@ export default function GWATypeSelection({
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-slate-400" />
         </div>
         {terms.length === 0 && !loadingTerms && !termsError && (
           <p className="text-sm text-slate-500 mt-2">No terms available. Please add a term first.</p>
