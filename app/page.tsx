@@ -85,14 +85,14 @@ export default function Home() {
               <p className="text-on-surface-variant">Predict the minimum score required to pass a subject or reach your target GPA.</p>
             </div>
             {/* GWA & Recommendation */}
-            <div className="md:col-span-8 bg-on-background text-white p-10 rounded-xl grid md:grid-cols-2 gap-8 neo-shadow-hover transition-all">
+            <div className="md:col-span-8 bg-brand-dark text-white p-10 rounded-xl grid md:grid-cols-2 gap-8 neo-shadow-hover transition-all">
               <div className="flex flex-col justify-center">
-                <h3 className="text-2xl font-bold mb-4 text-primary-container">Recommendation System</h3>
-                <p className="text-surface-variant opacity-80">Personalized advice on what to focus on based on your current performance.</p>
+                <h3 className="text-2xl font-bold mb-4 text-brand-green">Recommendation System</h3>
+                <p className="text-zinc-400">Personalized advice on what to focus on based on your current performance.</p>
               </div>
               <div className="flex flex-col justify-center border-l border-white/10 pl-8">
-                <h3 className="text-2xl font-bold mb-4 text-primary-container">GWA Calculator</h3>
-                <p className="text-surface-variant opacity-80">Calculate your GWA from different contexts to stay on top of your academic standing.</p>
+                <h3 className="text-2xl font-bold mb-4 text-brand-green">GWA Calculator</h3>
+                <p className="text-zinc-400">Calculate your GWA from different contexts to stay on top of your academic standing.</p>
               </div>
             </div>
           </div>
@@ -162,19 +162,19 @@ export default function Home() {
         </section>
 
         {/* About Section */}
-        <section className="py-32 bg-on-background text-white overflow-hidden scroll-mt-24" id="about">
+        <section className="py-32 bg-surface-dim text-on-surface overflow-hidden scroll-mt-24" id="about">
           <div className="max-w-[1200px] mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
               <div className="space-y-12">
                 <div>
-                  <h2 className="text-3xl font-black mb-6 uppercase text-primary-container">The Challenge</h2>
-                  <p className="text-xl text-surface-variant leading-relaxed opacity-90">
+                  <h2 className="text-3xl font-black mb-6 uppercase text-primary">The Challenge</h2>
+                  <p className="text-xl text-on-surface-variant leading-relaxed opacity-90">
                     Students often face difficulties in monitoring their academic performance due to ambiguous grade records, varied grading systems, and the lack of predictive tools. Gradient creates a unified source of truth.
                   </p>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black mb-6 uppercase text-primary-container">Our Solution</h2>
-                  <p className="text-xl text-surface-variant leading-relaxed opacity-90">
+                  <h2 className="text-3xl font-black mb-6 uppercase text-primary">Our Solution</h2>
+                  <p className="text-xl text-on-surface-variant leading-relaxed opacity-90">
                     Gradient is an Academic Tracker system that enables students to track their academic performance from the subject level to their final graduation standing. We provide automatic grade calculation and predictive scoring.
                   </p>
                 </div>

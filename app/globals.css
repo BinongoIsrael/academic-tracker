@@ -7,16 +7,18 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 231 15% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 231 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --popover-foreground: 231 15% 12%;
 
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 84 100% 21%;
+    --on-primary: 0 0% 100%;
+    --primary-container: 84 100% 70%;
+    --on-primary-container: 84 100% 23%;
 
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -30,25 +32,42 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 89.8%;
+    --border: 0 0% 90%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --ring: 84 100% 21%;
 
     --radius: 0.5rem;
+
+    --surface: 260 100% 99%;
+    --surface-dim: 240 5% 90%;
+    --surface-bright: 260 100% 99%;
+    --on-surface: 231 15% 12%;
+    --on-surface-variant: 84 10% 25%;
+    
+    --surface-container-lowest: 0 0% 100%;
+    --surface-container-low: 250 100% 98%;
+    --surface-container: 247 43% 95%;
+    --surface-container-high: 246 29% 93%;
+    --surface-container-highest: 244 19% 91%;
+
+    --outline: 84 9% 44%;
+    --outline-variant: 84 18% 74%;
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 231 15% 4%;
+    --foreground: 231 15% 90%;
 
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 231 15% 4%;
+    --card-foreground: 231 15% 90%;
 
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 231 15% 4%;
+    --popover-foreground: 231 15% 90%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 84 100% 70%;
+    --on-primary: 84 100% 5%;
+    --primary-container: 84 100% 15%;
+    --on-primary-container: 84 100% 85%;
 
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -62,9 +81,24 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 231 15% 15%;
+    --input: 231 15% 15%;
+    --ring: 84 100% 70%;
+
+    --surface: 231 15% 4%;
+    --surface-dim: 231 15% 6%;
+    --surface-bright: 231 15% 15%;
+    --on-surface: 231 15% 90%;
+    --on-surface-variant: 84 10% 75%;
+    
+    --surface-container-lowest: 231 15% 2%;
+    --surface-container-low: 231 15% 6%;
+    --surface-container: 231 15% 8%;
+    --surface-container-high: 231 15% 10%;
+    --surface-container-highest: 231 15% 12%;
+
+    --outline: 84 9% 60%;
+    --outline-variant: 84 18% 30%;
   }
 }
 

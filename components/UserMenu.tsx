@@ -44,19 +44,19 @@ export default function UserMenu({ user }: UserMenuProps) {
           />
           <div className="absolute right-0 mt-3 w-64 bg-surface border border-outline-variant/20 rounded-xl shadow-[0_20px_40px_rgba(26,27,36,0.08)] z-20 py-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="px-4 py-3 border-b border-outline-variant/10">
-              <p className="text-sm font-bold text-zinc-900 truncate">
+              <p className="text-sm font-bold text-on-surface truncate">
                 {user.user_metadata?.full_name || "Student"}
               </p>
-              <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
+              <p className="text-xs text-on-surface-variant truncate mt-0.5">{user.email}</p>
             </div>
             
             <div className="py-2">
               <Link
                 href="/settings"
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:text-zinc-900 hover:bg-slate-50 transition-colors"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <span className="material-symbols-outlined text-lg text-slate-400">settings</span>
+                <span className="material-symbols-outlined text-lg text-on-surface-variant/60">settings</span>
                 Profile Settings
               </Link>
               

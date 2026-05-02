@@ -32,9 +32,9 @@ export default function GWATypeSelection({
               setSelectedTermId("");
             }}
           />
-          <div className="h-full p-6 bg-surface-container-low rounded-lg border-2 border-transparent peer-checked:border-primary peer-checked:bg-white shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="h-full p-6 bg-surface-container-low rounded-lg border-2 border-transparent peer-checked:border-primary peer-checked:bg-surface shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-white rounded-md shadow-sm">
+              <div className="p-3 bg-surface rounded-md shadow-sm">
                 <span className="material-symbols-outlined text-primary">layers</span>
               </div>
               <div className="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center">
@@ -55,9 +55,9 @@ export default function GWATypeSelection({
             checked={selectionType === "specific"}
             onChange={() => setSelectionType("specific")}
           />
-          <div className="h-full p-6 bg-surface-container-low rounded-lg border-2 border-transparent peer-checked:border-primary peer-checked:bg-white shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="h-full p-6 bg-surface-container-low rounded-lg border-2 border-transparent peer-checked:border-primary peer-checked:bg-surface shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-white rounded-md shadow-sm">
+              <div className="p-3 bg-surface rounded-md shadow-sm">
                 <span className="material-symbols-outlined text-primary">calendar_today</span>
               </div>
               <div className="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center">
@@ -76,7 +76,7 @@ export default function GWATypeSelection({
           <select
             value={selectedTermId}
             onChange={(e) => setSelectedTermId(e.target.value)}
-            className="w-full bg-white border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 focus:outline-none rounded-lg py-4 px-6 font-semibold text-on-surface custom-select appearance-none cursor-pointer disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed"
+            className="w-full bg-surface border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 focus:outline-none rounded-lg py-4 px-6 font-semibold text-on-surface custom-select appearance-none cursor-pointer disabled:bg-surface-dim disabled:text-on-surface-variant/50 disabled:cursor-not-allowed"
             disabled={isSpecificTermSelectionDisabled || loadingTerms || !!termsError || terms.length === 0}
           >
             <option value="">Select an Academic Term</option>

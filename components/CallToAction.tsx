@@ -14,7 +14,7 @@ export default function CallToAction() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/signup"
-            className="px-10 py-4 bg-on-background text-white rounded font-black text-lg neo-shadow-hover transition-all"
+            className="px-10 py-4 bg-brand-dark text-white rounded font-black text-lg neo-shadow-hover transition-all"
           >
             Get Started Now
           </Link>

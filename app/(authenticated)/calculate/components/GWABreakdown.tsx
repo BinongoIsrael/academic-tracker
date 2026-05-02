@@ -109,7 +109,7 @@ export default function GWABreakdown({
 
       {/* Legend / Note Area */}
       <div className="mt-8 flex flex-col md:flex-row gap-8">
-        <div className="flex-1 bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
+        <div className="flex-1 bg-surface-container-low p-6 rounded-lg shadow-sm border-l-4 border-primary">
           <h4 className="font-bold text-on-surface mb-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">info</span>
             Calculation Logic
@@ -118,7 +118,7 @@ export default function GWABreakdown({
             GWA is calculated by multiplying the grade by the number of units, then dividing the sum of the weighted points by the total number of units (excluding non-weighted courses like PE or NSTP).
           </p>
         </div>
-        <div className="flex-1 bg-white p-6 rounded-lg shadow-sm border-l-4 border-on-surface">
+        <div className="flex-1 bg-surface-container-low p-6 rounded-lg shadow-sm border-l-4 border-on-surface">
           <h4 className="font-bold text-on-surface mb-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">priority_high</span>
             Requirement Warning
