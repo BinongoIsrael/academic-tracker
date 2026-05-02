@@ -373,7 +373,7 @@ export default function EditCourseModal({
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
                 required
-                className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
               />
             </div>
 
@@ -386,7 +386,7 @@ export default function EditCourseModal({
                   value={termId}
                   onChange={(e) => setTermId(e.target.value)}
                   required
-                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                 >
                   {terms
                     .sort((a, b) => {
@@ -423,7 +423,7 @@ export default function EditCourseModal({
                   value={courseType}
                   onChange={(e) => setCourseType(e.target.value)}
                   required
-                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                 >
                   <option value="Academic">Academic</option>
                   <option value="Non-Academic">Non-Academic</option>
@@ -443,7 +443,7 @@ export default function EditCourseModal({
                   required
                   step="1"
                   min="0"
-                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                 />
               </div>
 
@@ -458,7 +458,7 @@ export default function EditCourseModal({
                   step="0.05"
                   min="1"
                   max="5"
-                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                 />
               </div>
             </div>
@@ -497,7 +497,7 @@ export default function EditCourseModal({
                         min="0"
                         max="100"
                         step="1"
-                        className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                        className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                       />
                       <span className="text-sm font-medium">%</span>
                     </div>
@@ -517,7 +517,7 @@ export default function EditCourseModal({
                         min="0"
                         max="100"
                         step="1"
-                        className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                        className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                       />
                       <span className="text-sm font-medium">%</span>
                     </div>
@@ -547,7 +547,7 @@ export default function EditCourseModal({
                         })
                       }
                       placeholder="e.g., Quiz, Exam, Project"
-                      className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                     />
                   </div>
 
@@ -565,7 +565,7 @@ export default function EditCourseModal({
                             | "Laboratory",
                         })
                       }
-                      className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                     >
                       <option value="Lecture">Lecture</option>
                       {courseStructure === "Lecture + Laboratory" && (
@@ -591,7 +591,7 @@ export default function EditCourseModal({
                       min="0"
                       max="100"
                       step="0.01"
-                      className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                     />
                   </div>
 
@@ -610,7 +610,7 @@ export default function EditCourseModal({
                       }
                       min="1"
                       step="1"
-                      className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                     />
                   </div>
                 </div>

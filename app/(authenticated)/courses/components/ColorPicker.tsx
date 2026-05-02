@@ -31,16 +31,16 @@ export default function ColorPicker({
 }: ColorPickerProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-900 mb-2">
-        Course Color
+      <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">
+        Course Identity Color
       </label>
-      <div className="grid grid-cols-9 gap-2">
+      <div className="grid grid-cols-9 sm:grid-cols-9 gap-2">
         {VIBRANT_COLORS.map((color) => (
           <button
             key={color.value}
             type="button"
             onClick={() => onColorChange(color.value)}
-            className={`w-10 h-10 rounded-full transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green ${
+            className={`w-10 h-10 rounded-sm transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
               selectedColor === color.value
                 ? "ring-2 ring-offset-2 ring-black scale-110"
                 : ""
