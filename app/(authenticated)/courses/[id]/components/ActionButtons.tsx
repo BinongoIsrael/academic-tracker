@@ -1,26 +1,24 @@
 import { ActionButtonsProps } from "@/types";
-import { Calculator } from "lucide-react";
 
 export default function ActionButtons({
   onCalculate,
   onSave,
 }: ActionButtonsProps) {
   return (
-    <div className="flex flex-col xs:flex-row justify-end gap-3 xs:gap-4 mt-6 sm:mt-8 w-full">
+    <div className="flex flex-col sm:flex-row justify-end items-center gap-4 w-full">
       <button
         onClick={onCalculate}
-        className="flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white border border-black text-black rounded-[20px] font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base w-full xs:w-auto"
+        className="w-full sm:w-auto px-8 py-3.5 bg-surface-container-high text-on-surface rounded font-bold text-sm hover:bg-surface-container-highest transition-all flex items-center justify-center gap-2 active:scale-95 border border-outline-variant/10 shadow-sm"
       >
-        <Calculator className="w-5 h-5" />
-        <span className="hidden xs:inline">Calculate</span>
-        <span className="inline xs:hidden">Calculate</span>
+        <span className="material-symbols-outlined text-lg">calculate</span>
+        SYNC CALCULATIONS
       </button>
       <button
         onClick={onSave}
-        className="px-4 py-2 sm:px-6 sm:py-3 bg-brand-dark text-white rounded-[20px] font-medium hover:bg-opacity-90 transition-colors text-sm sm:text-base w-full xs:w-auto"
+        className="w-full sm:w-auto px-10 py-4 bg-primary text-on-primary rounded font-bold text-sm hover:shadow-[4px_4px_0px_#191A23] transition-all flex items-center justify-center gap-2 active:translate-y-[2px]"
       >
-        <span className="hidden xs:inline">Save Grades</span>
-        <span className="inline xs:hidden">Save Grades</span>
+        <span className="material-symbols-outlined text-lg">save</span>
+        COMMIT ALL RECORDS
       </button>
     </div>
   );
