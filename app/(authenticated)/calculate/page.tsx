@@ -148,17 +148,16 @@ export default function GWACalculator() {
       const grade = parseFloat(String(course.grade ?? 0));
       const units = parseFloat(String(course.units ?? 0));
 
-      if (!isNaN(grade) && !isNaN(units) && units > 0 && grade !== 5.0) {
+      if (!isNaN(grade) && !isNaN(units) && units > 0) {
         const weightedGrade = grade * units;
 
         sumOfWeightedGrades_Total += weightedGrade;
         sumOfUnits_Total += units;
 
-        if (course.course_type === "Academic") {
+        if (course.course_type === "Academic" || course.course_type === "Major") {
           sumOfWeightedGrades_Academic += weightedGrade;
           sumOfUnits_Academic += units;
         }
-      } else {
       }
     }
 
@@ -179,57 +178,57 @@ export default function GWACalculator() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-          <div className="flex items-center justify-center h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading calculate...</p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-on-surface-variant font-medium">Quantifying Performance...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <main className="flex-1 p-4 sm:p-8 pt-8 sm:pt-8 pb-24 ml-0 lg:ml-[325px] max-w-full">
-        <div className="w-full">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6">Calculate GWA</h1>
+    <div className="min-h-screen bg-surface pb-20">
+      <main className="max-w-6xl mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-12">
+        {/* Page Header */}
+        <header className="mb-12">
+          <h1 className="text-dashboard-title text-on-surface mb-2">
+            Calculate GWA
+          </h1>
+          <p className="text-body-large text-on-surface-variant max-w-2xl">
+            Detailed academic performance tracking. Review your General Weighted Average across your entire curriculum or specific academic periods.
+          </p>
+        </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <GWATypeSelection
-              selectionType={selectionType}
-              setSelectionType={setSelectionType}
-              selectedTermId={selectedTermId}
-              setSelectedTermId={setSelectedTermId}
-              terms={terms}
-              loadingTerms={loadingTerms}
-              termsError={termsError}
-            />
+        <GWAResults academicGWA={academicGWA} totalGWA={totalGWA} />
 
-            <GWAResults
-              academicGWA={academicGWA}
-              totalGWA={totalGWA}
-            />
-          </div>
+        <GWATypeSelection
+          selectionType={selectionType}
+          setSelectionType={setSelectionType}
+          selectedTermId={selectedTermId}
+          setSelectedTermId={setSelectedTermId}
+          terms={terms}
+          loadingTerms={loadingTerms}
+          termsError={termsError}
+        />
 
-          <GWABreakdown
-            academicYear={
-                selectionType === "specific" && selectedTermId
-                ? terms.find(t => t.id === selectedTermId)?.academicYear ?? "N/A"
-                : selectionType === "all"
-                ? "All Academic Terms"
-                : ""
-            }
-            specificRange={
-                selectionType === "specific" && selectedTermId
-                ? terms.find(t => t.id === selectedTermId)?.semester ?? ""
-                : ""
-            }
-            courses={courses}
-          />
-        </div>
+        <GWABreakdown
+          academicYear={
+            selectionType === "specific" && selectedTermId
+              ? terms.find((t) => t.id === selectedTermId)?.academicYear ?? "N/A"
+              : selectionType === "all"
+              ? "All Academic Terms"
+              : ""
+          }
+          specificRange={
+            selectionType === "specific" && selectedTermId
+              ? terms.find((t) => t.id === selectedTermId)?.semester ?? ""
+              : ""
+          }
+          courses={courses}
+        />
       </main>
+
       {toast && (
         <Toast
           message={toast.message}

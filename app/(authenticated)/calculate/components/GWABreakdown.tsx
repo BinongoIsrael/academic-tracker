@@ -7,12 +7,16 @@ export default function GWABreakdown({
 }: GWABreakdownProps) {
   if (courses.length === 0) {
     return (
-      <div className="bg-white border-2 border-black rounded-[45px] p-8 shadow-[0_5px_0_#191A23] min-h-[470px]">
-        <h3 className="text-3xl font-medium mb-6">GWA Breakdown</h3>
-        <div className="text-center text-gray-400 mt-20">
-          <p>Select &quot;All Academic Terms&quot; or a specific term to view the calculation breakdown.</p>
+      <section>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
         </div>
-      </div>
+        <div className="bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 rounded-lg p-20 text-center">
+          <span className="material-symbols-outlined text-5xl text-outline-variant mb-4 opacity-20 block">search_off</span>
+          <h3 className="text-xl font-bold text-on-surface mb-2">Scope Initialization Pending</h3>
+          <p className="text-on-surface-variant max-w-xs mx-auto">Select &quot;All Academic Terms&quot; or a specific term to view the calculation breakdown.</p>
+        </div>
+      </section>
     );
   }
 
@@ -28,7 +32,7 @@ export default function GWABreakdown({
       const weightedGrade = grade * units;
       sumOfWeightedGrades_Total += weightedGrade;
       sumOfUnits_Total += units;
-      if (course.course_type === "Academic") {
+      if (course.course_type === "Academic" || course.course_type === "Major") {
         sumOfWeightedGrades_Academic += weightedGrade;
         sumOfUnits_Academic += units;
       }
@@ -45,69 +49,85 @@ export default function GWABreakdown({
       : "N/A";
 
   return (
-    <div className="bg-white border-2 border-black rounded-[45px] p-6 sm:p-8 shadow-[0_5px_0_#191A23]">
-      <h3 className="text-2xl sm:text-3xl font-medium mb-1">GWA Breakdown</h3>
-      <p className="text-slate-500 mb-6">{academicYear} {specificRange}</p>
+    <section>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
+        <button className="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest rounded-md text-sm font-semibold transition-colors">
+          <span className="material-symbols-outlined text-sm">download</span>
+          Export PDF
+        </button>
+      </div>
 
-      <div className="overflow-x-auto mb-6">
-        <table className="w-full min-w-[600px] text-sm text-left">
-          <thead className="bg-slate-50 border-b">
-            <tr>
-              <th className="p-3 font-medium text-slate-600">Course Name</th>
-              <th className="p-3 font-medium text-slate-600 text-center">Grade</th>
-              <th className="p-3 font-medium text-slate-600 text-center">Units</th>
-              <th className="p-3 font-medium text-slate-600 text-center">Weighted Grade</th>
-              <th className="p-3 font-medium text-slate-600">Type</th>
+      <div className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-surface-container-low border-b border-outline-variant/10">
+              <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Code</th>
+              <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Title</th>
+              <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-center">Units</th>
+              <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-center">Grade</th>
+              <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-right">Weighted Point</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-outline-variant/10">
             {courses.map((course) => {
-              const grade = parseFloat(String(course.grade ?? 0));
-              const units = parseFloat(String(course.units ?? 0));
-              const weightedGrade = (!isNaN(grade) && !isNaN(units)) ? (grade * units).toFixed(2) : "N/A";
+               const grade = parseFloat(String(course.grade ?? 0));
+               const units = parseFloat(String(course.units ?? 0));
+               const weightedGrade = (!isNaN(grade) && !isNaN(units)) ? (grade * units).toFixed(2) : "0.00";
 
-              return (
-                <tr key={course.id} className="border-b last:border-0">
-                  <td className="p-3 font-medium text-slate-900">{course.course_name}</td>
-                  <td className="p-3 text-center">{course.grade?.toFixed(2) ?? "N/A"}</td>
-                  <td className="p-3 text-center">{course.units}</td>
-                  <td className="p-3 text-center">{weightedGrade}</td>
-                  <td className="p-3">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      course.course_type === "Academic"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
-                      {course.course_type ?? "N/A"}
+               return (
+                <tr key={course.id} className="hover:bg-surface-container-low transition-colors group">
+                  <td className="px-8 py-4 font-bold text-primary">{course.course_code || 'N/A'}</td>
+                  <td className="px-8 py-4 font-medium text-on-surface">{course.course_name}</td>
+                  <td className="px-8 py-4 text-center font-medium">{course.units.toFixed(1)}</td>
+                  <td className="px-8 py-4 text-center">
+                    <span className="inline-block px-2 py-1 bg-primary-container text-on-primary-container text-sm font-bold rounded-sm">
+                      {course.grade ? course.grade.toFixed(2) : "0.00"}
                     </span>
+                  </td>
+                  <td className="px-8 py-4 text-right font-mono font-bold">
+                    {weightedGrade}
                   </td>
                 </tr>
               );
             })}
           </tbody>
+          <tfoot>
+            <tr className="bg-surface-container-high font-bold border-t border-outline-variant/20">
+              <td className="px-8 py-6 text-on-surface text-lg" colSpan={2}>
+                Total Curriculum Weighted Average
+              </td>
+              <td className="px-8 py-6 text-center text-lg">{sumOfUnits_Total.toFixed(1)}</td>
+              <td className="px-8 py-6"></td>
+              <td className="px-8 py-6 text-right text-2xl text-primary tracking-tighter">
+                {finalTotalGWA}
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
-      <div className="border-t border-gray-200 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h4 className="font-medium text-slate-800 mb-2">Academic GWA Summary</h4>
-          <p className="text-sm text-slate-600">
-            Sum of Weighted Grades / Sum of Units
-          </p>
-          <p className="text-lg font-bold text-slate-900 mt-1">
-            {sumOfWeightedGrades_Academic.toFixed(2)} / {sumOfUnits_Academic} = {finalAcademicGWA}
+      {/* Legend / Note Area */}
+      <div className="mt-8 flex flex-col md:flex-row gap-8">
+        <div className="flex-1 bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
+          <h4 className="font-bold text-on-surface mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">info</span>
+            Calculation Logic
+          </h4>
+          <p className="text-sm text-on-surface-variant leading-relaxed">
+            GWA is calculated by multiplying the grade by the number of units, then dividing the sum of the weighted points by the total number of units (excluding non-weighted courses like PE or NSTP).
           </p>
         </div>
-        <div>
-          <h4 className="font-medium text-slate-800 mb-2">Total GWA Summary</h4>
-          <p className="text-sm text-slate-600">
-            Sum of Weighted Grades / Sum of Units
-          </p>
-          <p className="text-lg font-bold text-slate-900 mt-1">
-            {sumOfWeightedGrades_Total.toFixed(2)} / {sumOfUnits_Total} = {finalTotalGWA}
+        <div className="flex-1 bg-white p-6 rounded-lg shadow-sm border-l-4 border-on-surface">
+          <h4 className="font-bold text-on-surface mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">priority_high</span>
+            Requirement Warning
+          </h4>
+          <p className="text-sm text-on-surface-variant leading-relaxed">
+            Maintain a GWA of at least 1.75 to remain eligible for the University Scholarship. Review your &apos;Academic Goals&apos; for personalized targets.
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
