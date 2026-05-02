@@ -5,3 +5,4 @@ public/file.svg
 public/logo.png
 notes.txt
 .env.local
+tsconfig.tsbuildinfo
