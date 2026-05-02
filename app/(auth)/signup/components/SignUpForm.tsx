@@ -2,15 +2,36 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { signup, signInWithGoogle } from "@/lib/auth-actions";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { SignUpErrors } from "@/types";
+import { useFormStatus } from "react-dom";
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending || disabled}
+      className="w-full bg-primary-container text-on-primary-container py-4 rounded font-bold transition-all hover:translate-y-[-2px] active:scale-95 shadow-[4px_4px_0px_#191A23] hover:shadow-[6px_6px_0px_#191A23] mt-6 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+    >
+      {pending ? (
+        <>
+          <div className="w-5 h-5 border-2 border-on-primary-container/30 border-t-on-primary-container rounded-full animate-spin" />
+          Creating Account...
+        </>
+      ) : (
+        <>
+          Create Account
+          <span className="material-symbols-outlined text-lg">person_add</span>
+        </>
+      )}
+    </button>
+  );
+}
 
 export function SignUpForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,54 +39,20 @@ export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<SignUpErrors>({});
   const [serverError, setServerError] = useState("");
-
-  const validatePassword = (pwd: string) => {
-    const minLength = pwd.length >= 8;
-    const hasLowercase = /[a-z]/.test(pwd);
-    const hasUppercase = /[A-Z]/.test(pwd);
-    const hasDigit = /\d/.test(pwd);
-    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-
-    if (!minLength) {
-      return "Password must be at least 8 characters long";
-    }
-    if (!hasLowercase) {
-      return "Password must contain at least one lowercase letter";
-    }
-    if (!hasUppercase) {
-      return "Password must contain at least one uppercase letter";
-    }
-    if (!hasDigit) {
-      return "Password must contain at least one digit";
-    }
-    if (!hasSymbol) {
-      return "Password must contain at least one symbol (!@#$%^&*...)";
-    }
-    return null;
-  };
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const checkEmailExists = async (emailToCheck: string) => {
-    if (!emailToCheck || !emailToCheck.includes("@")) {
-      return;
-    }
-
+    if (!emailToCheck || !emailToCheck.includes("@")) return;
     setIsCheckingEmail(true);
     try {
       const response = await fetch("/api/check-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailToCheck }),
       });
-
       const data = await response.json();
-
       if (data.exists) {
-        setErrors((prev) => ({
-          ...prev,
-          email: "This email is already registered. Please sign in instead.",
-        }));
+        setErrors((prev) => ({ ...prev, email: "This email is already registered." }));
       } else {
         setErrors((prev) => ({ ...prev, email: undefined }));
       }
@@ -76,124 +63,93 @@ export function SignUpForm() {
     }
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newEmail = e.target.value;
-    setEmail(newEmail);
-    setErrors((prev) => ({ ...prev, email: undefined }));
-  };
-
-  const handleEmailBlur = () => {
-    checkEmailExists(email);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPassword = e.target.value;
-    setPassword(newPassword);
-
-    const error = validatePassword(newPassword);
-    setErrors((prev) => ({ ...prev, password: error || undefined }));
-  };
-
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const newConfirmPassword = e.target.value;
-    setConfirmPassword(newConfirmPassword);
-
-    if (newConfirmPassword && newConfirmPassword !== password) {
-      setErrors((prev) => ({
-        ...prev,
-        confirmPassword: "Passwords do not match",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
-    }
-  };
-
   const handleEmailSignup = async (formData: FormData) => {
-    setIsLoading(true);
     setServerError("");
-
-    const email = formData.get("email") as string;
     const pwd = formData.get("password") as string;
     const confirmPwd = formData.get("confirm-password") as string;
 
-    // Check email one more time before submission
-    await checkEmailExists(email);
-    if (errors.email) {
-      setIsLoading(false);
-      return;
-    }
-
-    const passwordError = validatePassword(pwd);
-    if (passwordError) {
-      setErrors((prev) => ({ ...prev, password: passwordError }));
-      setIsLoading(false);
-      return;
-    }
-
     if (pwd !== confirmPwd) {
-      setErrors((prev) => ({
-        ...prev,
-        confirmPassword: "Passwords do not match",
-      }));
-      setIsLoading(false);
+      setErrors((prev) => ({ ...prev, confirmPassword: "Passwords do not match" }));
       return;
     }
 
     const result = await signup(formData);
-
     if (result?.error) {
       setServerError(result.error);
-      setIsLoading(false);
+    } else if (result?.success) {
+      setIsSuccess(true);
     }
   };
 
+  const passwordChecks = [
+    { label: "At least 8 characters", valid: password.length >= 8 },
+    { label: "One lowercase letter", valid: /[a-z]/.test(password) },
+    { label: "One uppercase letter", valid: /[A-Z]/.test(password) },
+    { label: "One digit", valid: /\d/.test(password) },
+    { label: "One symbol (!@#$%^&*...)", valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+  ];
+
+  if (isSuccess) {
+    return (
+      <div className="w-full text-center py-12">
+        <div className="mb-8 w-20 h-20 bg-primary-container flex items-center justify-center rounded-full mx-auto">
+          <span className="material-symbols-outlined text-4xl text-on-primary-container">mail</span>
+        </div>
+        <h2 className="text-3xl font-bold text-on-surface tracking-tight mb-4">Check Your Email</h2>
+        <p className="text-on-surface-variant text-lg leading-relaxed mb-10 max-w-sm mx-auto">
+          We&apos;ve sent a confirmation link to <span className="font-bold text-primary">{email}</span>. 
+          Please check your inbox to activate your account.
+        </p>
+        <Link 
+          href="/signin" 
+          className="inline-flex items-center gap-2 px-10 py-4 bg-primary-container text-on-primary-container font-black text-lg rounded neo-shadow-hover transition-all"
+        >
+          Go to Sign In
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-[604px] bg-white border border-slate-300 rounded-lg p-8">
-      <h4 className="text-center text-slate-900 font-medium text-xl leading-7 mb-3">
-        Create an Account
-      </h4>
-      <p className="text-center text-subtle text-sm leading-5 mb-8">
-        Ready to enhance your academic journey? Let&apos;s get started
-      </p>
+    <div className="w-full">
+      <header className="mb-6">
+        <h2 className="text-3xl font-bold text-on-surface tracking-tight">Create an Account</h2>
+        <p className="text-on-surface-variant text-sm mt-1">Enter your credentials to access your academic workspace.</p>
+      </header>
 
       {serverError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{serverError}</p>
+        <div className="mb-4 p-4 bg-error-container text-on-error-container rounded-lg border border-error/10">
+          <p className="text-sm font-medium">{serverError}</p>
         </div>
       )}
 
       <form action={handleEmailSignup} className="space-y-4">
-        <div className="w-full">
-          <Input
+        <div className="space-y-1">
+          <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="username">Username</label>
+          <input
             name="username"
             id="username"
             type="text"
-            placeholder="Username"
-            autoComplete="username"
-            className="w-full h-9 px-3 py-2 text-sm border border-slate-300 rounded-md text-gray-600 placeholder:text-gray-500"
+            placeholder="username"
+            className="w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all placeholder:text-outline/50 text-sm"
             required
-            disabled={isLoading}
           />
         </div>
 
-        <div className="w-full">
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="email">Email Address</label>
           <div className="relative">
-            <Input
+            <input
               name="email"
               id="email"
               type="email"
-              placeholder="Email Address"
+              placeholder="name@university.edu"
               value={email}
-              onChange={handleEmailChange}
-              onBlur={handleEmailBlur}
-              autoComplete="email"
-              className={`w-full h-9 px-3 py-2 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
-                errors.email ? "border-red-500" : "border-slate-300"
-              }`}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => checkEmailExists(email)}
+              className={`w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all placeholder:text-outline/50 text-sm ${errors.email ? "ring-2 ring-error" : ""}`}
               required
-              disabled={isLoading}
             />
             {isCheckingEmail && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -201,137 +157,87 @@ export function SignUpForm() {
               </div>
             )}
           </div>
-          {errors.email && (
-            <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-          )}
+          {errors.email && <p className="text-xs text-error mt-1">{errors.email}</p>}
         </div>
 
-        <div className="w-full">
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="password">Password</label>
           <div className="relative">
-            <Input
+            <input
               name="password"
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="••••••••"
               value={password}
-              onChange={handlePasswordChange}
-              autoComplete="password"
-              className={`w-full h-9 px-3 py-2 pr-10 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
-                errors.password ? "border-red-500" : "border-slate-300"
-              }`}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all text-sm"
               required
-              disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              disabled={isLoading}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface flex items-center justify-center"
             >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
+              <span className="material-symbols-outlined text-xl">{showPassword ? "visibility_off" : "visibility"}</span>
             </button>
           </div>
-          {errors.password && (
-            <p className="text-xs text-red-500 mt-1">{errors.password}</p>
-          )}
-          <div className="mt-2 space-y-1">
-            <p className="text-xs text-gray-500">Password must contain:</p>
-            <ul className="text-xs text-gray-500 space-y-0.5 ml-4">
-              <li className={password.length >= 8 ? "text-green-600" : ""}>
-                • At least 8 characters
-              </li>
-              <li className={/[a-z]/.test(password) ? "text-green-600" : ""}>
-                • One lowercase letter
-              </li>
-              <li className={/[A-Z]/.test(password) ? "text-green-600" : ""}>
-                • One uppercase letter
-              </li>
-              <li className={/\d/.test(password) ? "text-green-600" : ""}>
-                • One digit
-              </li>
-              <li
-                className={
-                  /[!@#$%^&*(),.?":{}|<>]/.test(password)
-                    ? "text-green-600"
-                    : ""
-                }
-              >
-                • One symbol (!@#$%^&*...)
-              </li>
-            </ul>
+          
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {passwordChecks.map((check, i) => (
+              <div key={i} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${check.valid ? "text-primary" : "text-on-surface-variant"}`}>
+                <span className={`material-symbols-outlined text-[14px] ${check.valid ? "fill-1" : ""}`}>
+                  {check.valid ? "check_circle" : "circle"}
+                </span>
+                {check.label}
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="w-full">
-          <Input
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="confirm-password">Confirm Password</label>
+          <input
             name="confirm-password"
             id="confirm-password"
             type="password"
-            placeholder="Confirm Password"
+            placeholder="••••••••"
             value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            autoComplete="new-password"
-            className={`w-full h-9 px-3 py-2 text-sm border rounded-md text-gray-600 placeholder:text-gray-500 ${
-              errors.confirmPassword ? "border-red-500" : "border-slate-300"
-            }`}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={`w-full bg-surface-container-low border-0 rounded p-3 text-on-surface focus:ring-2 focus:ring-primary transition-all text-sm ${errors.confirmPassword ? "ring-2 ring-error" : ""}`}
             required
-            disabled={isLoading}
           />
-          {errors.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.confirmPassword}
-            </p>
-          )}
+          {errors.confirmPassword && <p className="text-xs text-error mt-1">{errors.confirmPassword}</p>}
         </div>
 
-        <Button
-          type="submit"
-          className="w-full h-10 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-md mt-5"
-          disabled={
-            isLoading ||
-            isCheckingEmail ||
-            !!errors.email ||
-            !!errors.password ||
-            !!errors.confirmPassword
-          }
-        >
-          {isLoading ? "Signing up..." : "Sign up with Email"}
-        </Button>
+        <SubmitButton disabled={isCheckingEmail || !!errors.email || !!errors.confirmPassword} />
       </form>
 
-      <div className="relative flex items-center justify-center my-6">
-        <div className="flex-grow border-t border-gray-400"></div>
-        <span className="px-4 text-sm font-medium text-subtle">
-          OR SIGN UP WITH
-        </span>
-        <div className="flex-grow border-t border-gray-400"></div>
+      <div className="relative my-8">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-outline-variant/30"></div>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-surface-container-lowest px-4 text-on-surface-variant font-bold tracking-widest">Or continue with</span>
+        </div>
       </div>
+
       <button
         type="button"
         onClick={() => signInWithGoogle()}
-        className="w-full h-11 flex items-center justify-center gap-3 bg-white border border-gray-400 rounded-md hover:bg-gray-50 transition-colors"
-        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-surface-container rounded transition-all hover:bg-surface-container-high active:scale-[0.98] font-semibold text-sm text-on-surface"
       >
-        <Image
-          src="/Google-G-logo.svg"
-          alt="Google"
-          width={24}
-          height={24}
-          className="w-6 h-6"
-        />
-        <span className="text-sm font-medium text-black">Google</span>
+        <Image src="/Google-G-logo.svg" alt="Google" width={20} height={20} />
+        Continue with Google
       </button>
 
-      <p className="text-center text-subtle text-sm mt-6">
-        Already have an account?{" "}
-        <Link href="/signin" className="text-slate-900 hover:underline">
-          Sign In
-        </Link>
-      </p>
+      <footer className="mt-8 text-center text-sm">
+        <p className="text-on-surface-variant">
+          Already have an account?{" "}
+          <Link href="/signin" className="text-primary font-bold hover:underline underline-offset-4 decoration-2">
+            Sign In
+          </Link>
+        </p>
+      </footer>
     </div>
   );
 }
