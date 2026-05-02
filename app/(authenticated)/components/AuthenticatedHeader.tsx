@@ -2,6 +2,7 @@
 
 import { supabase } from "@/utils/supabase/client";
 import UserMenu from "@/components/UserMenu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -27,7 +28,7 @@ export default function AuthenticatedHeader() {
   const formattedTitle = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
 
   return (
-    <header className="flex justify-between items-center h-16 px-8 sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-zinc-100">
+    <header className="flex justify-between items-center h-16 px-8 sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-border">
       <div className="flex items-center gap-4">
         <span className="text-sm font-bold text-zinc-500 uppercase tracking-widest">
           {formattedTitle}
@@ -43,6 +44,7 @@ export default function AuthenticatedHeader() {
           />
         </div>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <UserMenu user={user} />
         </div>
       </div>
