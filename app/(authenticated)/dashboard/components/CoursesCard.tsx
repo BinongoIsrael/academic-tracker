@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { CoursesCardProps } from "@/types";
 import AddCourseButton from "./AddCourseButton";
 
-export default function CoursesCard({ courses = [] }: CoursesCardProps) {
+interface ExtendedCoursesCardProps extends CoursesCardProps {
+  onAddCourse: () => void;
+}
+
+export default function CoursesCard({ courses = [], onAddCourse }: ExtendedCoursesCardProps) {
   const [sortBy, setSortBy] = useState<string>("course_name-asc");
   const router = useRouter();
   const hasCourses = courses.length > 0;
@@ -39,18 +43,12 @@ export default function CoursesCard({ courses = [] }: CoursesCardProps) {
           <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Academic Year {new Date().getFullYear()}</p>
         </div>
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.push('/courses')}
-            className="bg-primary text-on-primary px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm"
-          >
-            <span className="material-symbols-outlined text-sm">add</span>
-            Add Course
-          </button>
+          <AddCourseButton onClick={onAddCourse} />
           {hasCourses && (
             <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="h-9 px-3 border border-outline-variant/30 rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none text-[10px] font-bold uppercase tracking-widest bg-white cursor-pointer custom-select pr-10"
+                className="h-[50px] px-3 border border-outline-variant/30 rounded-[30px] focus:ring-2 focus:ring-primary/20 focus:outline-none text-[10px] font-bold uppercase tracking-widest bg-white cursor-pointer custom-select pr-10"
             >
                 <option value="course_name-asc">Name (A-Z)</option>
                 <option value="course_name-desc">Name (Z-A)</option>
