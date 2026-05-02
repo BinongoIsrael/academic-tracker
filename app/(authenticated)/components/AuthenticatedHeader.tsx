@@ -3,6 +3,7 @@
 import { supabase } from "@/utils/supabase/client";
 import UserMenu from "@/components/UserMenu";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
@@ -28,7 +29,7 @@ export default function AuthenticatedHeader() {
   return (
     <header className="flex justify-between items-center h-16 px-8 sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-zinc-100">
       <div className="flex items-center gap-4">
-        <span className="text-xl font-bold text-zinc-900 uppercase tracking-tighter">
+        <span className="text-sm font-bold text-zinc-500 uppercase tracking-widest">
           {formattedTitle}
         </span>
       </div>

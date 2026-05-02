@@ -17,19 +17,25 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden md:flex flex-col h-screen w-64 bg-slate-50 py-8 px-4 border-r border-zinc-100 shrink-0 sticky top-0">
-        <div className="mb-10 px-4 flex items-center gap-2">
-          <Image 
-            src="/starlogo.svg" 
-            alt="Gradient" 
-            width={24} 
-            height={24}
-            className="w-6 h-6"
-          />
-          <h1 className="text-lg font-bold tracking-tight text-zinc-900 uppercase">Gradient</h1>
+      <aside className="hidden md:flex flex-col h-screen w-64 bg-slate-50 border-r border-zinc-100 shrink-0 sticky top-0">
+        <div className="h-16 px-8 flex items-center border-b border-transparent">
+          <Link href="/dashboard" className="flex items-center gap-2 group transition-all">
+            <div className="relative w-6 h-6 group-hover:scale-110 group-hover:opacity-80 transition-all duration-200">
+              <Image 
+                src="/starlogo.svg" 
+                alt="Gradient" 
+                width={24} 
+                height={24}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <h1 className="text-lg font-bold tracking-tight text-zinc-900 uppercase group-hover:opacity-80 transition-opacity duration-200">
+              Gradient
+            </h1>
+          </Link>
         </div>
         
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 px-4 pt-4 pb-8 space-y-1">
           {sidebarItems.map((item) => {
             const isActive = pathname === item.href;
             
