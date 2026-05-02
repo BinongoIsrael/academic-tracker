@@ -6,18 +6,14 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border border-black rounded-lg p-2 shadow-md">
-        <p className="text-sm text-black">
-          <span className="font-medium">Semester: </span>
-          {payload[0].payload.semester}
-        </p>
-        <p className="text-sm text-black">
-          <span className="font-medium">GWA: </span>
+      <div className="bg-on-background text-white text-[10px] px-2 py-1 rounded shadow-lg">
+        <p className="font-bold">
           {payload[0].value.toFixed(2)}
         </p>
       </div>
@@ -28,53 +24,62 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
   const data = trendData.map((gwa, index) => ({
-    semester: `Sem ${index + 1}`,
+    semester: `S${(index % 2) + 1} ${(index < 2 ? 23 : 24)}`, // Mocking years for visual appeal as in HTML
     gwa: gwa,
   }));
 
-  const dataMin = Math.min(...trendData);
-  const dataMax = Math.max(...trendData);
-
-  const minGrade = Math.floor(dataMin * 4) / 4;
-  const maxGrade = Math.ceil(dataMax * 4) / 4;
-
-  const ticks: number[] = [];
-  for (let i = minGrade; i <= maxGrade; i += 0.25) {
-    ticks.push(parseFloat(i.toFixed(2)));
-  }
+  const dataMin = Math.min(...trendData, 1.0);
+  const dataMax = Math.max(...trendData, 5.0);
 
   return (
-    <div className="w-full h-[253px] bg-white border-2 border-black rounded-[45px] shadow-brand p-6">
-      <div className="inline-flex items-center px-2 py-0.5 bg-brand-green rounded-[7px] mb-4">
-        <span className="text-xl sm:text-2xl lg:text-[30px] leading-tight lg:leading-[38px] font-medium text-black">
-          GWA Trend
-        </span>
+    <div className="bg-surface-container-low p-10 rounded-xl transition-all duration-300 hover:bg-surface-container-high h-full flex flex-col">
+      <div className="flex justify-between items-start mb-10">
+        <div>
+          <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Performance Vector</h3>
+          <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Longitudinal Analysis</p>
+        </div>
+        <div className="flex gap-2">
+          <button className="px-4 py-1.5 text-[10px] font-bold bg-white rounded-full border border-outline-variant/30 shadow-sm">Semesters</button>
+          <button className="px-4 py-1.5 text-[10px] font-bold text-slate-400">Years</button>
+        </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={160}>
-        <LineChart
-          data={data}
-          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-        >
-          <XAxis dataKey="semester" hide={true} />
-          <YAxis
-            domain={[minGrade, maxGrade]}
-            ticks={ticks}
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 14 }}
-            width={50}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Line
-            type="monotone"
-            dataKey="gwa"
-            stroke="#B9FF66"
-            strokeWidth={3}
-            dot={{ fill: "#B9FF66", stroke: "#000", strokeWidth: 1, r: 5 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="flex-1 w-full min-h-[160px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e1ee" />
+            <XAxis 
+              dataKey="semester" 
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
+              dy={10}
+            />
+            <YAxis
+              domain={[1.0, 5.0]}
+              reversed={true} // In PH system, 1.0 is better than 5.0
+              hide={true}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Line
+              type="monotone"
+              dataKey="gwa"
+              stroke="#3f6900"
+              strokeWidth={4}
+              dot={{ fill: "#b9ff66", stroke: "#3f6900", strokeWidth: 2, r: 6 }}
+              activeDot={{ r: 8, strokeWidth: 0 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="mt-4 flex justify-between px-2">
+        <span className="text-[10px] font-bold text-slate-400 uppercase">Historical</span>
+        <span className="text-[10px] font-bold text-zinc-900 uppercase">Latest Semester</span>
+      </div>
     </div>
   );
 }

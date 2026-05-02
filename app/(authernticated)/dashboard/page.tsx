@@ -143,26 +143,39 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 lg:pb-8">
-      <div className="flex flex-col lg:flex-row">
-        <main className="w-full lg:ml-[325px] pt-6 lg:pt-[30px] px-4 sm:px-8 lg:px-20 pb-8 lg:flex-1">
-          <div className="mb-8 lg:mb-[52px]">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-black mb-2 lg:mb-3">
-              Welcome back!
-            </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl font-medium text-gray-subtle">
-              Here&apos;s a look at your academic progress.
-            </p>
+    <div className="p-6 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-10 pb-24">
+      {/* Header Section */}
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase block mb-2">Academic Overview</span>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-on-background leading-tight">Curriculum Performance</h2>
+        </div>
+        <div className="flex gap-4">
+          <div className="bg-surface-container-low px-5 py-2.5 rounded-xl border border-outline-variant/10">
+            <span className="block text-[0.65rem] uppercase font-bold text-outline tracking-wider mb-0.5">System Status</span>
+            <span className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
+              <span className="w-2 h-2 rounded-full bg-lime-500 animate-pulse"></span> Optimal
+            </span>
           </div>
+        </div>
+      </section>
 
-          <div className="max-w-5xl space-y-6 lg:space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-              <CurrentGWACard gwa={cumulativeGWA} />
-              <GWATrendCard currentGWA={cumulativeGWA} trendData={gwaTrend} />
-            </div>
-            <CoursesCard courses={courses} />
-          </div>
-        </main>
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-12 gap-6 lg:gap-8">
+        {/* CurrentGWACard (Main Spotlight) */}
+        <div className="col-span-12 lg:col-span-4">
+          <CurrentGWACard gwa={cumulativeGWA} />
+        </div>
+
+        {/* GWATrendCard */}
+        <div className="col-span-12 lg:col-span-8">
+          <GWATrendCard currentGWA={cumulativeGWA} trendData={gwaTrend} />
+        </div>
+
+        {/* CoursesCard */}
+        <div className="col-span-12">
+          <CoursesCard courses={courses} />
+        </div>
       </div>
     </div>
   );
