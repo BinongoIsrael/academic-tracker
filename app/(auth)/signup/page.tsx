@@ -11,18 +11,18 @@ export const metadata: Metadata = {
 const SignUpPage = () => {
   return (
     <main className="h-screen flex items-stretch overflow-hidden">
-      <section className="hidden lg:flex lg:w-1/2 bg-on-background relative overflow-hidden flex-col justify-center p-16">
+      <section className="hidden lg:flex lg:w-1/2 bg-brand-dark relative overflow-hidden flex-col justify-center p-16">
         <div className="z-10">
-          <h1 className="text-5xl font-bold text-surface-container-lowest tracking-tight leading-tight max-w-lg mb-16">
+          <h1 className="text-5xl font-bold text-white tracking-tight leading-tight max-w-lg mb-16">
             Sign up today and take control of your academic success
           </h1>
           
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="text-sm font-bold text-primary-container tracking-widest uppercase">Academic Precision</div>
-              <div className="h-px w-12 bg-primary-container/30"></div>
+              <div className="text-sm font-bold text-brand-green tracking-widest uppercase">Academic Precision</div>
+              <div className="h-px w-12 bg-white/10"></div>
             </div>
-            <p className="text-outline-variant text-lg max-w-md leading-relaxed">
+            <p className="text-zinc-400 text-lg max-w-md leading-relaxed">
               By creating your account, you&apos;ll unlock powerful tools to help you track grades, 
               calculate GPA and GWA, and predict the scores you need to achieve your goals. 
               Gradient gives you clear insights into your academic progress.

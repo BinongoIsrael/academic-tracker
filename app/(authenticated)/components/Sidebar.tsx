@@ -17,7 +17,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden md:flex flex-col h-screen w-64 bg-slate-50 border-r border-zinc-100 shrink-0 sticky top-0">
+      <aside className="hidden md:flex flex-col h-screen w-64 bg-surface-container-low border-r border-border shrink-0 sticky top-0">
         <div className="h-16 px-8 flex items-center border-b border-transparent">
           <Link href="/dashboard" className="flex items-center gap-2 group transition-all">
             <div className="relative w-6 h-6 group-hover:scale-110 group-hover:opacity-80 transition-all duration-200">
@@ -26,10 +26,10 @@ export default function Sidebar() {
                 alt="Gradient" 
                 width={24} 
                 height={24}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain dark:invert"
               />
             </div>
-            <h1 className="text-lg font-bold tracking-tight text-zinc-900 uppercase group-hover:opacity-80 transition-opacity duration-200">
+            <h1 className="text-lg font-bold tracking-tight text-on-surface uppercase group-hover:opacity-80 transition-opacity duration-200">
               Gradient
             </h1>
           </Link>
@@ -45,8 +45,8 @@ export default function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 transition-all duration-150 rounded-lg ${
                   isActive
-                    ? "text-zinc-900 font-semibold border-r-4 border-lime-400 bg-slate-200/30"
-                    : "text-slate-500 hover:text-zinc-900 hover:bg-slate-200/50"
+                    ? "text-on-surface font-semibold border-r-4 border-lime-400 bg-surface-container-high/30"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
                 }`}
               >
                 <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
@@ -58,7 +58,7 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl flex items-center justify-around px-4 border-t border-slate-200 shadow-2xl z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl flex items-center justify-around px-4 border-t border-border shadow-2xl z-50">
         {sidebarItems.map((item) => {
           const isActive = pathname === item.href;
           
@@ -67,7 +67,7 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center transition-colors ${
-                isActive ? "text-lime-600" : "text-slate-400 hover:text-zinc-900"
+                isActive ? "text-lime-600" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
@@ -76,5 +76,6 @@ export default function Sidebar() {
         })}
       </nav>
     </>
+
   );
 }
