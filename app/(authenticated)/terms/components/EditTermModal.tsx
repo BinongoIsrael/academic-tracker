@@ -32,7 +32,7 @@ export default function EditTermModal({
       setAcademicYear(term.academicYear);
       const semesterLower = term.semester.toLowerCase();
       if (semesterLower.includes("summer")) {
-        setSemester("summer");
+        setSemester("Summer");
       } else if (semesterLower.includes("1st")) {
         setSemester("1st");
       } else if (semesterLower.includes("2nd")) {
@@ -54,10 +54,11 @@ export default function EditTermModal({
 
   const handleAcademicYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
+    const isDeleting = value.length < academicYear.length;
     value = value.replace(/[^\d-]/g, "");
     
     if (value.length <= 9) {
-      if (value.length === 4 && !value.includes("-")) {
+      if (!isDeleting && value.length === 4 && !value.includes("-")) {
         value = value + "-";
       }
       const hyphenCount = (value.match(/-/g) || []).length;
@@ -86,6 +87,11 @@ export default function EditTermModal({
 
     if (startYear >= endYear) {
       setError("Start year must be before end year");
+      return;
+    }
+
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      setError("Start date must be before or equal to end date");
       return;
     }
 
@@ -170,7 +176,7 @@ export default function EditTermModal({
               >
                 <option value="1st">1st Semester</option>
                 <option value="2nd">2nd Semester</option>
-                <option value="summer">Summer</option>
+                <option value="Summer">Summer</option>
               </select>
             </div>
           </div>

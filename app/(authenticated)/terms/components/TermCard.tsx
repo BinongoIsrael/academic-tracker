@@ -20,6 +20,7 @@ export default function TermCard({ term, onEdit, onAddCourse }: TermCardProps) {
 
   const isUpcoming = (term as any).isUpcoming;
   const isPast = (term as any).isPast;
+  const isUnscheduled = (term as any).isUnscheduled;
 
   if (isPast) {
     return (
@@ -34,6 +35,49 @@ export default function TermCard({ term, onEdit, onAddCourse }: TermCardProps) {
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-sm">bar_chart</span>
           <span className="text-xs font-semibold">Final GPA: {term.gpa ? term.gpa.toFixed(2) : '-.--'}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isUnscheduled) {
+    return (
+      <div className="group bg-surface-container-lowest p-6 rounded-xl border border-dashed border-outline-variant hover:border-primary/40 transition-all">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h3 className="text-xl font-bold text-on-surface mb-1">{getSemesterDisplay()}</h3>
+            <p className="text-sm text-on-surface-variant font-medium">Draft Session</p>
+          </div>
+          <span className="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded text-[10px] font-bold uppercase tracking-tight">UNSCHEDULED</span>
+        </div>
+        <div className="space-y-4 mb-8">
+          <div className="flex items-center gap-3 text-on-surface-variant/60">
+            <span className="material-symbols-outlined text-lg">calendar_clock</span>
+            <span className="text-sm font-medium italic">Dates not yet finalized</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-on-surface-variant text-lg">inventory_2</span>
+            <span className="text-sm font-semibold">{term.courses} Courses Added</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 pt-4 border-t border-outline-variant/20">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => onEdit(term.id)}
+              className="text-primary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all"
+            >
+              Set Dates <span className="material-symbols-outlined text-sm">schedule</span>
+            </button>
+          </div>
+          {onAddCourse && (
+            <button
+              onClick={() => onAddCourse(term.id)}
+              className="w-full mt-2 bg-surface-container-high text-on-surface-variant py-2 rounded-lg font-bold text-xs hover:bg-surface-container-highest transition-all flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+              Add Course
+            </button>
+          )}
         </div>
       </div>
     );

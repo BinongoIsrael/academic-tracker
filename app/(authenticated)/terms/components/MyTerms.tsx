@@ -50,7 +50,7 @@ export default function MyTerms({ terms, onEditTerm, onAddCourse }: MyTermsProps
   return (
     <div className="space-y-16 mt-12">
       {/* Section: ACTIVE */}
-      {(activeTerms.length > 0 || termsWithoutDates.length > 0) && (
+      {activeTerms.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
@@ -68,10 +68,25 @@ export default function MyTerms({ terms, onEditTerm, onAddCourse }: MyTermsProps
                 onAddCourse={onAddCourse}
               />
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Section: UNSCHEDULED */}
+      {termsWithoutDates.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-bold tracking-tight text-on-surface">Unscheduled Terms</h2>
+              <span className="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-tighter">Pending Dates</span>
+            </div>
+            <div className="h-[1px] flex-1 bg-outline-variant/20 ml-8"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {termsWithoutDates.map((term) => (
               <TermCard
                 key={term.id}
-                term={{ ...term, isActive: true }}
+                term={{ ...term, isActive: false, isUnscheduled: true }}
                 onEdit={onEditTerm}
                 onAddCourse={onAddCourse}
               />

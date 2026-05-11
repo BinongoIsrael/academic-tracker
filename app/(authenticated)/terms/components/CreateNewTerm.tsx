@@ -17,11 +17,12 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
 
   const handleAcademicYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
+    const isDeleting = value.length < academicYear.length;
     
     value = value.replace(/[^\d-]/g, "");
     
     if (value.length <= 9) {
-      if (value.length === 4 && !value.includes("-")) {
+      if (!isDeleting && value.length === 4 && !value.includes("-")) {
         value = value + "-";
       }
       const hyphenCount = (value.match(/-/g) || []).length;
@@ -47,6 +48,11 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
 
     if (startYear >= endYear) {
       alert("Start year must be before end year");
+      return;
+    }
+
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      alert("Start date must be before or equal to end date");
       return;
     }
 
