@@ -112,21 +112,33 @@ export async function POST(_req: NextRequest) {
       **IMPORTANT INSTRUCTIONS:**
       - Get straight to the point. Do not include a conversational greeting or introduction like "Hello!" or "It's a pleasure...".
       - Do not use any emojis.
-      - The response must be in Markdown format.
+      - The response must be in JSON format.
 
       Here is the student's data for the current term in JSON format:
       ${JSON.stringify(analysisData, null, 2)}
 
-      Based on this data, generate a response that includes the following sections:
-      1.  **Courses to Watch**: Identify courses with high-weight assessments coming up, or courses where early assessment grades (if any) are lower than others.
-      2.  **Proactive Recommendations**: Provide at least two specific, actionable pieces of advice. For example: "For [Course Name], focus on the upcoming [Assessment Name] as it's worth [X]% of your grade. Try [Study Technique]." or "I see you haven't entered any grades yet. A great way to start the term strong is to..."
+      Based on this data, return a JSON object with the following structure:
+      {
+        "recommendation": "Markdown string with sections: **Courses to Watch** and **Proactive Recommendations**",
+        "milestones": {
+          "gpaVelocity": "String like '0.4' or '0.2' representing projected GPA increase",
+          "optimalTrajectory": "Short string like 'Opt', 'High', or 'Good' representing the trajectory"
+        }
+      }
     `;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3-pro-preview" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const responseText = result.response.text();
+    const responseData = JSON.parse(responseText);
 
-    return NextResponse.json({ recommendation: text }, { status: 200 });
+    return NextResponse.json({ 
+      recommendation: responseData.recommendation,
+      milestones: responseData.milestones 
+    }, { status: 200 });
 
   } catch (error: any) {
     console.error("Error in recommendation API:", error);

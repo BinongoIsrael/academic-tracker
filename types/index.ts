@@ -64,6 +64,9 @@ export interface Term {
   units: number;
   gpa: number | null;
   isActive: boolean;
+  isUpcoming?: boolean;
+  isPast?: boolean;
+  isUnscheduled?: boolean;
   created_at?: string;
   updated_at?: string;
 }

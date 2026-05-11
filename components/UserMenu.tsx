@@ -15,24 +15,25 @@ export default function UserMenu({ user }: UserMenuProps) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 group"
+        className="flex items-center gap-2 group focus:outline-none"
       >
-        <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden border-2 border-transparent group-hover:border-accent transition-colors">
+        <div className="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/30 group-hover:border-primary transition-colors relative">
           {user.user_metadata?.avatar_url ? (
             <Image 
               src={user.user_metadata.avatar_url} 
               alt={user.user_metadata?.full_name || "User"} 
-              width={48} 
-              height={48}
+              fill
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-accent text-slate-900 font-semibold text-lg">
-              {user.email?.charAt(0).toUpperCase()}
+            <div className="w-full h-full flex items-center justify-center bg-primary-container text-on-primary-container">
+              <span className="material-symbols-outlined text-lg">account_circle</span>
             </div>
           )}
         </div>
-        <ChevronDown className={`w-5 h-5 text-black group-hover:text-accent transition-all ${isOpen ? 'rotate-180' : ''}`} />
+        <span className={`material-symbols-outlined text-zinc-400 group-hover:text-primary transition-all text-lg ${isOpen ? 'rotate-180' : ''}`}>
+          expand_more
+        </span>
       </button>
 
       {isOpen && (
@@ -41,30 +42,32 @@ export default function UserMenu({ user }: UserMenuProps) {
             className="fixed inset-0 z-10" 
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
-            <div className="px-4 py-3 border-b border-gray-200">
-              <p className="text-sm font-medium text-slate-900 truncate">
-                {user.user_metadata?.full_name || "User"}
+          <div className="absolute right-0 mt-3 w-64 bg-surface border border-outline-variant/20 rounded-xl shadow-[0_20px_40px_rgba(26,27,36,0.08)] z-20 py-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-4 py-3 border-b border-outline-variant/10">
+              <p className="text-sm font-bold text-on-surface truncate">
+                {user.user_metadata?.full_name || "Student"}
               </p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-on-surface-variant truncate mt-0.5">{user.email}</p>
             </div>
             
-            <Link
-              href="/settings"
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setIsOpen(false)}
-            >
-              <Settings className="w-4 h-4" />
-              Profile Settings
-            </Link>
-            
-            <button
-              onClick={() => signout()}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
+            <div className="py-2">
+              <Link
+                href="/settings"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="material-symbols-outlined text-lg text-on-surface-variant/60">settings</span>
+                Profile Settings
+              </Link>
+              
+              <button
+                onClick={() => signout()}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-error hover:bg-error/5 transition-colors text-left"
+              >
+                <span className="material-symbols-outlined text-lg">logout</span>
+                Sign Out
+              </button>
+            </div>
           </div>
         </>
       )}

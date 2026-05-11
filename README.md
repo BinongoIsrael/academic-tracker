@@ -155,7 +155,7 @@ The application follows the **Next.js App Router** convention.
 .
 ├── app/                      # Main application directory
 │   ├── (auth)/               # Authentication-related routes (signin, signup, forgot-password, reset-password, auth callbacks)
-│   ├── (authernticated)/     # Authenticated routes (dashboard, courses, terms, calculate, recommendation, settings)
+│   ├── (authenticated)/     # Authenticated routes (dashboard, courses, terms, calculate, recommendation, settings)
 │   ├── api/                  # API routes (check-email, recommendation)
 │   ├── components/           # Page-specific components
 │   ├── globals.css           # Global styles
