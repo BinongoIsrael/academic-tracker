@@ -46,22 +46,7 @@ export default function CourseDetailPage() {
     calculateGrades,
   } = useGradeCalculations(course);
 
-  useEffect(() => {
-    fetchCourseData();
-  }, [courseId]);
-
-  useEffect(() => {
-    if (
-      assessments.length > 0 &&
-      grades.length > 0 &&
-      gradingScale.length > 0 &&
-      !hasFinalGradeOnly
-    ) {
-      calculateGrades(assessments, grades, gradingScale);
-    }
-  }, [assessments, grades, gradingScale, hasFinalGradeOnly]);
-
-  const fetchCourseData = async () => {
+  const fetchCourseData = useCallback(async () => {
     try {
       setLoading(true);
       const {
@@ -210,7 +195,22 @@ export default function CourseDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, router, calculateGrades]);
+
+  useEffect(() => {
+    fetchCourseData();
+  }, [fetchCourseData]);
+
+  useEffect(() => {
+    if (
+      assessments.length > 0 &&
+      grades.length > 0 &&
+      gradingScale.length > 0 &&
+      !hasFinalGradeOnly
+    ) {
+      calculateGrades(assessments, grades, gradingScale);
+    }
+  }, [assessments, grades, gradingScale, hasFinalGradeOnly, calculateGrades]);
 
   const handleUpdateOccurrences = async (
     assessmentId: string,
