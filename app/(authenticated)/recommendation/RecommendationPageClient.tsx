@@ -7,11 +7,13 @@ import remarkGfm from 'remark-gfm';
 export default function RecommendationPageClient() {
   const [loadingRecommendation, setLoadingRecommendation] = useState(false);
   const [recommendation, setRecommendation] = useState<string | null>(null);
+  const [milestones, setMilestones] = useState<{ gpaVelocity: string; optimalTrajectory: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleGetRecommendation = async () => {
     setLoadingRecommendation(true);
     setRecommendation(null);
+    setMilestones(null);
     setError(null);
     
     try {
@@ -29,6 +31,7 @@ export default function RecommendationPageClient() {
       }
 
       setRecommendation(data.recommendation);
+      setMilestones(data.milestones);
 
     } catch (err: any) {
       setError(err.message || "An error occurred while generating the recommendation.");
@@ -121,14 +124,18 @@ export default function RecommendationPageClient() {
                   </h2>
                   <div className="space-y-8">
                     <div className="flex flex-col sm:flex-row gap-6 items-start">
-                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">0.4</div>
+                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">
+                        {milestones?.gpaVelocity || "-.--"}
+                      </div>
                       <div className="flex-1">
                         <h4 className="font-bold text-on-surface text-lg">GPA Velocity</h4>
                         <p className="text-sm text-on-surface-variant">Projected increase in overall cumulative average if current performance trends and suggestions are maintained.</p>
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-6 items-start">
-                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">Opt</div>
+                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">
+                        {milestones?.optimalTrajectory || "---"}
+                      </div>
                       <div className="flex-1">
                         <h4 className="font-bold text-on-surface text-lg">Optimal Trajectory</h4>
                         <p className="text-sm text-on-surface-variant">Estimated outcome based on prerequisite performance trends across your current curriculum.</p>
