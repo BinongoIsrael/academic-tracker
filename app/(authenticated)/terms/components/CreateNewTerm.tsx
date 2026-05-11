@@ -135,7 +135,7 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
           <div className="space-y-4">
             <label className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Semester <span className="text-error">*</span></label>
             <div className="flex flex-wrap gap-8">
-              {["1st", "2nd", "summer"].map((sem) => (
+              {["1st", "2nd", "Summer"].map((sem) => (
                 <label key={sem} className="flex items-center gap-3 cursor-pointer group">
                   <input
                     type="radio"
@@ -146,7 +146,7 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
                     className="w-5 h-5 text-primary border-none bg-surface-container-high focus:ring-primary"
                   />
                   <span className="text-sm font-medium group-hover:text-primary transition-colors capitalize">
-                    {sem === "summer" ? "Summer" : `${sem} Semester`}
+                    {sem === "Summer" ? "Summer" : `${sem} Semester`}
                   </span>
                 </label>
               ))}
