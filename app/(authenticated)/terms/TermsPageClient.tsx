@@ -176,9 +176,15 @@ export default function TermsPageClient() {
       console.log("Term created successfully:", newTerm);
       setToast({ message: "Term created successfully!", type: "success" });
       await fetchTerms();
-    } catch (error) {
-      console.error("Error creating term:", error);
-      alert("Failed to create term. Please try again.");
+    } catch (error: any) {
+      console.error("Error creating term:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        fullError: error
+      });
+      alert(`Failed to create term: ${error.message || "Unknown error"}`);
     }
   };
 
@@ -214,8 +220,14 @@ export default function TermsPageClient() {
 
       await fetchTerms();
       setToast({ message: "Term updated successfully!", type: "success" });
-    } catch (error) {
-      console.error("Error updating term:", error);
+    } catch (error: any) {
+      console.error("Error updating term:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        fullError: error
+      });
       throw error;
     }
   };
