@@ -22,11 +22,7 @@ export default function TermsPageClient() {
   } | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchTerms();
-  }, []);
-
-  const fetchTerms = async () => {
+  const fetchTerms = useCallback(async () => {
     try {
       setLoading(true);
       const {
@@ -115,7 +111,11 @@ export default function TermsPageClient() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchTerms();
+  }, [fetchTerms]);
 
   const fetchTermCourses = async (termId: string) => {
     try {

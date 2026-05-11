@@ -19,11 +19,7 @@ export default function CoursesPageClient() {
     type: "success" | "error";
   } | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const {
@@ -103,7 +99,11 @@ export default function CoursesPageClient() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleCreateCourse = async (courseData: {
     courseTitle: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { X, Plus, Trash2, Edit2 } from "lucide-react";
 import { Course, EditCourseModalProps, Assessment } from "@/types";
@@ -55,11 +55,7 @@ export default function EditCourseModal({
     componentType: "Lecture" as "Lecture" | "Laboratory",
   });
 
-  useEffect(() => {
-    fetchAssessments();
-  }, []);
-
-  const fetchAssessments = async () => {
+  const fetchAssessments = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("assessments")
@@ -85,7 +81,11 @@ export default function EditCourseModal({
     } catch (error) {
       console.error("Error fetching assessments:", error);
     }
-  };
+  }, [course.id]);
+
+  useEffect(() => {
+    fetchAssessments();
+  }, [fetchAssessments]);
 
   const handleAddAssessment = async () => {
     if (!assessmentForm.name || !assessmentForm.percentage) {
