@@ -136,6 +136,7 @@ export interface CreateCourseFormProps {
   terms: Term[];
   onSubmit: (courseData: {
     courseTitle: string;
+    courseCode: string;
     academicTerm: string;
     courseType: string;
     units: string;
@@ -259,6 +260,7 @@ export interface EditCourseModalProps {
   terms: Term[];
   onSave: (updatedCourse: {
     course_name: string;
+    course_code: string;
     term_id: string;
     course_type: string;
     units: number;

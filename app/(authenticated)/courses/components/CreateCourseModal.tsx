@@ -18,6 +18,7 @@ export default function CreateCourseModal({
   onClose,
 }: CreateCourseFormProps & { isOpen: boolean; onClose: () => void }) {
   const [courseTitle, setCourseTitle] = useState("");
+  const [courseCode, setCourseCode] = useState("");
   const [academicTerm, setAcademicTerm] = useState("");
   const [courseType, setCourseType] = useState("");
   const [units, setUnits] = useState("");
@@ -129,6 +130,7 @@ export default function CreateCourseModal({
 
       await onSubmit({
         courseTitle,
+        courseCode,
         academicTerm,
         courseType,
         units,
@@ -195,6 +197,7 @@ export default function CreateCourseModal({
 
       await onSubmit({
         courseTitle,
+        courseCode,
         academicTerm,
         courseType,
         units,
@@ -210,6 +213,7 @@ export default function CreateCourseModal({
     }
 
     setCourseTitle("");
+    setCourseCode("");
     setAcademicTerm("");
     setCourseType("");
     setUnits("");
@@ -256,13 +260,23 @@ export default function CreateCourseModal({
         <div className="p-6 sm:p-8 space-y-8 overflow-y-auto custom-scrollbar">
           {/* Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2 space-y-2">
+            <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Title</label>
               <input
                 type="text"
                 placeholder="Advanced Quantum Mechanics"
                 value={courseTitle}
                 onChange={(e) => setCourseTitle(e.target.value)}
+                className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 transition-all font-semibold"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Code</label>
+              <input
+                type="text"
+                placeholder="CS101"
+                value={courseCode}
+                onChange={(e) => setCourseCode(e.target.value)}
                 className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 transition-all font-semibold"
               />
             </div>

@@ -19,6 +19,7 @@ export default function EditCourseModal({
 }: EditCourseModalProps & { onDelete?: () => Promise<void> }) {
   const router = useRouter();
   const [courseName, setCourseName] = useState(course.course_name);
+  const [courseCode, setCourseCode] = useState(course.course_code || "");
   const [termId, setTermId] = useState(course.term_id);
   const [courseType, setCourseType] = useState(course.course_type);
   const [units, setUnits] = useState(course.units.toString());
@@ -275,6 +276,7 @@ export default function EditCourseModal({
     try {
       await onSave({
         course_name: courseName,
+        course_code: courseCode,
         term_id: termId,
         course_type: courseType,
         units: parseFloat(units),
@@ -364,17 +366,31 @@ export default function EditCourseModal({
           </div>
 
           <form onSubmit={handleSubmit} className="p-4 sm:p-8">
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-900 mb-2">
-                Course Name
-              </label>
-              <input
-                type="text"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
-                required
-                className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-2">
+                  Course Name
+                </label>
+                <input
+                  type="text"
+                  value={courseName}
+                  onChange={(e) => setCourseName(e.target.value)}
+                  required
+                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-2">
+                  Course Code
+                </label>
+                <input
+                  type="text"
+                  value={courseCode}
+                  onChange={(e) => setCourseCode(e.target.value)}
+                  placeholder="CS101"
+                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">

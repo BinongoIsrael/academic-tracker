@@ -167,15 +167,15 @@ export default function DashboardPageClient() {
         .insert([
           {
             user_id: user?.id,
-            term_id: courseData.termId,
-            course_name: courseData.courseName,
+            term_id: courseData.academicTerm,
+            course_name: courseData.courseTitle,
             course_code: courseData.courseCode,
             units: courseData.units,
             course_type: courseData.courseType,
             course_color: courseData.courseColor,
             course_structure: courseData.courseStructure,
             grade_input_mode: courseData.gradeInputMode,
-            grade: courseData.grade,
+            grade: courseData.finalGrade,
             lecture_percentage: courseData.lecturePercentage,
             laboratory_percentage: courseData.laboratoryPercentage,
           },
