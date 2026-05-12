@@ -119,7 +119,7 @@ export async function POST(_req: NextRequest) {
 
       Based on this data, return a JSON object with the following structure:
       {
-        "recommendation": "Markdown string with sections: **Courses to Watch** and **Proactive Recommendations**",
+        "recommendation": "Markdown string. Use H2 for main sections and H3 for sub-points. Use blockquotes for critical warnings or key insights. Use bold text for course names and important metrics. Use bullet points for clear action items.",
         "milestones": {
           "gpaVelocity": "String like '0.4' or '0.2' representing projected GPA increase",
           "optimalTrajectory": "Short string like 'Opt', 'High', or 'Good' representing the trajectory"
