@@ -9,6 +9,8 @@ import CourseStructureRadio from "../../components/CourseStructureRadio";
 import DeleteCourseModal from "./DeleteCourseModal";
 import Toast from "../../../components/Toast";
 import { supabase } from "@/utils/supabase/client";
+import { courseSchema } from "@/lib/validations";
+import { z } from "zod";
 
 export default function EditCourseModal({
   course,
@@ -40,6 +42,7 @@ export default function EditCourseModal({
   );
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -239,60 +242,75 @@ export default function EditCourseModal({
   const handleLecturePercentageChange = (value: string) => {
     const lectureVal = parseFloat(value) || 0;
     setLecturePercentage(value);
-    setLaboratoryPercentage((100 - lectureVal).toString());
+    setLaboratoryPercentage((Math.max(0, 100 - lectureVal)).toString());
   };
 
   const handleLaboratoryPercentageChange = (value: string) => {
     const labVal = parseFloat(value) || 0;
     setLaboratoryPercentage(value);
-    setLecturePercentage((100 - labVal).toString());
+    setLecturePercentage((Math.max(0, 100 - labVal)).toString());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!courseColor || !courseType || !courseStructure) {
-      setToast({
-        message: "Missing required fields. Please fill in all fields.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (courseStructure === "Lecture + Laboratory") {
-      const totalPercentage =
-        parseFloat(lecturePercentage) + parseFloat(laboratoryPercentage);
-      if (Math.abs(totalPercentage - 100) > 0.01) {
-        setToast({
-          message: "Lecture and Laboratory percentages must add up to 100%",
-          type: "error",
-        });
-        return;
-      }
-    }
-
-    setSaving(true);
+    setErrors({});
 
     try {
-      await onSave({
+      const validatedData = courseSchema.parse({
         course_name: courseName,
         course_code: courseCode,
         term_id: termId,
-        course_type: courseType,
-        units: parseFloat(units),
+        units: parseFloat(units) || 0,
         target_gpa: targetGPA ? parseFloat(targetGPA) : null,
         course_color: courseColor,
         course_structure: courseStructure,
-        lecture_percentage: parseFloat(lecturePercentage),
-        laboratory_percentage: parseFloat(laboratoryPercentage),
+        lecture_percentage: parseFloat(lecturePercentage) || 0,
+        laboratory_percentage: parseFloat(laboratoryPercentage) || 0,
+      });
+
+      if (courseStructure === "Lecture + Laboratory") {
+        const totalPercentage =
+          parseFloat(lecturePercentage) + parseFloat(laboratoryPercentage);
+        if (Math.abs(totalPercentage - 100) > 0.01) {
+          setToast({
+            message: "Lecture and Laboratory percentages must add up to 100%",
+            type: "error",
+          });
+          return;
+        }
+      }
+
+      setSaving(true);
+      await onSave({
+        course_name: validatedData.course_name,
+        course_code: validatedData.course_code,
+        term_id: validatedData.term_id,
+        course_type: courseType || "Academic",
+        units: validatedData.units,
+        target_gpa: validatedData.target_gpa || null,
+        course_color: validatedData.course_color,
+        course_structure: validatedData.course_structure || "",
+        lecture_percentage: validatedData.lecture_percentage,
+        laboratory_percentage: validatedData.laboratory_percentage,
       });
       onClose();
-    } catch (error) {
-      console.error("Error saving course:", error);
-      setToast({
-        message: "Failed to update course. Please try again.",
-        type: "error",
-      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0].toString()] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+        setToast({ message: "Please fix the errors in the form.", type: "error" });
+      } else {
+        console.error("Error saving course:", err);
+        setToast({
+          message: "Failed to update course. Please try again.",
+          type: "error",
+        });
+      }
     } finally {
       setSaving(false);
     }
@@ -375,9 +393,9 @@ export default function EditCourseModal({
                   type="text"
                   value={courseName}
                   onChange={(e) => setCourseName(e.target.value)}
-                  required
-                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className={`w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green ${errors.course_name ? 'ring-2 ring-red-500' : ''}`}
                 />
+                {errors.course_name && <p className="text-[10px] font-bold text-red-500 mt-1">{errors.course_name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-2">
@@ -388,8 +406,9 @@ export default function EditCourseModal({
                   value={courseCode}
                   onChange={(e) => setCourseCode(e.target.value)}
                   placeholder="CS101"
-                  className="w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className={`w-full h-10 px-3 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green ${errors.course_code ? 'ring-2 ring-red-500' : ''}`}
                 />
+                {errors.course_code && <p className="text-[10px] font-bold text-red-500 mt-1">{errors.course_code}</p>}
               </div>
             </div>
 
@@ -402,7 +421,7 @@ export default function EditCourseModal({
                   value={termId}
                   onChange={(e) => setTermId(e.target.value)}
                   required
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  className={`w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select ${errors.term_id ? 'ring-2 ring-red-500' : ''}`}
                 >
                   {terms
                     .sort((a, b) => {
@@ -429,6 +448,7 @@ export default function EditCourseModal({
                       </option>
                     ))}
                 </select>
+                {errors.term_id && <p className="text-[10px] font-bold text-red-500 mt-1">{errors.term_id}</p>}
               </div>
 
               <div>
@@ -441,8 +461,10 @@ export default function EditCourseModal({
                   required
                   className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
                 >
-                  <option value="Academic">Academic</option>
-                  <option value="Non-Academic">Non-Academic</option>
+                  <option value="Major">Major</option>
+                  <option value="Minor">Minor</option>
+                  <option value="General">General</option>
+                  <option value="Elective">Elective</option>
                 </select>
               </div>
             </div>
@@ -456,11 +478,11 @@ export default function EditCourseModal({
                   type="number"
                   value={units}
                   onChange={(e) => setUnits(e.target.value)}
-                  required
                   step="1"
                   min="0"
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  className={`w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green ${errors.units ? 'ring-2 ring-red-500' : ''}`}
                 />
+                {errors.units && <p className="text-[10px] font-bold text-red-500 mt-1">{errors.units}</p>}
               </div>
 
               <div>
@@ -472,10 +494,11 @@ export default function EditCourseModal({
                   value={targetGPA}
                   onChange={(e) => setTargetGPA(e.target.value)}
                   step="0.05"
-                  min="1"
-                  max="5"
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  min="1.0"
+                  max="5.0"
+                  className={`w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green ${errors.target_gpa ? 'ring-2 ring-red-500' : ''}`}
                 />
+                {errors.target_gpa && <p className="text-[10px] font-bold text-red-500 mt-1">{errors.target_gpa}</p>}
               </div>
             </div>
 
