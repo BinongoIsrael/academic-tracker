@@ -314,6 +314,13 @@ export interface GWABreakdownProps {
   courses: Course[];
 }
 
+export interface InfoPanelProps {
+  targetGWA: number;
+  enrolledUnits: number;
+  completedUnits: number;
+  currentGWA: number;
+}
+
 export interface AvatarUploaderProps {
   user: User | null;
   url: string | null;

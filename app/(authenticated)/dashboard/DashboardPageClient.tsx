@@ -5,6 +5,7 @@ import { supabase } from "@/utils/supabase/client";
 import CurrentGWACard from "./components/CurrentGWACard";
 import GWATrendCard from "./components/GWATrendCard";
 import CoursesCard from "./components/CoursesCard";
+import InfoPanel from "./components/InfoPanel";
 import { Course, Term } from "@/types";
 import { User } from "@supabase/supabase-js";
 import CreateCourseModal from "../courses/components/CreateCourseModal";
@@ -18,6 +19,12 @@ export default function DashboardPageClient() {
   const [cumulativeGWA, setCumulativeGWA] = useState<number>(0.0);
   const [semesterTrend, setSemesterTrend] = useState<{ label: string; gwa: number }[]>([]);
   const [yearTrend, setYearTrend] = useState<{ label: string; gwa: number }[]>([]);
+  const [infoPanelStats, setInfoPanelStats] = useState({
+    targetGWA: 0,
+    enrolledUnits: 0,
+    completedUnits: 0,
+    currentGWA: 0,
+  });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -28,7 +35,6 @@ export default function DashboardPageClient() {
     setUser(user);
 
     if (user) {
-      // Fetch Courses with Terms
       const { data: coursesData, error: coursesError } = await supabase
         .from("courses")
         .select(
@@ -69,7 +75,6 @@ export default function DashboardPageClient() {
         console.error("Error fetching courses:", coursesError);
       }
 
-      // Fetch all Terms for the modal
       const { data: termsData, error: termsError } = await supabase
         .from("terms")
         .select("*")
@@ -107,6 +112,12 @@ export default function DashboardPageClient() {
       setCumulativeGWA(0.0);
       setSemesterTrend([]);
       setYearTrend([]);
+      setInfoPanelStats({
+        targetGWA: 0,
+        enrolledUnits: 0,
+        completedUnits: 0,
+        currentGWA: 0,
+      });
       return;
     }
 
@@ -152,6 +163,25 @@ export default function DashboardPageClient() {
       return { termInfo, gwa };
     });
 
+    const activeTermData = termGWAs.find(t => t.termInfo.isActive) || termGWAs[0];
+    if (activeTermData) {
+      const activeCourses = termsMap.get(activeTermData.termInfo.id)?.courses || [];
+      const enrolled = activeCourses.reduce((sum, c) => sum + (c.units || 0), 0);
+      const completed = activeCourses
+        .filter(c => c.grade !== null && c.grade !== undefined && Number(c.grade) > 0)
+        .reduce((sum, c) => sum + (c.units || 0), 0);
+      
+      const targetGpaSum = activeCourses.reduce((sum, c) => sum + (c.target_gpa || 0), 0);
+      const avgTarget = activeCourses.length > 0 ? targetGpaSum / activeCourses.length : 0;
+
+      setInfoPanelStats({
+        targetGWA: avgTarget,
+        enrolledUnits: enrolled,
+        completedUnits: completed,
+        currentGWA: activeTermData.gwa,
+      });
+    }
+
     termGWAs.sort((a, b) => {
         const yearCompare = a.termInfo.academicYear.localeCompare(b.termInfo.academicYear);
         if (yearCompare !== 0) return yearCompare;
@@ -169,7 +199,6 @@ export default function DashboardPageClient() {
       };
     }));
 
-    // Calculate Year Trend
     const yearsMap = new Map<string, { weightedGradeSum: number, unitSum: number }>();
     for (const item of termGWAs) {
       const year = item.termInfo.academicYear;
@@ -178,8 +207,6 @@ export default function DashboardPageClient() {
       }
       const yearData = yearsMap.get(year)!;
       
-      // We need to re-calculate based on original courses to be accurate, 
-      // but using term averages weighted by term units is equivalent
       let termUnits = 0;
       let termWeightedGrades = 0;
       const termCourses = termsMap.get(item.termInfo.id)?.courses || [];
@@ -352,14 +379,11 @@ export default function DashboardPageClient() {
         </div>
       </section>
 
-      {/* Bento Grid Layout */}
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
-        {/* CurrentGWACard (Main Spotlight) */}
         <div className="col-span-12 lg:col-span-4">
           <CurrentGWACard gwa={cumulativeGWA} />
         </div>
 
-        {/* GWATrendCard */}
         <div className="col-span-12 lg:col-span-8">
           <GWATrendCard 
             currentGWA={cumulativeGWA} 
@@ -368,12 +392,20 @@ export default function DashboardPageClient() {
           />
         </div>
 
-        {/* CoursesCard */}
-        <div className="col-span-12">
+        <div className="col-span-12 lg:col-span-9">
           <CoursesCard 
             courses={courses} 
             onAddCourse={() => setIsCreateModalOpen(true)} 
           />
+        </div>
+
+        <div className="col-span-12 lg:col-span-3">
+            <InfoPanel 
+              targetGWA={infoPanelStats.targetGWA}
+              enrolledUnits={infoPanelStats.enrolledUnits}
+              completedUnits={infoPanelStats.completedUnits}
+              currentGWA={infoPanelStats.currentGWA}
+            />
         </div>
       </div>
 
