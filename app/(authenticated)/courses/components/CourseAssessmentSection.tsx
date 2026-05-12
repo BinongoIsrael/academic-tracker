@@ -66,6 +66,7 @@ export default function CourseAssessmentSection({
                 <input
                   type="number"
                   value={assessment.percentage || ""}
+                  min="0"
                   onChange={(e) =>
                     onUpdate(index, "percentage", e.target.value)
                   }
