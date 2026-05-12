@@ -162,44 +162,106 @@ export default function DashboardPageClient() {
 
   const handleCreateCourse = async (courseData: any) => {
     try {
-      const { data, error } = await supabase
+      if (
+        !courseData.courseTitle ||
+        !courseData.academicTerm ||
+        !courseData.courseType ||
+        !courseData.units
+      ) {
+        setToast({
+          message: "Please fill in all required fields",
+          type: "error",
+        });
+        return;
+      }
+
+      const courseInsertData: any = {
+        user_id: user?.id,
+        term_id: courseData.academicTerm,
+        course_name: courseData.courseTitle,
+        course_code: courseData.courseCode,
+        course_type: courseData.courseType,
+        units: parseFloat(courseData.units),
+        course_structure: courseData.courseStructure,
+        target_gpa: courseData.targetGPA
+          ? parseFloat(courseData.targetGPA)
+          : null,
+        course_color: courseData.courseColor,
+        lecture_percentage: courseData.lecturePercentage,
+        laboratory_percentage: courseData.laboratoryPercentage,
+      };
+
+      if (
+        courseData.gradeInputMode === "final" &&
+        courseData.finalGrade !== undefined
+      ) {
+        courseInsertData.grade = courseData.finalGrade;
+      }
+
+      const { data: newCourse, error: courseError } = await supabase
         .from("courses")
-        .insert([
-          {
-            user_id: user?.id,
-            term_id: courseData.academicTerm,
-            course_name: courseData.courseTitle,
-            course_code: courseData.courseCode,
-            units: courseData.units,
-            course_type: courseData.courseType,
-            course_color: courseData.courseColor,
-            course_structure: courseData.courseStructure,
-            grade_input_mode: courseData.gradeInputMode,
-            grade: courseData.finalGrade,
-            lecture_percentage: courseData.lecturePercentage,
-            laboratory_percentage: courseData.laboratoryPercentage,
-          },
-        ])
+        .insert(courseInsertData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (courseError) throw courseError;
 
-      // Handle assessments if any
-      if (courseData.assessments && courseData.assessments.length > 0) {
-        const assessmentsToInsert = courseData.assessments.map((a: any) => ({
-          course_id: data.id,
-          assessment_name: a.assessment_name,
-          occurrences: a.occurrences,
-          percentage: a.percentage,
-          type: a.type,
-        }));
+      if (
+        courseData.gradeInputMode === "assessments" ||
+        !courseData.gradeInputMode
+      ) {
+        const allAssessments = [];
 
-        const { error: assessmentError } = await supabase
-          .from("assessments")
-          .insert(assessmentsToInsert);
+        const lectureAssessmentData = courseData.lectureAssessments
+          .filter((a: any) => a.assessment_name && a.occurrences && a.percentage)
+          .map((a: any) => ({
+            course_id: newCourse.id,
+            assessment_name: a.assessment_name,
+            occurrences: a.occurrences,
+            percentage: a.percentage,
+            component_type: "Lecture",
+          }));
+        allAssessments.push(...lectureAssessmentData);
 
-        if (assessmentError) throw assessmentError;
+        if (courseData.courseStructure === "Lecture + Laboratory") {
+          const labAssessmentData = courseData.laboratoryAssessments
+            .filter((a: any) => a.assessment_name && a.occurrences && a.percentage)
+            .map((a: any) => ({
+              course_id: newCourse.id,
+              assessment_name: a.assessment_name,
+              occurrences: a.occurrences,
+              percentage: a.percentage,
+              component_type: "Laboratory",
+            }));
+          allAssessments.push(...labAssessmentData);
+        }
+
+        if (allAssessments.length > 0) {
+          const { data: insertedAssessments, error: assessmentError } =
+            await supabase.from("assessments").insert(allAssessments).select();
+
+          if (assessmentError) throw assessmentError;
+
+          const gradeRecords = [];
+          for (const assessment of insertedAssessments) {
+            for (let i = 1; i <= assessment.occurrences; i++) {
+              gradeRecords.push({
+                course_id: newCourse.id,
+                assessment_id: assessment.id,
+                occurrence_number: i,
+                grade: null,
+              });
+            }
+          }
+
+          if (gradeRecords.length > 0) {
+            const { error: gradesError } = await supabase
+              .from("assessment_grades")
+              .insert(gradeRecords);
+
+            if (gradesError) throw gradesError;
+          }
+        }
       }
 
       setToast({ message: "Course created successfully!", type: "success" });
@@ -207,7 +269,10 @@ export default function DashboardPageClient() {
       fetchData();
     } catch (error: any) {
       console.error("Error creating course:", error);
-      setToast({ message: error.message || "Failed to create course", type: "error" });
+      setToast({
+        message: error.message || "Failed to create course",
+        type: "error",
+      });
     }
   };
 
