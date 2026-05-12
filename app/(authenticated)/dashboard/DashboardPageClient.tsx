@@ -16,7 +16,8 @@ export default function DashboardPageClient() {
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(true);
   const [cumulativeGWA, setCumulativeGWA] = useState<number>(0.0);
-  const [gwaTrend, setGwaTrend] = useState<number[]>([]);
+  const [semesterTrend, setSemesterTrend] = useState<{ label: string; gwa: number }[]>([]);
+  const [yearTrend, setYearTrend] = useState<{ label: string; gwa: number }[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -104,7 +105,8 @@ export default function DashboardPageClient() {
   useEffect(() => {
     if (courses.length === 0) {
       setCumulativeGWA(0.0);
-      setGwaTrend([]);
+      setSemesterTrend([]);
+      setYearTrend([]);
       return;
     }
 
@@ -156,7 +158,50 @@ export default function DashboardPageClient() {
         return a.termInfo.semester.localeCompare(b.termInfo.semester);
     });
 
-    setGwaTrend(termGWAs.map(item => item.gwa));
+    setSemesterTrend(termGWAs.map(item => {
+      const semPrefix = item.termInfo.semester.startsWith("1") ? "S1" : 
+                        item.termInfo.semester.startsWith("2") ? "S2" : "SS";
+      const yearSuffix = item.termInfo.academicYear.split("-").map(y => y.slice(-2)).join("-");
+      
+      return {
+        label: `${semPrefix} ${yearSuffix}`,
+        gwa: item.gwa
+      };
+    }));
+
+    // Calculate Year Trend
+    const yearsMap = new Map<string, { weightedGradeSum: number, unitSum: number }>();
+    for (const item of termGWAs) {
+      const year = item.termInfo.academicYear;
+      if (!yearsMap.has(year)) {
+        yearsMap.set(year, { weightedGradeSum: 0, unitSum: 0 });
+      }
+      const yearData = yearsMap.get(year)!;
+      
+      // We need to re-calculate based on original courses to be accurate, 
+      // but using term averages weighted by term units is equivalent
+      let termUnits = 0;
+      let termWeightedGrades = 0;
+      const termCourses = termsMap.get(item.termInfo.id)?.courses || [];
+      for (const course of termCourses) {
+        const grade = parseFloat(String(course.grade ?? 0));
+        const units = parseFloat(String(course.units ?? 0));
+        if (!isNaN(grade) && !isNaN(units) && units > 0 && grade > 0 && grade !== 5.0) {
+          termWeightedGrades += grade * units;
+          termUnits += units;
+        }
+      }
+      
+      yearData.weightedGradeSum += termWeightedGrades;
+      yearData.unitSum += termUnits;
+    }
+
+    const yearTrendData = Array.from(yearsMap.entries()).map(([year, data]) => ({
+      label: year.split("-").map(y => y.slice(-2)).join("-"),
+      gwa: data.unitSum > 0 ? data.weightedGradeSum / data.unitSum : 0
+    })).sort((a, b) => a.label.localeCompare(b.label));
+
+    setYearTrend(yearTrendData);
 
   }, [courses]);
 
@@ -316,7 +361,11 @@ export default function DashboardPageClient() {
 
         {/* GWATrendCard */}
         <div className="col-span-12 lg:col-span-8">
-          <GWATrendCard currentGWA={cumulativeGWA} trendData={gwaTrend} />
+          <GWATrendCard 
+            currentGWA={cumulativeGWA} 
+            semesterTrend={semesterTrend} 
+            yearTrend={yearTrend} 
+          />
         </div>
 
         {/* CoursesCard */}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { GWATrendCardProps } from "@/types";
 import {
   LineChart,
@@ -22,10 +23,17 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
-  const data = trendData.map((gwa, index) => ({
-    semester: `S${(index % 2) + 1} ${(index < 2 ? 23 : 24)}`, // Mocking years for visual appeal as in HTML
-    gwa: gwa,
+export default function GWATrendCard({ 
+  semesterTrend = [], 
+  yearTrend = [] 
+}: GWATrendCardProps) {
+  const [viewMode, setViewMode] = useState<"semesters" | "years">("semesters");
+
+  const activeData = viewMode === "semesters" ? semesterTrend : yearTrend;
+  
+  const chartData = activeData.map((item) => ({
+    label: item.label,
+    gwa: item.gwa,
   }));
 
   return (
@@ -35,21 +43,40 @@ export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
           <h3 className="text-xl font-bold text-on-surface tracking-tight">Performance Vector</h3>
           <p className="text-xs text-on-surface-variant mt-1 uppercase tracking-widest font-semibold">Longitudinal Analysis</p>
         </div>
-        <div className="flex gap-2">
-          <button className="px-4 py-1.5 text-[10px] font-bold bg-surface border border-outline-variant/30 shadow-sm text-on-surface">Semesters</button>
-          <button className="px-4 py-1.5 text-[10px] font-bold text-on-surface-variant/50">Years</button>
+        <div className="flex gap-2 bg-surface-container-high/50 p-1 rounded-lg border border-outline-variant/10">
+          <button 
+            onClick={() => setViewMode("semesters")}
+            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+              viewMode === "semesters" 
+                ? "bg-surface border border-outline-variant/30 shadow-sm text-on-surface" 
+                : "text-on-surface-variant/40 hover:text-on-surface-variant"
+            }`}
+          >
+            Semesters
+          </button>
+          <button 
+            onClick={() => setViewMode("years")}
+            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+              viewMode === "years" 
+                ? "bg-surface border border-outline-variant/30 shadow-sm text-on-surface" 
+                : "text-on-surface-variant/40 hover:text-on-surface-variant"
+            }`}
+          >
+            Years
+          </button>
         </div>
       </div>
 
       <div className="flex-1 w-full min-h-[160px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={data}
+            key={viewMode}
+            data={chartData}
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--outline-variant) / 0.2)" />
             <XAxis 
-              dataKey="semester" 
+              dataKey="label" 
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 10, fontWeight: 700, fill: "hsl(var(--on-surface-variant))" }}
@@ -57,7 +84,7 @@ export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
             />
             <YAxis
               domain={[1.0, 5.0]}
-              reversed={true} // In PH system, 1.0 is better than 5.0
+              reversed={true}
               hide={true}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -68,14 +95,15 @@ export default function GWATrendCard({ trendData = [] }: GWATrendCardProps) {
               strokeWidth={4}
               dot={{ fill: "hsl(var(--primary-container))", stroke: "hsl(var(--primary))", strokeWidth: 2, r: 6 }}
               activeDot={{ r: 8, strokeWidth: 0 }}
+              animationDuration={1000}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
       
       <div className="mt-4 flex justify-between px-2">
-        <span className="text-[10px] font-bold text-on-surface-variant/50 uppercase">Historical</span>
-        <span className="text-[10px] font-bold text-on-surface uppercase">Latest Semester</span>
+        <span className="text-[10px] font-bold text-on-surface-variant/50 uppercase">Historical Trend</span>
+        <span className="text-[10px] font-bold text-on-surface uppercase">{viewMode === "semesters" ? "Latest Term" : "Latest Year"}</span>
       </div>
     </div>
   );

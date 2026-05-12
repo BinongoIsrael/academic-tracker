@@ -23,7 +23,8 @@ export interface CurrentGWACardProps {
 
 export interface GWATrendCardProps {
   currentGWA: number;
-  trendData?: number[];
+  semesterTrend?: { label: string; gwa: number }[];
+  yearTrend?: { label: string; gwa: number }[];
 }
 
 export interface AddCourseButtonProps {
