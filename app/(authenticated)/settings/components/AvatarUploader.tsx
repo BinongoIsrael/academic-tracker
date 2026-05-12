@@ -26,13 +26,13 @@ export default function AvatarUploader({ user, url, onUpload }: AvatarUploaderPr
       const fileExt = file.name.split(".").pop();
       const filePath = `${user.id}-${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage.from("users").upload(filePath, file);
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file);
 
       if (uploadError) {
         throw uploadError;
       }
 
-      const { data } = supabase.storage.from("users").getPublicUrl(filePath);
+      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
       
       if (!data.publicUrl) {
           throw new Error("Could not get public URL for the uploaded file.");
