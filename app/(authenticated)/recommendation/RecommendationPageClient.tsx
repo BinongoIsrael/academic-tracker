@@ -110,10 +110,37 @@ export default function RecommendationPageClient() {
             
             {recommendation && (
               <div className="space-y-8">
-                <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0_20px_40px_rgba(26,27,36,0.06)]">
-                  <article className="prose prose-slate max-w-none prose-headings:text-on-surface prose-headings:font-black prose-headings:tracking-tight prose-strong:text-on-surface prose-p:leading-relaxed prose-li:my-1">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{recommendation}</ReactMarkdown>
-                  </article>
+                <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0_20px_40px_rgba(26,27,36,0.06)] border border-outline-variant/10">
+                  <div className="prose prose-slate max-w-none">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({node, ...props}) => <h1 className="text-3xl font-black text-on-surface mb-6 mt-8 flex items-center gap-3 border-b border-outline-variant/20 pb-4" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-2xl font-black text-on-surface mb-4 mt-8 flex items-center gap-3" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-xl font-bold text-primary mb-3 mt-6 uppercase tracking-wider" {...props} />,
+                        p: ({node, ...props}) => <p className="text-on-surface-variant leading-relaxed mb-4 text-base font-medium" {...props} />,
+                        ul: ({node, ...props}) => <ul className="space-y-3 mb-6 ml-4" {...props} />,
+                        ol: ({node, ...props}) => <ol className="space-y-3 mb-6 ml-4 list-decimal" {...props} />,
+                        li: ({node, ...props}) => (
+                          <li className="flex items-start gap-3 group">
+                            <span className="mt-2 w-1.5 h-1.5 rounded-full bg-brand-green shrink-0 group-hover:scale-125 transition-transform" />
+                            <div className="text-on-surface-variant font-medium flex-1">{props.children}</div>
+                          </li>
+                        ),
+                        blockquote: ({node, ...props}) => (
+                          <blockquote className="border-l-4 border-brand-green bg-surface-container-low/50 p-6 my-8 rounded-r-xl italic text-on-surface/90 relative overflow-hidden" {...props}>
+                            <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-6xl text-brand-green/10 select-none">format_quote</span>
+                            {props.children}
+                          </blockquote>
+                        ),
+                        strong: ({node, ...props}) => <strong className="font-extrabold text-on-surface bg-brand-green/10 px-0.5 rounded" {...props} />,
+                        code: ({node, ...props}) => <code className="bg-surface-container-high px-1.5 py-0.5 rounded font-mono text-[11px] text-primary font-bold border border-outline-variant/20" {...props} />,
+                        hr: ({node, ...props}) => <hr className="my-10 border-outline-variant/20" {...props} />,
+                      }}
+                    >
+                      {recommendation}
+                    </ReactMarkdown>
+                  </div>
                 </div>
 
                 {/* Projected Milestones */}
