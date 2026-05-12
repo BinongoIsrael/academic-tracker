@@ -19,6 +19,7 @@ export default function AuthenticatedHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<{ courses: Course[]; terms: Term[] }>({
@@ -76,13 +77,57 @@ export default function AuthenticatedHeader() {
   ];
 
   useEffect(() => {
-    const getUser = async () => {
+    let subscription: any;
+
+    const getUserAndProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url")
+          .eq("id", user.id)
+          .single();
+        
+        if (profileData) {
+          setProfile(profileData);
+        }
+
+        subscription = supabase
+          .channel(`profile:${user.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'profiles',
+              filter: `id=eq.${user.id}`
+            },
+            (payload) => {
+              if (payload.eventType === 'DELETE') {
+                setProfile(null);
+              } else {
+                setProfile({
+                  full_name: payload.new.full_name,
+                  avatar_url: payload.new.avatar_url
+                });
+              }
+            }
+          )
+          .subscribe();
+      }
     };
-    getUser();
+
+    getUserAndProfile();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, []);
 
   const fetchIndex = useCallback(async () => {
@@ -317,7 +362,15 @@ export default function AuthenticatedHeader() {
 
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
-          <UserMenu user={user} />
+          <UserMenu 
+            user={{
+              email: user.email,
+              user_metadata: {
+                full_name: profile?.full_name || user.user_metadata?.full_name,
+                avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url,
+              }
+            }} 
+          />
         </div>
       </div>
     </header>
