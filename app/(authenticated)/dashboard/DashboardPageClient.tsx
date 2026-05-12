@@ -5,6 +5,7 @@ import { supabase } from "@/utils/supabase/client";
 import CurrentGWACard from "./components/CurrentGWACard";
 import GWATrendCard from "./components/GWATrendCard";
 import CoursesCard from "./components/CoursesCard";
+import InfoPanel from "./components/InfoPanel";
 import { Course, Term } from "@/types";
 import { User } from "@supabase/supabase-js";
 import CreateCourseModal from "../courses/components/CreateCourseModal";
@@ -16,7 +17,14 @@ export default function DashboardPageClient() {
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(true);
   const [cumulativeGWA, setCumulativeGWA] = useState<number>(0.0);
-  const [gwaTrend, setGwaTrend] = useState<number[]>([]);
+  const [semesterTrend, setSemesterTrend] = useState<{ label: string; gwa: number }[]>([]);
+  const [yearTrend, setYearTrend] = useState<{ label: string; gwa: number }[]>([]);
+  const [infoPanelStats, setInfoPanelStats] = useState({
+    targetGWA: 0,
+    enrolledUnits: 0,
+    completedUnits: 0,
+    currentGWA: 0,
+  });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -27,7 +35,6 @@ export default function DashboardPageClient() {
     setUser(user);
 
     if (user) {
-      // Fetch Courses with Terms
       const { data: coursesData, error: coursesError } = await supabase
         .from("courses")
         .select(
@@ -68,7 +75,6 @@ export default function DashboardPageClient() {
         console.error("Error fetching courses:", coursesError);
       }
 
-      // Fetch all Terms for the modal
       const { data: termsData, error: termsError } = await supabase
         .from("terms")
         .select("*")
@@ -104,7 +110,14 @@ export default function DashboardPageClient() {
   useEffect(() => {
     if (courses.length === 0) {
       setCumulativeGWA(0.0);
-      setGwaTrend([]);
+      setSemesterTrend([]);
+      setYearTrend([]);
+      setInfoPanelStats({
+        targetGWA: 0,
+        enrolledUnits: 0,
+        completedUnits: 0,
+        currentGWA: 0,
+      });
       return;
     }
 
@@ -150,56 +163,177 @@ export default function DashboardPageClient() {
       return { termInfo, gwa };
     });
 
+    const activeTermData = termGWAs.find(t => t.termInfo.isActive) || termGWAs[0];
+    if (activeTermData) {
+      const activeCourses = termsMap.get(activeTermData.termInfo.id)?.courses || [];
+      const enrolled = activeCourses.reduce((sum, c) => sum + (c.units || 0), 0);
+      const completed = activeCourses
+        .filter(c => c.grade !== null && c.grade !== undefined && Number(c.grade) > 0)
+        .reduce((sum, c) => sum + (c.units || 0), 0);
+      
+      const targetGpaSum = activeCourses.reduce((sum, c) => sum + (c.target_gpa || 0), 0);
+      const avgTarget = activeCourses.length > 0 ? targetGpaSum / activeCourses.length : 0;
+
+      setInfoPanelStats({
+        targetGWA: avgTarget,
+        enrolledUnits: enrolled,
+        completedUnits: completed,
+        currentGWA: activeTermData.gwa,
+      });
+    }
+
     termGWAs.sort((a, b) => {
         const yearCompare = a.termInfo.academicYear.localeCompare(b.termInfo.academicYear);
         if (yearCompare !== 0) return yearCompare;
         return a.termInfo.semester.localeCompare(b.termInfo.semester);
     });
 
-    setGwaTrend(termGWAs.map(item => item.gwa));
+    setSemesterTrend(termGWAs.map(item => {
+      const semPrefix = item.termInfo.semester.startsWith("1") ? "S1" : 
+                        item.termInfo.semester.startsWith("2") ? "S2" : "SS";
+      const yearSuffix = item.termInfo.academicYear.split("-").map(y => y.slice(-2)).join("-");
+      
+      return {
+        label: `${semPrefix} ${yearSuffix}`,
+        gwa: item.gwa
+      };
+    }));
+
+    const yearsMap = new Map<string, { weightedGradeSum: number, unitSum: number }>();
+    for (const item of termGWAs) {
+      const year = item.termInfo.academicYear;
+      if (!yearsMap.has(year)) {
+        yearsMap.set(year, { weightedGradeSum: 0, unitSum: 0 });
+      }
+      const yearData = yearsMap.get(year)!;
+      
+      let termUnits = 0;
+      let termWeightedGrades = 0;
+      const termCourses = termsMap.get(item.termInfo.id)?.courses || [];
+      for (const course of termCourses) {
+        const grade = parseFloat(String(course.grade ?? 0));
+        const units = parseFloat(String(course.units ?? 0));
+        if (!isNaN(grade) && !isNaN(units) && units > 0 && grade > 0 && grade !== 5.0) {
+          termWeightedGrades += grade * units;
+          termUnits += units;
+        }
+      }
+      
+      yearData.weightedGradeSum += termWeightedGrades;
+      yearData.unitSum += termUnits;
+    }
+
+    const yearTrendData = Array.from(yearsMap.entries()).map(([year, data]) => ({
+      label: year.split("-").map(y => y.slice(-2)).join("-"),
+      gwa: data.unitSum > 0 ? data.weightedGradeSum / data.unitSum : 0
+    })).sort((a, b) => a.label.localeCompare(b.label));
+
+    setYearTrend(yearTrendData);
 
   }, [courses]);
 
   const handleCreateCourse = async (courseData: any) => {
     try {
-      const { data, error } = await supabase
+      if (
+        !courseData.courseTitle ||
+        !courseData.academicTerm ||
+        !courseData.courseType ||
+        !courseData.units
+      ) {
+        setToast({
+          message: "Please fill in all required fields",
+          type: "error",
+        });
+        return;
+      }
+
+      const courseInsertData: any = {
+        user_id: user?.id,
+        term_id: courseData.academicTerm,
+        course_name: courseData.courseTitle,
+        course_code: courseData.courseCode,
+        course_type: courseData.courseType,
+        units: parseFloat(courseData.units),
+        course_structure: courseData.courseStructure,
+        target_gpa: courseData.targetGPA
+          ? parseFloat(courseData.targetGPA)
+          : null,
+        course_color: courseData.courseColor,
+        lecture_percentage: courseData.lecturePercentage,
+        laboratory_percentage: courseData.laboratoryPercentage,
+      };
+
+      if (
+        courseData.gradeInputMode === "final" &&
+        courseData.finalGrade !== undefined
+      ) {
+        courseInsertData.grade = courseData.finalGrade;
+      }
+
+      const { data: newCourse, error: courseError } = await supabase
         .from("courses")
-        .insert([
-          {
-            user_id: user?.id,
-            term_id: courseData.termId,
-            course_name: courseData.courseName,
-            course_code: courseData.courseCode,
-            units: courseData.units,
-            course_type: courseData.courseType,
-            course_color: courseData.courseColor,
-            course_structure: courseData.courseStructure,
-            grade_input_mode: courseData.gradeInputMode,
-            grade: courseData.grade,
-            lecture_percentage: courseData.lecturePercentage,
-            laboratory_percentage: courseData.laboratoryPercentage,
-          },
-        ])
+        .insert(courseInsertData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (courseError) throw courseError;
 
-      // Handle assessments if any
-      if (courseData.assessments && courseData.assessments.length > 0) {
-        const assessmentsToInsert = courseData.assessments.map((a: any) => ({
-          course_id: data.id,
-          assessment_name: a.assessment_name,
-          occurrences: a.occurrences,
-          percentage: a.percentage,
-          type: a.type,
-        }));
+      if (
+        courseData.gradeInputMode === "assessments" ||
+        !courseData.gradeInputMode
+      ) {
+        const allAssessments = [];
 
-        const { error: assessmentError } = await supabase
-          .from("assessments")
-          .insert(assessmentsToInsert);
+        const lectureAssessmentData = courseData.lectureAssessments
+          .filter((a: any) => a.assessment_name && a.occurrences && a.percentage)
+          .map((a: any) => ({
+            course_id: newCourse.id,
+            assessment_name: a.assessment_name,
+            occurrences: a.occurrences,
+            percentage: a.percentage,
+            component_type: "Lecture",
+          }));
+        allAssessments.push(...lectureAssessmentData);
 
-        if (assessmentError) throw assessmentError;
+        if (courseData.courseStructure === "Lecture + Laboratory") {
+          const labAssessmentData = courseData.laboratoryAssessments
+            .filter((a: any) => a.assessment_name && a.occurrences && a.percentage)
+            .map((a: any) => ({
+              course_id: newCourse.id,
+              assessment_name: a.assessment_name,
+              occurrences: a.occurrences,
+              percentage: a.percentage,
+              component_type: "Laboratory",
+            }));
+          allAssessments.push(...labAssessmentData);
+        }
+
+        if (allAssessments.length > 0) {
+          const { data: insertedAssessments, error: assessmentError } =
+            await supabase.from("assessments").insert(allAssessments).select();
+
+          if (assessmentError) throw assessmentError;
+
+          const gradeRecords = [];
+          for (const assessment of insertedAssessments) {
+            for (let i = 1; i <= assessment.occurrences; i++) {
+              gradeRecords.push({
+                course_id: newCourse.id,
+                assessment_id: assessment.id,
+                occurrence_number: i,
+                grade: null,
+              });
+            }
+          }
+
+          if (gradeRecords.length > 0) {
+            const { error: gradesError } = await supabase
+              .from("assessment_grades")
+              .insert(gradeRecords);
+
+            if (gradesError) throw gradesError;
+          }
+        }
       }
 
       setToast({ message: "Course created successfully!", type: "success" });
@@ -207,7 +341,10 @@ export default function DashboardPageClient() {
       fetchData();
     } catch (error: any) {
       console.error("Error creating course:", error);
-      setToast({ message: error.message || "Failed to create course", type: "error" });
+      setToast({
+        message: error.message || "Failed to create course",
+        type: "error",
+      });
     }
   };
 
@@ -242,24 +379,33 @@ export default function DashboardPageClient() {
         </div>
       </section>
 
-      {/* Bento Grid Layout */}
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
-        {/* CurrentGWACard (Main Spotlight) */}
         <div className="col-span-12 lg:col-span-4">
           <CurrentGWACard gwa={cumulativeGWA} />
         </div>
 
-        {/* GWATrendCard */}
         <div className="col-span-12 lg:col-span-8">
-          <GWATrendCard currentGWA={cumulativeGWA} trendData={gwaTrend} />
+          <GWATrendCard 
+            currentGWA={cumulativeGWA} 
+            semesterTrend={semesterTrend} 
+            yearTrend={yearTrend} 
+          />
         </div>
 
-        {/* CoursesCard */}
-        <div className="col-span-12">
+        <div className="col-span-12 lg:col-span-9">
           <CoursesCard 
             courses={courses} 
             onAddCourse={() => setIsCreateModalOpen(true)} 
           />
+        </div>
+
+        <div className="col-span-12 lg:col-span-3">
+            <InfoPanel 
+              targetGWA={infoPanelStats.targetGWA}
+              enrolledUnits={infoPanelStats.enrolledUnits}
+              completedUnits={infoPanelStats.completedUnits}
+              currentGWA={infoPanelStats.currentGWA}
+            />
         </div>
       </div>
 

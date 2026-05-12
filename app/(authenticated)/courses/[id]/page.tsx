@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/client";
 import {
@@ -116,8 +116,6 @@ export default function CourseDetailPage() {
         term: mappedTerms.find((t) => t.id === courseData.term_id),
       };
 
-      console.log("Mapped course:", mappedCourse);
-
       setCourse(mappedCourse);
 
       const { data: scaleData } = await supabase
@@ -184,7 +182,7 @@ export default function CourseDetailPage() {
           }
         }
         setGrades(allGrades);
-        calculateGrades(mappedAssessments, allGrades, scaleData || []);
+        calculateGrades(mappedAssessments, allGrades, scaleData || [], mappedCourse);
       }
     } catch (error) {
       console.error("Error fetching course data:", error);
@@ -208,9 +206,9 @@ export default function CourseDetailPage() {
       gradingScale.length > 0 &&
       !hasFinalGradeOnly
     ) {
-      calculateGrades(assessments, grades, gradingScale);
+      calculateGrades(assessments, grades, gradingScale, course);
     }
-  }, [assessments, grades, gradingScale, hasFinalGradeOnly, calculateGrades]);
+  }, [assessments, grades, gradingScale, hasFinalGradeOnly, calculateGrades, course]);
 
   const handleUpdateOccurrences = async (
     assessmentId: string,
@@ -324,7 +322,7 @@ export default function CourseDetailPage() {
   };
 
   const handleCalculate = () => {
-    calculateGrades(assessments, grades, gradingScale);
+    calculateGrades(assessments, grades, gradingScale, course);
     setToast({
       message: "Grades calculated successfully!",
       type: "success",
@@ -378,7 +376,7 @@ export default function CourseDetailPage() {
         return;
       }
 
-      calculateGrades(assessments, grades, gradingScale);
+      calculateGrades(assessments, grades, gradingScale, course);
 
       const existingGrades = grades.filter((g) => !g.id.startsWith("new-"));
       const newGrades = grades.filter(

@@ -7,10 +7,10 @@ export default function AddCourseButton({ onClick }: AddCourseButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1.5 h-[50px] px-4 bg-brand-green border border-black rounded-[30px] text-button text-black hover:bg-green-light transition-all active:scale-95 neo-shadow-hover flex-shrink-0"
+      className="flex items-center gap-1.5 h-[40px] md:h-[50px] px-3 md:px-4 bg-brand-green border border-black rounded-[30px] text-black hover:bg-green-light transition-all active:scale-95 neo-shadow-hover flex-shrink-0"
     >
-      <span className="font-bold">Add Course</span>
-      <Plus className="w-5 h-5" strokeWidth={3} />
+      <span className="font-bold hidden sm:inline text-xs md:text-sm">Add Course</span>
+      <Plus className="w-4 h-4 md:w-5 md:h-5" strokeWidth={3} />
     </button>
   );
 }

@@ -42,20 +42,8 @@ export default function CoursesCard({ courses = [], onAddCourse }: ExtendedCours
           <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Active Curriculum</h3>
           <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Academic Year {new Date().getFullYear()}</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           <AddCourseButton onClick={onAddCourse} />
-          {hasCourses && (
-            <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="h-[50px] px-3 border border-outline-variant/30 rounded-[30px] focus:ring-2 focus:ring-primary/20 focus:outline-none text-[10px] font-bold uppercase tracking-widest bg-white cursor-pointer custom-select pr-10"
-            >
-                <option value="course_name-asc">Name (A-Z)</option>
-                <option value="course_name-desc">Name (Z-A)</option>
-                <option value="grade-desc">GPA (High-Low)</option>
-                <option value="grade-asc">GPA (Low-High)</option>
-            </select>
-           )}
         </div>
       </div>
 

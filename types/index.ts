@@ -23,7 +23,8 @@ export interface CurrentGWACardProps {
 
 export interface GWATrendCardProps {
   currentGWA: number;
-  trendData?: number[];
+  semesterTrend?: { label: string; gwa: number }[];
+  yearTrend?: { label: string; gwa: number }[];
 }
 
 export interface AddCourseButtonProps {
@@ -136,6 +137,7 @@ export interface CreateCourseFormProps {
   terms: Term[];
   onSubmit: (courseData: {
     courseTitle: string;
+    courseCode: string;
     academicTerm: string;
     courseType: string;
     units: string;
@@ -259,6 +261,7 @@ export interface EditCourseModalProps {
   terms: Term[];
   onSave: (updatedCourse: {
     course_name: string;
+    course_code: string;
     term_id: string;
     course_type: string;
     units: number;
@@ -309,6 +312,13 @@ export interface GWABreakdownProps {
   academicYear: string;
   specificRange: string;
   courses: Course[];
+}
+
+export interface InfoPanelProps {
+  targetGWA: number;
+  enrolledUnits: number;
+  completedUnits: number;
+  currentGWA: number;
 }
 
 export interface AvatarUploaderProps {

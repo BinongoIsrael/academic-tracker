@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Assessment, Course, Term } from "@/types";
@@ -107,6 +107,7 @@ export default function CoursesPageClient() {
 
   const handleCreateCourse = async (courseData: {
     courseTitle: string;
+    courseCode: string;
     academicTerm: string;
     courseType: string;
     units: string;
@@ -147,6 +148,7 @@ export default function CoursesPageClient() {
         user_id: user.id,
         term_id: courseData.academicTerm,
         course_name: courseData.courseTitle,
+        course_code: courseData.courseCode,
         course_type: courseData.courseType,
         units: parseFloat(courseData.units),
         course_structure: courseData.courseStructure,
