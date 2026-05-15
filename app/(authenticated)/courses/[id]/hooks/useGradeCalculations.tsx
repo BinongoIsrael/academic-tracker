@@ -39,7 +39,7 @@ export function useGradeCalculations(course: Course | null) {
           if (gradeEntry && gradeEntry.grade !== null) {
             const contribution = (gradeEntry.grade * weightPerOccurrence) / 100;
             totalEarnedContribution += contribution;
-            totalPointsEarnedRaw += contribution * 100; // Raw points (0-100 scale)
+            totalPointsEarnedRaw += contribution;
             totalCompletedWeight += weightPerOccurrence;
           } else {
             totalRemainingWeight += weightPerOccurrence;
