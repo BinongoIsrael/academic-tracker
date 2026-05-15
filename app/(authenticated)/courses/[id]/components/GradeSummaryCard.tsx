@@ -15,10 +15,24 @@ export default function GradeSummaryCard({
     <section className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Target GPA */}
-        <div className="bg-surface-container-high p-8 rounded-lg border border-outline-variant/10 relative overflow-hidden group">
-          <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-on-surface opacity-5 text-7xl rotate-12 group-hover:scale-110 transition-transform">flag</span>
+        <div className="bg-surface-container-high p-8 rounded-lg border border-outline-variant/10 relative group/card">
+          {/* Decoration Wrapper (handles overflow for background icon) */}
+          <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+            <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-on-surface opacity-5 text-7xl rotate-12 group-hover/card:scale-110 transition-transform">flag</span>
+          </div>
+
           <div className="relative z-10">
-            <p className="text-[10px] font-black uppercase text-on-surface-variant mb-2 tracking-widest">Target Objective</p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest text-nowrap">Target Objective</p>
+              <div className="group relative">
+                <span className="material-symbols-outlined text-xs text-on-surface-variant cursor-help hover:text-primary transition-colors">info</span>
+                {/* Modern Tooltip */}
+                <div className="absolute left-0 bottom-full mb-3 w-64 p-3 bg-surface-container-highest/95 backdrop-blur-md border border-outline-variant text-on-surface text-[10px] rounded-lg shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all z-50 font-medium leading-relaxed origin-bottom-left">
+                  <div className="font-black text-primary uppercase tracking-widest mb-1">Target Prediction</div>
+                  Your desired goal. Based on your grading scale, this predicts the required average needed on all remaining assessments to reach this GPA.
+                </div>
+              </div>
+            </div>
             <h4 className="text-5xl font-black text-on-surface tracking-tighter mb-1">{targetGPA.toFixed(2)}</h4>
             
             {/* Predictive Insight */}
@@ -60,10 +74,22 @@ export default function GradeSummaryCard({
         </div>
 
         {/* Current GPA */}
-        <div className="bg-primary-container p-8 rounded-lg relative overflow-hidden group">
-          <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-primary opacity-10 text-7xl rotate-12 group-hover:scale-110 transition-transform">trending_up</span>
+        <div className="bg-primary-container p-8 rounded-lg relative group/card border border-on-primary-container/5">
+          <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+            <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-primary opacity-10 text-7xl rotate-12 group-hover/card:scale-110 transition-transform">trending_up</span>
+          </div>
+
           <div className="relative z-10">
-            <p className="text-[10px] font-black uppercase text-on-primary-container/60 mb-2 tracking-widest">Real-time Average</p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-[10px] font-black uppercase text-on-primary-container/60 tracking-widest text-nowrap">Real-time Average</p>
+              <div className="group relative">
+                <span className="material-symbols-outlined text-xs text-on-primary-container/60 cursor-help hover:text-on-primary-container transition-colors">info</span>
+                <div className="absolute left-0 bottom-full mb-3 w-64 p-3 bg-surface-container-highest/95 backdrop-blur-md border border-outline-variant text-on-surface text-[10px] rounded-lg shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all z-50 font-medium leading-relaxed origin-bottom-left">
+                  <div className="font-black text-primary uppercase tracking-widest mb-1">Efficiency Metric</div>
+                  The normalized weighted average of only the tasks you have completed so far. This represents your current performance quality independent of progress.
+                </div>
+              </div>
+            </div>
             <h4 className="text-5xl font-black text-on-primary-container tracking-tighter mb-1">
                 {currentGPA !== null ? currentGPA.toFixed(2) : "N/A"}
             </h4>
@@ -81,10 +107,22 @@ export default function GradeSummaryCard({
         </div>
 
         {/* Final GPA Projection */}
-        <div className="bg-brand-dark p-8 rounded-lg relative overflow-hidden group shadow-lg">
-          <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-white opacity-5 text-7xl rotate-12 group-hover:scale-110 transition-transform">analytics</span>
+        <div className="bg-brand-dark p-8 rounded-lg relative group/card shadow-lg border border-white/5">
+          <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+            <span className="material-symbols-outlined absolute -right-2 -bottom-2 text-white opacity-5 text-7xl rotate-12 group-hover/card:scale-110 transition-transform">analytics</span>
+          </div>
+
           <div className="relative z-10">
-            <p className="text-[10px] font-black uppercase text-white/40 mb-2 tracking-widest">Projected Grade</p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-[10px] font-black uppercase text-white/40 tracking-widest text-nowrap">Projected Grade</p>
+              <div className="group relative">
+                <span className="material-symbols-outlined text-xs text-white/40 cursor-help hover:text-white transition-colors">info</span>
+                <div className="absolute left-0 bottom-full mb-3 w-64 p-3 bg-surface-container-highest/95 backdrop-blur-md border border-outline-variant text-on-surface text-[10px] rounded-lg shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all z-50 font-medium leading-relaxed origin-bottom-left">
+                  <div className="font-black text-primary uppercase tracking-widest mb-1">Progress Metric</div>
+                  The absolute sum of all weighted points earned so far toward the final 100% total. This grows as you complete more assessments.
+                </div>
+              </div>
+            </div>
             <h4 className="text-5xl font-black text-white tracking-tighter mb-1">
                 {finalGPA !== null ? finalGPA.toFixed(2) : "N/A"}
             </h4>
