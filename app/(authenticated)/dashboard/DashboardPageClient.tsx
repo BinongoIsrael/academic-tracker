@@ -6,6 +6,7 @@ import CurrentGWACard from "./components/CurrentGWACard";
 import GWATrendCard from "./components/GWATrendCard";
 import CoursesCard from "./components/CoursesCard";
 import InfoPanel from "./components/InfoPanel";
+import CardErrorBoundary from "@/components/CardErrorBoundary";
 import { Course, Term } from "@/types";
 import { User } from "@supabase/supabase-js";
 import CreateCourseModal from "../courses/components/CreateCourseModal";
@@ -381,31 +382,39 @@ export default function DashboardPageClient() {
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <div className="col-span-12 lg:col-span-4">
-          <CurrentGWACard gwa={cumulativeGWA} />
+          <CardErrorBoundary title="Current GWA">
+            <CurrentGWACard gwa={cumulativeGWA} />
+          </CardErrorBoundary>
         </div>
 
         <div className="col-span-12 lg:col-span-8">
-          <GWATrendCard 
-            currentGWA={cumulativeGWA} 
-            semesterTrend={semesterTrend} 
-            yearTrend={yearTrend} 
-          />
+          <CardErrorBoundary title="GWA Trend">
+            <GWATrendCard 
+              currentGWA={cumulativeGWA} 
+              semesterTrend={semesterTrend} 
+              yearTrend={yearTrend} 
+            />
+          </CardErrorBoundary>
         </div>
 
         <div className="col-span-12 lg:col-span-9">
-          <CoursesCard 
-            courses={courses} 
-            onAddCourse={() => setIsCreateModalOpen(true)} 
-          />
+          <CardErrorBoundary title="My Courses">
+            <CoursesCard 
+              courses={courses} 
+              onAddCourse={() => setIsCreateModalOpen(true)} 
+            />
+          </CardErrorBoundary>
         </div>
 
         <div className="col-span-12 lg:col-span-3">
+          <CardErrorBoundary title="Academic Stats">
             <InfoPanel 
               targetGWA={infoPanelStats.targetGWA}
               enrolledUnits={infoPanelStats.enrolledUnits}
               completedUnits={infoPanelStats.completedUnits}
               currentGWA={infoPanelStats.currentGWA}
             />
+          </CardErrorBoundary>
         </div>
       </div>
 

@@ -8,6 +8,8 @@ export default function GradeSummaryCard({
   finalGPA,
   finalPercentage,
   hasGradingScale,
+  requiredScoreToTarget,
+  targetStatus,
 }: GradeSummaryCardProps) {
   return (
     <section className="space-y-6">
@@ -18,7 +20,42 @@ export default function GradeSummaryCard({
           <div className="relative z-10">
             <p className="text-[10px] font-black uppercase text-on-surface-variant mb-2 tracking-widest">Target Objective</p>
             <h4 className="text-5xl font-black text-on-surface tracking-tighter mb-1">{targetGPA.toFixed(2)}</h4>
-            <p className="text-xs text-on-surface-variant font-medium">Desired Academic Grade Point</p>
+            
+            {/* Predictive Insight */}
+            <div className="mt-4 pt-4 border-t border-outline-variant/10">
+              {targetStatus === "possible" && requiredScoreToTarget != null && (
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-primary">Required average</p>
+                  <p className="text-xl font-black text-on-surface tracking-tighter">
+                    {requiredScoreToTarget.toFixed(1)}%
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant font-medium leading-tight">Needed on remaining tasks to reach target.</p>
+                </div>
+              )}
+              
+              {targetStatus === "reached" && (
+                <div className="flex items-center gap-2 text-primary">
+                  <span className="material-symbols-outlined text-sm">check_circle</span>
+                  <p className="text-[10px] font-black uppercase tracking-widest">Target Secured</p>
+                </div>
+              )}
+
+              {targetStatus === "impossible" && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-error">
+                    <span className="material-symbols-outlined text-sm">block</span>
+                    <p className="text-[10px] font-black uppercase tracking-widest">Mathematically Unreachable</p>
+                  </div>
+                  {requiredScoreToTarget != null && requiredScoreToTarget > 100 && (
+                    <p className="text-[9px] text-on-surface-variant font-medium">Requires {requiredScoreToTarget.toFixed(1)}% average (above 100%).</p>
+                  )}
+                </div>
+              )}
+
+              {targetStatus === "missing_scale" && (
+                <p className="text-[9px] text-on-surface-variant font-bold uppercase tracking-tighter italic">Grading scale required for prediction</p>
+              )}
+            </div>
           </div>
         </div>
 

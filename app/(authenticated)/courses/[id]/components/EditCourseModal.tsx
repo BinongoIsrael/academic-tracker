@@ -9,7 +9,7 @@ import CourseStructureRadio from "../../components/CourseStructureRadio";
 import DeleteCourseModal from "./DeleteCourseModal";
 import Toast from "../../../components/Toast";
 import { supabase } from "@/utils/supabase/client";
-import { courseSchema } from "@/lib/validations";
+import { courseSchema, assessmentSchema } from "@/lib/validations";
 import { z } from "zod";
 
 export default function EditCourseModal({
@@ -92,22 +92,20 @@ export default function EditCourseModal({
   }, [fetchAssessments]);
 
   const handleAddAssessment = async () => {
-    if (!assessmentForm.name || !assessmentForm.percentage) {
-      setToast({
-        message: "Please fill in assessment name and percentage",
-        type: "error",
-      });
-      return;
-    }
-
     try {
+      const validated = assessmentSchema.parse({
+        assessment_name: assessmentForm.name,
+        percentage: parseFloat(assessmentForm.percentage) || 0,
+        occurrences: parseInt(assessmentForm.occurrences) || 0,
+      });
+
       const { data, error } = await supabase
         .from("assessments")
         .insert({
           course_id: course.id,
-          assessment_name: assessmentForm.name,
-          percentage: parseFloat(assessmentForm.percentage),
-          occurrences: parseInt(assessmentForm.occurrences),
+          assessment_name: validated.assessment_name,
+          percentage: validated.percentage,
+          occurrences: validated.occurrences,
           component_type: assessmentForm.componentType,
         })
         .select()
@@ -128,31 +126,30 @@ export default function EditCourseModal({
       });
 
       await fetchAssessments();
-    } catch (error) {
-      console.error("Error adding assessment:", error);
-      setToast({
-        message: "Failed to add assessment",
-        type: "error",
-      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setToast({ message: err.issues[0].message, type: "error" });
+      } else {
+        console.error("Error adding assessment:", err);
+        setToast({ message: "Failed to add assessment", type: "error" });
+      }
     }
   };
 
   const handleEditAssessment = async (assessmentId: string) => {
-    if (!assessmentForm.name || !assessmentForm.percentage) {
-      setToast({
-        message: "Please fill in assessment name and percentage",
-        type: "error",
-      });
-      return;
-    }
-
     try {
+      const validated = assessmentSchema.parse({
+        assessment_name: assessmentForm.name,
+        percentage: parseFloat(assessmentForm.percentage) || 0,
+        occurrences: parseInt(assessmentForm.occurrences) || 0,
+      });
+
       const { error } = await supabase
         .from("assessments")
         .update({
-          assessment_name: assessmentForm.name,
-          percentage: parseFloat(assessmentForm.percentage),
-          occurrences: parseInt(assessmentForm.occurrences),
+          assessment_name: validated.assessment_name,
+          percentage: validated.percentage,
+          occurrences: validated.occurrences,
           component_type: assessmentForm.componentType,
         })
         .eq("id", assessmentId);
@@ -173,12 +170,13 @@ export default function EditCourseModal({
       });
 
       await fetchAssessments();
-    } catch (error) {
-      console.error("Error updating assessment:", error);
-      setToast({
-        message: "Failed to update assessment",
-        type: "error",
-      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setToast({ message: err.issues[0].message, type: "error" });
+      } else {
+        console.error("Error updating assessment:", err);
+        setToast({ message: "Failed to update assessment", type: "error" });
+      }
     }
   };
 

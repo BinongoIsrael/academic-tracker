@@ -254,6 +254,8 @@ export interface GradeSummaryCardProps {
   finalGPA: number | null;
   finalPercentage: number | null;
   hasGradingScale: boolean;
+  requiredScoreToTarget?: number | null;
+  targetStatus?: "possible" | "reached" | "impossible" | "missing_scale" | "no_target";
 }
 
 export interface EditCourseModalProps {

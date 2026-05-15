@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { X, XCircle, Plus, Calendar, BookOpen, Award, AlertCircle, AlertTriangle } from "lucide-react";
 import { Term, Course, EditTermModalProps } from "@/types";
 import DeleteCourseModal from "../../courses/[id]/components/DeleteCourseModal";
+import { termSchema } from "@/lib/validations";
+import { z } from "zod";
 
 export default function EditTermModal({
   term,
@@ -20,7 +22,7 @@ export default function EditTermModal({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
 
   const currentYear = new Date().getFullYear();
@@ -43,13 +45,6 @@ export default function EditTermModal({
     }
   }, [term]);
 
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
-
   if (!isOpen || !term) return null;
 
   const handleAcademicYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,49 +59,43 @@ export default function EditTermModal({
       const hyphenCount = (value.match(/-/g) || []).length;
       if (hyphenCount <= 1) {
         setAcademicYear(value);
-        setError(null);
+        setErrors((prev) => ({ ...prev, academicYear: "" }));
       }
     }
   };
 
   const handleSave = async () => {
-    setError(null);
+    setErrors({});
 
-    const academicYearPattern = /^\d{4}-\d{4}$/;
-    if (!academicYearPattern.test(academicYear)) {
-      setError(`Please enter academic year in format: YYYY-YYYY (e.g., ${placeholderText})`);
-      return;
-    }
-
-    const [startYear, endYear] = academicYear.split("-").map(Number);
-    
-    if (endYear !== startYear + 1) {
-      setError(`End year must be exactly one year after start year (e.g., ${placeholderText})`);
-      return;
-    }
-
-    if (startYear >= endYear) {
-      setError("Start year must be before end year");
-      return;
-    }
-
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      setError("Start date must be before or equal to end date");
-      return;
-    }
-
-    setLoading(true);
     try {
-      await onSave(term.id, {
+      const validatedData = termSchema.parse({
         academicYear,
         semester,
         startDate: startDate || null,
         endDate: endDate || null,
       });
+
+      setLoading(true);
+      await onSave(term.id, {
+        academicYear: validatedData.academicYear,
+        semester: validatedData.semester,
+        startDate: validatedData.startDate || null,
+        endDate: validatedData.endDate || null,
+      });
       onClose();
-    } catch (error) {
-      console.error("Error saving term:", error);
-      setError("Failed to save changes. Please try again.");
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0].toString()] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        console.error("Error saving term:", err);
+        setErrors({ form: "Failed to save changes. Please try again." });
+      }
     } finally {
       setLoading(false);
     }
@@ -148,10 +137,10 @@ export default function EditTermModal({
         </div>
 
         <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
-          {error && (
+          {errors.form && (
             <div className="bg-error-container/20 border border-error/10 rounded-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2">
               <span className="material-symbols-outlined text-error text-xl">error</span>
-              <p className="text-sm font-medium text-error flex-1">{error}</p>
+              <p className="text-sm font-medium text-error flex-1">{errors.form}</p>
             </div>
           )}
 
@@ -164,8 +153,9 @@ export default function EditTermModal({
                 onChange={handleAcademicYearChange}
                 maxLength={9}
                 placeholder={placeholderText}
-                className="w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold"
+                className={`w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold ${errors.academicYear ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.academicYear && <p className="text-[10px] font-bold text-error">{errors.academicYear}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Session Type</label>

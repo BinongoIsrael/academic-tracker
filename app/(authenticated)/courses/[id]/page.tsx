@@ -18,6 +18,7 @@ import GradeSummaryCard from "./components/GradeSummaryCard";
 import ActionButtons from "./components/ActionButtons";
 import EditCourseModal from "./components/EditCourseModal";
 import { useGradeCalculations } from "./hooks/useGradeCalculations";
+import CardErrorBoundary from "@/components/CardErrorBoundary";
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -43,6 +44,8 @@ export default function CourseDetailPage() {
     finalPercentage,
     currentGPA,
     finalGPA,
+    requiredScoreToTarget,
+    targetStatus,
     calculateGrades,
   } = useGradeCalculations(course);
 
@@ -557,14 +560,18 @@ export default function CourseDetailPage() {
               )}
 
               <div className="grid grid-cols-1 gap-8">
-                <GradeSummaryCard
-                  targetGPA={targetGPA}
-                  currentGPA={displayCurrentGPA ?? null}
-                  currentPercentage={currentPercentage}
-                  finalGPA={displayFinalGPA ?? null}
-                  finalPercentage={finalPercentage}
-                  hasGradingScale={hasGradingScale}
-                />
+                <CardErrorBoundary title="Grade Summary">
+                  <GradeSummaryCard
+                    targetGPA={targetGPA}
+                    currentGPA={displayCurrentGPA ?? null}
+                    currentPercentage={currentPercentage}
+                    finalGPA={displayFinalGPA ?? null}
+                    finalPercentage={finalPercentage}
+                    hasGradingScale={hasGradingScale}
+                    requiredScoreToTarget={requiredScoreToTarget}
+                    targetStatus={targetStatus}
+                  />
+                </CardErrorBoundary>
               </div>
 
               {hasFinalGradeOnly && (
@@ -584,23 +591,27 @@ export default function CourseDetailPage() {
                 <div className="space-y-12">
                   {lectureAssessments.length > 0 && (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
-                      <AssessmentGradeInput
-                        title={`Lecture Assessments (${lecturePercentage}%)`}
-                        assessments={lectureAssessments}
-                        grades={grades}
-                        onGradeChange={handleGradeChange}
-                      />
+                      <CardErrorBoundary title="Lecture Assessments">
+                        <AssessmentGradeInput
+                          title={`Lecture Assessments (${lecturePercentage}%)`}
+                          assessments={lectureAssessments}
+                          grades={grades}
+                          onGradeChange={handleGradeChange}
+                        />
+                      </CardErrorBoundary>
                     </div>
                   )}
 
                   {labAssessments.length > 0 && (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
-                      <AssessmentGradeInput
-                        title={`Laboratory Assessments (${laboratoryPercentage}%)`}
-                        assessments={labAssessments}
-                        grades={grades}
-                        onGradeChange={handleGradeChange}
-                      />
+                      <CardErrorBoundary title="Laboratory Assessments">
+                        <AssessmentGradeInput
+                          title={`Laboratory Assessments (${laboratoryPercentage}%)`}
+                          assessments={labAssessments}
+                          grades={grades}
+                          onGradeChange={handleGradeChange}
+                        />
+                      </CardErrorBoundary>
                     </div>
                   )}
 

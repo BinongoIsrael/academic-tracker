@@ -7,6 +7,7 @@ import { Assessment, Course, Term } from "@/types";
 import MyCoursesTable from "./components/MyCoursesTable";
 import Toast from "../components/Toast";
 import CreateCourseModal from "./components/CreateCourseModal";
+import CardErrorBoundary from "@/components/CardErrorBoundary";
 
 export default function CoursesPageClient() {
   const router = useRouter();
@@ -285,7 +286,9 @@ export default function CoursesPageClient() {
           </header>
 
           <div className="space-y-12">
-            <MyCoursesTable courses={courses} />
+            <CardErrorBoundary title="My Courses">
+              <MyCoursesTable courses={courses} />
+            </CardErrorBoundary>
           </div>
         </main>
 

@@ -9,6 +9,7 @@ import { Term, Course } from "@/types";
 import { supabase } from "@/utils/supabase/client";
 import DeleteTermModal from "./components/DeleteTermModal";
 import Toast from "../components/Toast";
+import CardErrorBoundary from "@/components/CardErrorBoundary";
 
 export default function TermsPageClient() {
   const [terms, setTerms] = useState<Term[]>([]);
@@ -337,11 +338,13 @@ export default function TermsPageClient() {
 
         <CreateNewTerm onCreateTerm={handleCreateTerm} />
 
-        <MyTerms
-          terms={terms}
-          onEditTerm={handleEditTerm}
-          onAddCourse={handleAddCourse}
-        />
+        <CardErrorBoundary title="My Terms">
+          <MyTerms
+            terms={terms}
+            onEditTerm={handleEditTerm}
+            onAddCourse={handleAddCourse}
+          />
+        </CardErrorBoundary>
       </main>
       <EditTermModal
         term={editingTerm}
