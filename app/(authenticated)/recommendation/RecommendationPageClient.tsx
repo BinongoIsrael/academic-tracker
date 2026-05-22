@@ -24,7 +24,12 @@ export default function RecommendationPageClient() {
         },
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        throw new Error('Failed to parse response from server.');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Something went wrong');
