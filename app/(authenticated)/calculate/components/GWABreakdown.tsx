@@ -112,8 +112,8 @@ export default function GWABreakdown({
         </button>
       </div>
 
-      <div ref={tableRef} className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div ref={tableRef} className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/10">
               <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Code</th>

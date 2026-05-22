@@ -13,6 +13,7 @@ import CardErrorBoundary from "@/components/CardErrorBoundary";
 
 import { useUser, useTerms } from "@/lib/hooks/useAcademicData";
 import { useQueryClient } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TermsPageClient() {
   const queryClient = useQueryClient();
@@ -184,12 +185,22 @@ export default function TermsPageClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface pb-20 lg:pb-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-on-surface-variant">Loading academic terms...</p>
-            </div>
+        <main className="w-full max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-8">
+          <header className="mb-12 space-y-4">
+            <Skeleton className="h-12 w-64" />
+            <Skeleton className="h-4 w-full max-w-lg" />
+          </header>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <Skeleton className="h-32 w-full rounded-lg" />
+            <Skeleton className="h-32 w-full rounded-lg" />
+            <Skeleton className="h-32 w-full rounded-lg" />
+            <Skeleton className="h-32 w-full rounded-lg" />
           </div>
+
+          <Skeleton className="h-48 w-full rounded-lg mb-12" />
+          <Skeleton className="h-[400px] w-full rounded-lg" />
+        </main>
       </div>
     );
   }
