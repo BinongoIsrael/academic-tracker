@@ -156,7 +156,7 @@ export default function RecommendationPageClient() {
                   </h2>
                   <div className="space-y-8">
                     <div className="flex flex-col sm:flex-row gap-6 items-start">
-                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">
+                      <div className="text-5xl font-bold text-brand-green tracking-tighter shrink-0 min-w-[120px] tabular-nums">
                         {milestones?.gpaVelocity || "-.--"}
                       </div>
                       <div className="flex-1">
@@ -165,7 +165,7 @@ export default function RecommendationPageClient() {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-6 items-start">
-                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">
+                      <div className="text-5xl font-bold text-brand-green tracking-tighter shrink-0 min-w-[120px] tabular-nums">
                         {milestones?.optimalTrajectory || "---"}
                       </div>
                       <div className="flex-1">
