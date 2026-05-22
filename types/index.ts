@@ -232,11 +232,13 @@ export interface GradingScaleSetupProps {
   courseId: string;
   onSave: (scales: Omit<GradingScale, 'id' | 'course_id' | 'created_at' | 'updated_at'>[]) => void;
   initialScales?: GradingScale[];
+  isSaving?: boolean;
 }
 
 export interface ActionButtonsProps {
   onCalculate: () => void;
   onSave: () => void;
+  isSaving?: boolean;
 }
 
 export interface CourseHeaderProps {
@@ -261,6 +263,7 @@ export interface GradeSummaryCardProps {
 export interface EditCourseModalProps {
   course: Course;
   terms: Term[];
+  assessments: Assessment[];
   onSave: (updatedCourse: {
     course_name: string;
     course_code: string;
