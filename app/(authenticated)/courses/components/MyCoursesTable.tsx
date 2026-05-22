@@ -3,13 +3,31 @@
 import { MyCoursesTableProps } from "@/types";
 import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
   const router = useRouter();
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const savedView = localStorage.getItem("coursesViewMode");
+    if (savedView === "list" || savedView === "grid") {
+      setViewMode(savedView);
+    }
+    setIsMounted(true);
+  }, []);
+
+  const handleViewModeChange = (mode: "list" | "grid") => {
+    setViewMode(mode);
+    localStorage.setItem("coursesViewMode", mode);
+  };
+
+  if (!isMounted) {
+    return <div className="min-h-[400px]" />;
+  }
 
   const averageGPA = courses.filter(c => c.grade && c.grade > 0).length > 0
     ? courses.filter(c => c.grade && c.grade > 0).reduce((sum, c) => sum + (c.grade || 0), 0) / courses.filter(c => c.grade && c.grade > 0).length
@@ -85,14 +103,14 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
           <h3 className="text-2xl font-bold text-on-surface">Course Portfolio</h3>
           <div className="flex items-center gap-2 bg-surface-container p-1 rounded-lg">
             <button
-              onClick={() => setViewMode("list")}
+              onClick={() => handleViewModeChange("list")}
               className={`p-2 rounded flex items-center gap-2 transition-all ${viewMode === "list" ? "bg-surface shadow-sm text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
             >
               <span className="material-symbols-outlined text-xl">view_list</span>
               <span className="text-xs font-bold uppercase tracking-tighter">List</span>
             </button>
             <button
-              onClick={() => setViewMode("grid")}
+              onClick={() => handleViewModeChange("grid")}
               className={`p-2 rounded flex items-center gap-2 transition-all ${viewMode === "grid" ? "bg-surface shadow-sm text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
             >
               <span className="material-symbols-outlined text-xl">grid_view</span>
