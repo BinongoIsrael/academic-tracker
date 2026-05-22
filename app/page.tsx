@@ -85,7 +85,7 @@ export default function Home() {
             <div className="md:col-span-4">
               <ScrollReveal direction="down" distance={100} duration={1} delay={0.2}>
                 <div className="bg-surface-container-low p-10 rounded-xl flex flex-col neo-shadow-hover transition-all h-full">
-                  <div className="mb-8 w-14 h-14 bg-secondary flex items-center justify-center rounded">
+                  <div className="mb-8 w-14 h-14 bg-primary flex items-center justify-center rounded">
                     <span className="material-symbols-outlined text-3xl text-white">calculate</span>
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Subject Grade Computation</h3>
