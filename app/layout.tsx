@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Poppins, Roboto, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils"
-import { ThemeProvider } from "@/components/ThemeProvider"
+import { cn } from "@/lib/utils";
+import { Providers } from "./providers";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -51,14 +51,9 @@ export default function RootLayout({
         spaceGrotesk.variable,
         inter.className
       )}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <Providers>
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

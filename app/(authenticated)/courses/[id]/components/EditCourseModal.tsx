@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Plus, Trash2, Edit2 } from "lucide-react";
 import { Course, EditCourseModalProps, Assessment } from "@/types";
@@ -8,17 +8,22 @@ import ColorPicker from "../../components/ColorPicker";
 import CourseStructureRadio from "../../components/CourseStructureRadio";
 import DeleteCourseModal from "./DeleteCourseModal";
 import Toast from "../../../components/Toast";
-import { supabase } from "@/utils/supabase/client";
 import { courseSchema, assessmentSchema } from "@/lib/validations";
 import { z } from "zod";
+import { 
+  useAddAssessmentMutation, 
+  useUpdateAssessmentMutation, 
+  useDeleteAssessmentMutation,
+  useDeleteCourseMutation
+} from "@/lib/hooks/useAcademicData";
 
 export default function EditCourseModal({
   course,
   terms,
+  assessments,
   onSave,
   onClose,
-  onDelete,
-}: EditCourseModalProps & { onDelete?: () => Promise<void> }) {
+}: EditCourseModalProps) {
   const router = useRouter();
   const [courseName, setCourseName] = useState(course.course_name);
   const [courseCode, setCourseCode] = useState(course.course_code || "");
@@ -48,7 +53,11 @@ export default function EditCourseModal({
     type: "success" | "error";
   } | null>(null);
 
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const addAssessmentMutation = useAddAssessmentMutation();
+  const updateAssessmentMutation = useUpdateAssessmentMutation();
+  const deleteAssessmentMutation = useDeleteAssessmentMutation();
+  const deleteCourseMutation = useDeleteCourseMutation();
+
   const [editingAssessmentId, setEditingAssessmentId] = useState<string | null>(
     null
   );
@@ -59,38 +68,6 @@ export default function EditCourseModal({
     componentType: "Lecture" as "Lecture" | "Laboratory",
   });
 
-  const fetchAssessments = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from("assessments")
-        .select("*")
-        .eq("course_id", course.id)
-        .order("component_type", { ascending: true })
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      const mappedAssessments: Assessment[] = (data || []).map((a) => ({
-        id: a.id,
-        course_id: a.course_id,
-        assessment_name: a.assessment_name,
-        occurrences: a.occurrences,
-        percentage: a.percentage,
-        component_type: a.component_type,
-        created_at: a.created_at,
-        updated_at: a.updated_at,
-      }));
-
-      setAssessments(mappedAssessments);
-    } catch (error) {
-      console.error("Error fetching assessments:", error);
-    }
-  }, [course.id]);
-
-  useEffect(() => {
-    fetchAssessments();
-  }, [fetchAssessments]);
-
   const handleAddAssessment = async () => {
     try {
       const validated = assessmentSchema.parse({
@@ -99,19 +76,13 @@ export default function EditCourseModal({
         occurrences: parseInt(assessmentForm.occurrences) || 0,
       });
 
-      const { data, error } = await supabase
-        .from("assessments")
-        .insert({
-          course_id: course.id,
-          assessment_name: validated.assessment_name,
-          percentage: validated.percentage,
-          occurrences: validated.occurrences,
+      await addAssessmentMutation.mutateAsync({
+        courseId: course.id,
+        assessment: {
+          ...validated,
           component_type: assessmentForm.componentType,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+        }
+      });
 
       setToast({
         message: "Assessment added successfully!",
@@ -124,8 +95,6 @@ export default function EditCourseModal({
         occurrences: "1",
         componentType: "Lecture",
       });
-
-      await fetchAssessments();
     } catch (err) {
       if (err instanceof z.ZodError) {
         setToast({ message: err.issues[0].message, type: "error" });
@@ -144,17 +113,14 @@ export default function EditCourseModal({
         occurrences: parseInt(assessmentForm.occurrences) || 0,
       });
 
-      const { error } = await supabase
-        .from("assessments")
-        .update({
-          assessment_name: validated.assessment_name,
-          percentage: validated.percentage,
-          occurrences: validated.occurrences,
+      await updateAssessmentMutation.mutateAsync({
+        courseId: course.id,
+        assessmentId,
+        data: {
+          ...validated,
           component_type: assessmentForm.componentType,
-        })
-        .eq("id", assessmentId);
-
-      if (error) throw error;
+        }
+      });
 
       setToast({
         message: "Assessment updated successfully!",
@@ -168,8 +134,6 @@ export default function EditCourseModal({
         occurrences: "1",
         componentType: "Lecture",
       });
-
-      await fetchAssessments();
     } catch (err) {
       if (err instanceof z.ZodError) {
         setToast({ message: err.issues[0].message, type: "error" });
@@ -190,24 +154,15 @@ export default function EditCourseModal({
     }
 
     try {
-      await supabase
-        .from("assessment_grades")
-        .delete()
-        .eq("assessment_id", assessmentId);
-
-      const { error } = await supabase
-        .from("assessments")
-        .delete()
-        .eq("id", assessmentId);
-
-      if (error) throw error;
+      await deleteAssessmentMutation.mutateAsync({
+        courseId: course.id,
+        assessmentId
+      });
 
       setToast({
         message: "Assessment deleted successfully!",
         type: "success",
       });
-
-      await fetchAssessments();
     } catch (error) {
       console.error("Error deleting assessment:", error);
       setToast({
@@ -317,24 +272,9 @@ export default function EditCourseModal({
   const handleDeleteCourse = async () => {
     try {
       const courseId = course?.id;
-
       if (!courseId) return;
 
-      await supabase.from("grading_scale").delete().eq("course_id", courseId);
-
-      await supabase
-        .from("assessment_grades")
-        .delete()
-        .eq("course_id", courseId);
-
-      await supabase.from("assessments").delete().eq("course_id", courseId);
-
-      const { error } = await supabase
-        .from("courses")
-        .delete()
-        .eq("id", courseId);
-
-      if (error) throw error;
+      await deleteCourseMutation.mutateAsync(courseId);
 
       setToast({
         message: "Course deleted successfully!",

@@ -11,6 +11,7 @@ export default function GradingScaleSetup({
   courseId,
   onSave,
   initialScales,
+  isSaving,
 }: GradingScaleSetupProps) {
   const [scales, setScales] = useState<
     Omit<GradingScale, "id" | "course_id" | "created_at" | "updated_at">[]
@@ -69,7 +70,8 @@ export default function GradingScaleSetup({
         </div>
         <button
           onClick={handleUseDefault}
-          className="px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg transition-all active:scale-95 border border-outline-variant/10"
+          disabled={isSaving}
+          className="px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg transition-all active:scale-95 border border-outline-variant/10 disabled:opacity-50"
         >
           Restore Default Map
         </button>
@@ -90,45 +92,49 @@ export default function GradingScaleSetup({
                 <input
                     type="number"
                     value={scale.grade_point}
+                    disabled={isSaving}
                     onChange={(e) =>
                         handleUpdateScale(index, "grade_point", e.target.value)
                     }
                     step="0.25"
                     min="1"
                     max="5"
-                    className="w-full h-11 px-4 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary transition-all font-bold text-sm"
+                    className="w-full h-11 px-4 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary transition-all font-bold text-sm disabled:opacity-50"
                 />
               </div>
               <div className="col-span-4">
                 <input
                     type="number"
                     value={scale.min_percentage}
+                    disabled={isSaving}
                     onChange={(e) =>
                         handleUpdateScale(index, "min_percentage", e.target.value)
                     }
                     step="0.01"
                     min="0"
                     max="100"
-                    className="w-full h-11 px-4 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary transition-all font-bold text-sm"
+                    className="w-full h-11 px-4 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary transition-all font-bold text-sm disabled:opacity-50"
                 />
               </div>
               <div className="col-span-4">
                 <input
                     type="number"
                     value={scale.max_percentage}
+                    disabled={isSaving}
                     onChange={(e) =>
                         handleUpdateScale(index, "max_percentage", e.target.value)
                     }
                     step="0.01"
                     min="0"
                     max="100"
-                    className="w-full h-11 px-4 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary transition-all font-bold text-sm"
+                    className="w-full h-11 px-4 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary transition-all font-bold text-sm disabled:opacity-50"
                 />
               </div>
               <div className="col-span-1 flex justify-end">
                 <button
                     onClick={() => handleRemoveScale(index)}
-                    className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-md transition-all sm:opacity-0 group-hover/row:opacity-100"
+                    disabled={isSaving}
+                    className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-md transition-all sm:opacity-0 group-hover/row:opacity-100 disabled:opacity-50"
                     title="Remove threshold"
                 >
                     <span className="material-symbols-outlined text-lg">delete</span>
@@ -142,7 +148,8 @@ export default function GradingScaleSetup({
       <div className="flex flex-col sm:flex-row justify-between items-center mt-10 pt-8 border-t border-outline-variant/20 gap-6">
         <button
           onClick={handleAddScale}
-          className="flex items-center gap-2 px-6 py-3 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary-container/20 rounded-lg transition-all group"
+          disabled={isSaving}
+          className="flex items-center gap-2 px-6 py-3 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary-container/20 rounded-lg transition-all group disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-xl group-hover:scale-110 transition-transform">add_circle</span>
           Add Point Range
@@ -151,10 +158,13 @@ export default function GradingScaleSetup({
         {hasChanges && (
           <button
             onClick={handleSave}
-            className="w-full sm:w-auto px-8 py-3 bg-primary text-on-primary rounded font-bold text-sm hover:shadow-[4px_4px_0px_#191A23] transition-all flex items-center justify-center gap-2 animate-in zoom-in-95"
+            disabled={isSaving}
+            className="w-full sm:w-auto px-8 py-3 bg-primary text-on-primary rounded font-bold text-sm hover:shadow-[4px_4px_0px_#191A23] transition-all flex items-center justify-center gap-2 animate-in zoom-in-95 disabled:opacity-50 disabled:hover:shadow-none"
           >
-            COMMIT FRAMEWORK CHANGES
-            <span className="material-symbols-outlined text-lg">save</span>
+            {isSaving ? 'SYNCING FRAMEWORK...' : 'COMMIT FRAMEWORK CHANGES'}
+            <span className={`material-symbols-outlined text-lg ${isSaving ? 'animate-spin' : ''}`}>
+              {isSaving ? 'sync' : 'save'}
+            </span>
           </button>
         )}
       </div>
