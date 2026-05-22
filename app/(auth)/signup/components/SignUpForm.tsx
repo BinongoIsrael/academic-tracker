@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { signup, signInWithGoogle } from "@/lib/auth-actions";
+import { signup } from "@/lib/auth-actions";
+import { supabase } from "@/utils/supabase/client";
 import { useState } from "react";
 import { SignUpErrors } from "@/types";
 import { useFormStatus } from "react-dom";
@@ -78,6 +79,23 @@ export function SignUpForm() {
       setServerError(result.error);
     } else if (result?.success) {
       setIsSuccess(true);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    });
+
+    if (error) {
+      setServerError(error.message);
     }
   };
 
@@ -223,7 +241,7 @@ export function SignUpForm() {
 
       <button
         type="button"
-        onClick={() => signInWithGoogle()}
+        onClick={handleGoogleSignIn}
         className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-surface-container rounded transition-all hover:bg-surface-container-high active:scale-[0.98] font-semibold text-sm text-on-surface"
       >
         <Image src="/Google-G-logo.svg" alt="Google" width={20} height={20} />

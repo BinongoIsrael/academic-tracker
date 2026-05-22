@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { signin, signInWithGoogle } from "@/lib/auth-actions";
+import { signin } from "@/lib/auth-actions";
+import { supabase } from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
@@ -57,6 +58,23 @@ export function SignInForm() {
 
     if (result?.error) {
       setError(result.error);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    });
+
+    if (error) {
+      setError(error.message);
     }
   };
 
@@ -146,7 +164,7 @@ export function SignInForm() {
       <div className="grid grid-cols-1 gap-4">
         <button
           type="button"
-          onClick={() => signInWithGoogle()}
+          onClick={handleGoogleSignIn}
           className="flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-lowest border border-outline-variant/20 rounded font-semibold text-sm hover:bg-surface-container-low transition-colors"
         >
           <Image

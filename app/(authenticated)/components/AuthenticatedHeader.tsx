@@ -30,6 +30,7 @@ export default function AuthenticatedHeader() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const staticActions = [
     {
@@ -77,6 +78,7 @@ export default function AuthenticatedHeader() {
   ];
 
   useEffect(() => {
+    setIsMounted(true);
     let subscription: any;
 
     const getUserAndProfile = async () => {
@@ -232,7 +234,7 @@ export default function AuthenticatedHeader() {
     }
   };
 
-  if (!user) return null;
+  if (!isMounted || !user) return null;
 
   const pageTitle = pathname.split("/").filter(Boolean)[0] || "Dashboard";
   const formattedTitle = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
