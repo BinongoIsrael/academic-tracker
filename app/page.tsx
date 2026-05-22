@@ -32,7 +32,7 @@ export default function Home() {
                 <span className="text-primary italic hover-underline cursor-default">Grow Stronger</span>
               </h1>
               <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto font-medium">
-                Aiming to help students monitor grades, compute GPA/GWA, and predict the scores needed to reach their goals. With personalized insights and simple tools, Gradient empowers learners to stay on track, improve performance, and achieve academic success.
+                Track grades, compute GWA, and predict your path to success. Gradient provides simple tools and personalized insights to keep you on track and growing stronger.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/signup" className="w-full sm:w-auto px-10 py-4 bg-primary-container text-on-primary-container font-black text-lg rounded neo-shadow-hover transition-all text-center">
