@@ -8,6 +8,7 @@ import Toast from "../components/Toast";
 import CreateCourseModal from "./components/CreateCourseModal";
 import CardErrorBoundary from "@/components/CardErrorBoundary";
 import { useUser, useCourses, useTerms, useCreateCourseMutation } from "@/lib/hooks/useAcademicData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CoursesPageClient() {
   const router = useRouter();
@@ -80,12 +81,29 @@ export default function CoursesPageClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface">
-          <div className="flex items-center justify-center h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-on-surface-variant">Loading academic portfolio...</p>
+        <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-12">
+          <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-64" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full max-w-xl" />
+                <Skeleton className="h-4 w-3/4 max-w-md" />
+              </div>
             </div>
+            <Skeleton className="h-12 w-48 rounded" />
+          </header>
+
+          <div className="space-y-12">
+            <div className="flex justify-between items-center mb-6">
+              <Skeleton className="h-8 w-48" />
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-10 w-10" />
+              </div>
+            </div>
+            <Skeleton className="h-[500px] w-full rounded-xl" />
           </div>
+        </main>
       </div>
     );
   }

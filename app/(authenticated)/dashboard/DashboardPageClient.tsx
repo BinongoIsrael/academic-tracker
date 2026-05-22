@@ -10,6 +10,7 @@ import { Course, Term } from "@/types";
 import CreateCourseModal from "../courses/components/CreateCourseModal";
 import Toast from "../components/Toast";
 import { useUser, useCourses, useTerms, useCreateCourseMutation } from "@/lib/hooks/useAcademicData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPageClient() {
   const { data: user } = useUser();
@@ -189,13 +190,29 @@ export default function DashboardPageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface pb-20 lg:pb-8">
-          <div className="flex items-center justify-center h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-on-surface-variant font-medium">Loading dashboard...</p>
-            </div>
+      <div className="p-6 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-10 pb-24">
+        <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-64 md:h-12 md:w-96" />
           </div>
+          <Skeleton className="h-12 w-32 rounded-xl" />
+        </section>
+
+        <div className="grid grid-cols-12 gap-6 lg:gap-8">
+          <div className="col-span-12 lg:col-span-4">
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+          <div className="col-span-12 lg:col-span-8">
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+          <div className="col-span-12 lg:col-span-9">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+          <div className="col-span-12 lg:col-span-3">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }
