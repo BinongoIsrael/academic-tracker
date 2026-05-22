@@ -144,7 +144,7 @@ export default function Home() {
               ].map((item, index) => (
                 <ScrollReveal key={index} direction="up" delay={index * 0.1}>
                   <div className="relative">
-                    <span className="text-8xl font-black text-on-surface/5 absolute -top-10 -left-4">{item.step}</span>
+                    <span className="text-8xl font-black text-on-surface/[0.07] dark:text-on-surface/[0.12] absolute -top-10 -left-4">{item.step}</span>
                     <div className="relative z-10">
                       <h4 className="text-xl font-bold mb-4">{item.title}</h4>
                       <p className="text-on-surface-variant">{item.desc}</p>

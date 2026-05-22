@@ -52,6 +52,7 @@
 
     --outline: 84 9% 44%;
     --outline-variant: 84 18% 74%;
+    --hover-underline-color: #000000;
   }
 
   .dark {
@@ -99,6 +100,7 @@
 
     --outline: 84 9% 60%;
     --outline-variant: 84 18% 30%;
+    --hover-underline-color: #B9FF66;
   }
 }
 
@@ -281,10 +283,10 @@
     position: absolute;
     width: 100%;
     transform: scaleX(0);
-    height: 6px;
+    height: 3px;
     bottom: 0.1em;
     left: 0;
-    background-color: #B9FF66; /* brand-green */
+    background-color: var(--hover-underline-color);
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
     z-index: -1;
