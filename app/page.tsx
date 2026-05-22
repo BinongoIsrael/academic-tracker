@@ -38,13 +38,15 @@ export default function Home() {
                 <Link href="/signup" className="w-full sm:w-auto px-10 py-4 bg-primary-container text-on-primary-container font-black text-lg rounded neo-shadow-hover transition-all text-center">
                   Get Started Now
                 </Link>
+                <Link 
+                  href="#how-it-works"
+                  className="w-full sm:w-auto px-10 py-4 bg-surface-container-highest text-on-surface font-bold text-lg rounded transition-all hover:bg-surface-variant flex items-center justify-center gap-2"
+                >
+                  How It Works
+                  <span className="material-symbols-outlined text-xl">arrow_downward</span>
+                </Link>
               </div>
             </ScrollReveal>
-          </div>
-          
-          {/* Bouncing Arrow */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce-down text-primary opacity-50">
-            <span className="material-symbols-outlined text-4xl">keyboard_double_arrow_down</span>
           </div>
         </section>
 
