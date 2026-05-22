@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     
     //query to check if email exists already, prevents confirmation email not sending for already existing user with same email address
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('email')
       .eq('email', email)
       .single();

@@ -10,6 +10,8 @@ import AddAssessmentButton from "./AddAssessmentButton";
 import WeightDistribution from "./WeightDistribution";
 import ColorPicker, { getRandomColor } from "./ColorPicker";
 import Toast from "../../components/Toast";
+import { courseSchema } from "@/lib/validations";
+import { z } from "zod";
 
 export default function CreateCourseModal({
   terms,
@@ -18,12 +20,14 @@ export default function CreateCourseModal({
   onClose,
 }: CreateCourseFormProps & { isOpen: boolean; onClose: () => void }) {
   const [courseTitle, setCourseTitle] = useState("");
+  const [courseCode, setCourseCode] = useState("");
   const [academicTerm, setAcademicTerm] = useState("");
   const [courseType, setCourseType] = useState("");
   const [units, setUnits] = useState("");
   const [targetGPA, setTargetGPA] = useState("");
   const [courseColor, setCourseColor] = useState(getRandomColor());
   const [courseStructure, setCourseStructure] = useState("Lecture");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [gradeInputMode, setGradeInputMode] = useState<"assessments" | "final">(
     "assessments"
@@ -35,10 +39,10 @@ export default function CreateCourseModal({
 
   const [lectureAssessments, setLectureAssessments] = useState<
     Partial<Assessment>[]
-  >([{ assessment_name: "", occurrences: 0, percentage: 0 }]);
+  >([{ assessment_name: "", occurrences: 1, percentage: 0 }]);
   const [laboratoryAssessments, setLaboratoryAssessments] = useState<
     Partial<Assessment>[]
-  >([{ assessment_name: "", occurrences: 0, percentage: 0 }]);
+  >([{ assessment_name: "", occurrences: 1, percentage: 0 }]);
 
   const [toast, setToast] = useState<{
     message: string;
@@ -50,19 +54,19 @@ export default function CreateCourseModal({
   const handleLecturePercentageChange = (value: string) => {
     const lectureVal = parseFloat(value) || 0;
     setLecturePercentage(value);
-    setLaboratoryPercentage((100 - lectureVal).toString());
+    setLaboratoryPercentage((Math.max(0, 100 - lectureVal)).toString());
   };
 
   const handleLaboratoryPercentageChange = (value: string) => {
     const labVal = parseFloat(value) || 0;
     setLaboratoryPercentage(value);
-    setLecturePercentage((100 - labVal).toString());
+    setLecturePercentage((Math.max(0, 100 - labVal)).toString());
   };
 
   const addLectureAssessment = () => {
     setLectureAssessments([
       ...lectureAssessments,
-      { assessment_name: "", occurrences: 0, percentage: 0 },
+      { assessment_name: "", occurrences: 1, percentage: 0 },
     ]);
   };
 
@@ -87,7 +91,7 @@ export default function CreateCourseModal({
   const addLaboratoryAssessment = () => {
     setLaboratoryAssessments([
       ...laboratoryAssessments,
-      { assessment_name: "", occurrences: 0, percentage: 0 },
+      { assessment_name: "", occurrences: 1, percentage: 0 },
     ]);
   };
 
@@ -112,122 +116,145 @@ export default function CreateCourseModal({
   };
 
   const handleSubmit = async () => {
-    if (gradeInputMode === "final") {
-      const gradeValue = parseFloat(finalGrade);
-      if (
-        !finalGrade ||
-        isNaN(gradeValue) ||
-        gradeValue < 1 ||
-        gradeValue > 5
-      ) {
-        setToast({
-          message: "Please enter a valid final grade (1.0 - 5.0)",
-          type: "error",
-        });
-        return;
-      }
-
-      await onSubmit({
-        courseTitle,
-        academicTerm,
-        courseType,
-        units,
-        courseStructure,
-        targetGPA,
-        courseColor,
-        lectureAssessments: [],
-        laboratoryAssessments: [],
-        lecturePercentage: parseFloat(lecturePercentage),
-        laboratoryPercentage: parseFloat(laboratoryPercentage),
-        finalGrade: gradeValue,
-        gradeInputMode: "final",
+    setErrors({});
+    
+    try {
+      // Validate core course data
+      courseSchema.parse({
+        course_name: courseTitle,
+        course_code: courseCode,
+        term_id: academicTerm,
+        units: parseFloat(units) || 0,
+        target_gpa: targetGPA ? parseFloat(targetGPA) : null,
+        course_color: courseColor,
+        course_structure: courseStructure,
+        lecture_percentage: parseFloat(lecturePercentage) || 0,
+        laboratory_percentage: parseFloat(laboratoryPercentage) || 0,
       });
-    } else {
-      if (courseStructure === "Lecture + Laboratory") {
-        const totalPercentage =
-          parseFloat(lecturePercentage) + parseFloat(laboratoryPercentage);
-        if (Math.abs(totalPercentage - 100) > 0.01) {
+
+      if (gradeInputMode === "final") {
+        const gradeValue = parseFloat(finalGrade);
+        if (
+          !finalGrade ||
+          isNaN(gradeValue) ||
+          gradeValue < 1 ||
+          gradeValue > 5
+        ) {
           setToast({
-            message: "Lecture and Laboratory percentages must add up to 100%",
+            message: "Please enter a valid final grade (1.0 - 5.0)",
             type: "error",
           });
           return;
         }
-      }
 
-      const expectedLectureTotal =
-        courseStructure === "Lecture + Laboratory"
-          ? parseFloat(lecturePercentage)
-          : 100;
-
-      const lectureTotalPercentage = lectureAssessments.reduce(
-        (sum, assessment) => sum + (Number(assessment.percentage) || 0),
-        0
-      );
-
-      if (Math.abs(lectureTotalPercentage - expectedLectureTotal) > 0.01) {
-        setToast({
-          message: `Lecture assessment percentages must add up to ${expectedLectureTotal}% (Currently: ${lectureTotalPercentage.toFixed(
-            1
-          )}%)`,
-          type: "error",
+        await onSubmit({
+          courseTitle,
+          courseCode,
+          academicTerm,
+          courseType,
+          units,
+          courseStructure,
+          targetGPA,
+          courseColor,
+          lectureAssessments: [],
+          laboratoryAssessments: [],
+          lecturePercentage: parseFloat(lecturePercentage),
+          laboratoryPercentage: parseFloat(laboratoryPercentage),
+          finalGrade: gradeValue,
+          gradeInputMode: "final",
         });
-        return;
-      }
+      } else {
+        // Assessment mode validation
+        const expectedLectureTotal =
+          courseStructure === "Lecture + Laboratory"
+            ? parseFloat(lecturePercentage)
+            : 100;
 
-      if (courseStructure === "Lecture + Laboratory") {
-        const expectedLabTotal = parseFloat(laboratoryPercentage);
-        const labTotalPercentage = laboratoryAssessments.reduce(
+        const lectureTotalPercentage = lectureAssessments.reduce(
           (sum, assessment) => sum + (Number(assessment.percentage) || 0),
           0
         );
 
-        if (Math.abs(labTotalPercentage - expectedLabTotal) > 0.01) {
+        if (Math.abs(lectureTotalPercentage - expectedLectureTotal) > 0.01) {
           setToast({
-            message: `Laboratory assessment percentages must add up to ${expectedLabTotal}% (Currently: ${labTotalPercentage.toFixed(
+            message: `Lecture assessment percentages must add up to ${expectedLectureTotal}% (Currently: ${lectureTotalPercentage.toFixed(
               1
             )}%)`,
             type: "error",
           });
           return;
         }
+
+        if (courseStructure === "Lecture + Laboratory") {
+          const expectedLabTotal = parseFloat(laboratoryPercentage);
+          const labTotalPercentage = laboratoryAssessments.reduce(
+            (sum, assessment) => sum + (Number(assessment.percentage) || 0),
+            0
+          );
+
+          if (Math.abs(labTotalPercentage - expectedLabTotal) > 0.01) {
+            setToast({
+              message: `Laboratory assessment percentages must add up to ${expectedLabTotal}% (Currently: ${labTotalPercentage.toFixed(
+                1
+              )}%)`,
+              type: "error",
+            });
+            return;
+          }
+        }
+
+        await onSubmit({
+          courseTitle,
+          courseCode,
+          academicTerm,
+          courseType,
+          units,
+          courseStructure,
+          targetGPA,
+          courseColor,
+          lectureAssessments,
+          laboratoryAssessments,
+          lecturePercentage: parseFloat(lecturePercentage),
+          laboratoryPercentage: parseFloat(laboratoryPercentage),
+          gradeInputMode: "assessments",
+        });
       }
 
-      await onSubmit({
-        courseTitle,
-        academicTerm,
-        courseType,
-        units,
-        courseStructure,
-        targetGPA,
-        courseColor,
-        lectureAssessments,
-        laboratoryAssessments,
-        lecturePercentage: parseFloat(lecturePercentage),
-        laboratoryPercentage: parseFloat(laboratoryPercentage),
-        gradeInputMode: "assessments",
-      });
+      // Reset form
+      setCourseTitle("");
+      setCourseCode("");
+      setAcademicTerm("");
+      setCourseType("");
+      setUnits("");
+      setTargetGPA("");
+      setCourseColor(getRandomColor());
+      setCourseStructure("Lecture");
+      setGradeInputMode("assessments");
+      setFinalGrade("");
+      setLecturePercentage("50");
+      setLaboratoryPercentage("50");
+      setLectureAssessments([
+        { assessment_name: "", occurrences: 1, percentage: 0 },
+      ]);
+      setLaboratoryAssessments([
+        { assessment_name: "", occurrences: 1, percentage: 0 },
+      ]);
+
+      onClose();
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0].toString()] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+        setToast({ message: "Please fix the errors in the form.", type: "error" });
+      } else {
+        console.error("Submit error:", err);
+      }
     }
-
-    setCourseTitle("");
-    setAcademicTerm("");
-    setCourseType("");
-    setUnits("");
-    setTargetGPA("");
-    setCourseColor(getRandomColor());
-    setCourseStructure("Lecture");
-    setGradeInputMode("assessments");
-    setFinalGrade("");
-    setLecturePercentage("50");
-    setLaboratoryPercentage("50");
-    setLectureAssessments([
-      { assessment_name: "", occurrences: 0, percentage: 0 },
-    ]);
-    setLaboratoryAssessments([
-      { assessment_name: "", occurrences: 0, percentage: 0 },
-    ]);
-
-    onClose();
   };
 
   return (
@@ -256,22 +283,34 @@ export default function CreateCourseModal({
         <div className="p-6 sm:p-8 space-y-8 overflow-y-auto custom-scrollbar">
           {/* Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2 space-y-2">
+            <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Title</label>
               <input
                 type="text"
                 placeholder="Advanced Quantum Mechanics"
                 value={courseTitle}
                 onChange={(e) => setCourseTitle(e.target.value)}
-                className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 transition-all font-semibold"
+                className={`w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 transition-all font-semibold ${errors.course_name ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.course_name && <p className="text-[10px] font-bold text-error">{errors.course_name}</p>}
+            </div>
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Code</label>
+              <input
+                type="text"
+                placeholder="CS101"
+                value={courseCode}
+                onChange={(e) => setCourseCode(e.target.value)}
+                className={`w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 transition-all font-semibold ${errors.course_code ? 'ring-2 ring-error/50' : ''}`}
+              />
+              {errors.course_code && <p className="text-[10px] font-bold text-error">{errors.course_code}</p>}
             </div>
             <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Academic Term</label>
               <select
                 value={academicTerm}
                 onChange={(e) => setAcademicTerm(e.target.value)}
-                className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold text-sm sm:text-base custom-select"
+                className={`w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold text-sm sm:text-base custom-select ${errors.term_id ? 'ring-2 ring-error/50' : ''}`}
               >
                 <option value="">Select a term</option>
                 {terms
@@ -291,6 +330,7 @@ export default function CreateCourseModal({
                     </option>
                   ))}
               </select>
+              {errors.term_id && <p className="text-[10px] font-bold text-error">{errors.term_id}</p>}
             </div>
             <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Type</label>
@@ -312,20 +352,25 @@ export default function CreateCourseModal({
                 type="number"
                 placeholder="Units"
                 value={units}
+                min="0"
                 onChange={(e) => setUnits(e.target.value)}
-                className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold"
+                className={`w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold ${errors.units ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.units && <p className="text-[10px] font-bold text-error">{errors.units}</p>}
             </div>
             <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Target GPA</label>
               <input
                 type="number"
                 step="0.05"
+                min="1.0"
+                max="5.0"
                 placeholder="Target GPA"
                 value={targetGPA}
                 onChange={(e) => setTargetGPA(e.target.value)}
-                className="w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold"
+                className={`w-full bg-surface-container border-none focus:ring-1 focus:ring-primary rounded-md py-3 px-4 font-semibold ${errors.target_gpa ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.target_gpa && <p className="text-[10px] font-bold text-error">{errors.target_gpa}</p>}
             </div>
           </div>
 
@@ -345,6 +390,8 @@ export default function CreateCourseModal({
               <input
                 type="number"
                 step="0.01"
+                min="1.0"
+                max="5.0"
                 placeholder="Enter final grade (e.g., 1.25)"
                 value={finalGrade}
                 onChange={(e) => setFinalGrade(e.target.value)}

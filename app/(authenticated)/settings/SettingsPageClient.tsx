@@ -13,13 +13,14 @@ export default function SettingsPageClient() {
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
+  const [initialProfile, setInitialProfile] = useState<{ full_name: string | null, avatar_url: string | null } | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const getProfile = useCallback(async (user: User) => {
     try {
       setLoading(true);
       const { data, error, status } = await supabase
-        .from("users")
+        .from("profiles")
         .select(`full_name, avatar_url`)
         .eq("id", user.id)
         .single();
@@ -31,6 +32,10 @@ export default function SettingsPageClient() {
       if (data) {
         setFullName(data.full_name);
         setAvatarUrl(data.avatar_url);
+        setInitialProfile({
+          full_name: data.full_name,
+          avatar_url: data.avatar_url
+        });
       }
     } catch (error: any) {
       setToast({ message: "Error loading user data!", type: "error" });
@@ -52,20 +57,30 @@ export default function SettingsPageClient() {
     checkUser();
   }, [router, getProfile]);
 
+  const hasChanges = initialProfile && (
+    fullName !== initialProfile.full_name || 
+    avatar_url !== initialProfile.avatar_url
+  );
+
   async function updateProfile() {
-    if (!user) return;
+    if (!user || !hasChanges) return;
 
     try {
       setLoading(true);
-      const { error } = await supabase.from("users").upsert({
+      const { error } = await supabase.from("profiles").upsert({
         id: user.id,
-        email: user.email,
         full_name: fullName,
         avatar_url,
         updated_at: new Date().toISOString(),
       });
 
       if (error) throw error;
+      
+      setInitialProfile({
+        full_name: fullName,
+        avatar_url: avatar_url
+      });
+      
       setToast({ message: "Profile updated successfully!", type: "success" });
     } catch (error: any) {
       setToast({ message: error.message, type: "error" });
@@ -128,7 +143,7 @@ export default function SettingsPageClient() {
             <div className="pt-6 border-t border-outline-variant/10 flex justify-end">
               <button
                 onClick={updateProfile}
-                disabled={loading}
+                disabled={loading || !hasChanges}
                 className="w-full sm:w-auto bg-primary text-on-primary font-bold py-4 px-10 rounded font-bold text-sm hover:shadow-[4px_4px_0px_#191A23] transition-all flex items-center justify-center gap-2 active:translate-y-[2px] disabled:opacity-50"
               >
                 {loading ? "Saving..." : (

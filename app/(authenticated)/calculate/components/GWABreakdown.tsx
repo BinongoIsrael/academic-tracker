@@ -1,3 +1,8 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { GWABreakdownProps } from "@/types";
 
 export default function GWABreakdown({
@@ -5,6 +10,47 @@ export default function GWABreakdown({
   specificRange,
   courses,
 }: GWABreakdownProps) {
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportPDF = async () => {
+    if (!tableRef.current) return;
+    setIsExporting(true);
+
+    try {
+      const canvas = await html2canvas(tableRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        scrollY: -window.scrollY,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const pdfHeight = (canvasHeight * pdfWidth) / canvasWidth;
+
+      const fileName = academicYear === "all" 
+        ? "GWA-Breakdown-All Terms.pdf"
+        : `GWA-Breakdown-${academicYear}${specificRange ? ` ${specificRange}` : ""}.pdf`;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, "FAST");
+      pdf.save(fileName);
+    } catch (error) {
+      console.error("Failed to export PDF:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (courses.length === 0) {
     return (
       <section>
@@ -52,14 +98,22 @@ export default function GWABreakdown({
     <section>
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
-        <button className="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest rounded-md text-sm font-semibold transition-colors">
-          <span className="material-symbols-outlined text-sm">download</span>
-          Export PDF
+        <button
+          onClick={handleExportPDF}
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-sm font-semibold transition-colors"
+        >
+          {isExporting ? (
+             <span className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+          ) : (
+            <span className="material-symbols-outlined text-sm">download</span>
+          )}
+          {isExporting ? "Generating PDF..." : "Export PDF"}
         </button>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div ref={tableRef} className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/10">
               <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Code</th>
@@ -81,7 +135,9 @@ export default function GWABreakdown({
                   <td className="px-8 py-4 font-medium text-on-surface">{course.course_name}</td>
                   <td className="px-8 py-4 text-center font-medium">{course.units.toFixed(1)}</td>
                   <td className="px-8 py-4 text-center">
-                    <span className="inline-block px-2 py-1 bg-primary-container text-on-primary-container text-sm font-bold rounded-sm">
+                    <span 
+                      className="inline-flex items-center justify-center bg-primary-container text-on-primary-container rounded-sm px-3 py-1 text-[11px] font-bold"
+                    >
                       {course.grade ? course.grade.toFixed(2) : "0.00"}
                     </span>
                   </td>

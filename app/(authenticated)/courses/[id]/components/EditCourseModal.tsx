@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Plus, Trash2, Edit2 } from "lucide-react";
 import { Course, EditCourseModalProps, Assessment } from "@/types";
@@ -8,17 +8,25 @@ import ColorPicker from "../../components/ColorPicker";
 import CourseStructureRadio from "../../components/CourseStructureRadio";
 import DeleteCourseModal from "./DeleteCourseModal";
 import Toast from "../../../components/Toast";
-import { supabase } from "@/utils/supabase/client";
+import { courseSchema, assessmentSchema } from "@/lib/validations";
+import { z } from "zod";
+import { 
+  useAddAssessmentMutation, 
+  useUpdateAssessmentMutation, 
+  useDeleteAssessmentMutation,
+  useDeleteCourseMutation
+} from "@/lib/hooks/useAcademicData";
 
 export default function EditCourseModal({
   course,
   terms,
+  assessments,
   onSave,
   onClose,
-  onDelete,
-}: EditCourseModalProps & { onDelete?: () => Promise<void> }) {
+}: EditCourseModalProps) {
   const router = useRouter();
   const [courseName, setCourseName] = useState(course.course_name);
+  const [courseCode, setCourseCode] = useState(course.course_code || "");
   const [termId, setTermId] = useState(course.term_id);
   const [courseType, setCourseType] = useState(course.course_type);
   const [units, setUnits] = useState(course.units.toString());
@@ -39,12 +47,17 @@ export default function EditCourseModal({
   );
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
 
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const addAssessmentMutation = useAddAssessmentMutation();
+  const updateAssessmentMutation = useUpdateAssessmentMutation();
+  const deleteAssessmentMutation = useDeleteAssessmentMutation();
+  const deleteCourseMutation = useDeleteCourseMutation();
+
   const [editingAssessmentId, setEditingAssessmentId] = useState<string | null>(
     null
   );
@@ -55,61 +68,21 @@ export default function EditCourseModal({
     componentType: "Lecture" as "Lecture" | "Laboratory",
   });
 
-  const fetchAssessments = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from("assessments")
-        .select("*")
-        .eq("course_id", course.id)
-        .order("component_type", { ascending: true })
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      const mappedAssessments: Assessment[] = (data || []).map((a) => ({
-        id: a.id,
-        course_id: a.course_id,
-        assessment_name: a.assessment_name,
-        occurrences: a.occurrences,
-        percentage: a.percentage,
-        component_type: a.component_type,
-        created_at: a.created_at,
-        updated_at: a.updated_at,
-      }));
-
-      setAssessments(mappedAssessments);
-    } catch (error) {
-      console.error("Error fetching assessments:", error);
-    }
-  }, [course.id]);
-
-  useEffect(() => {
-    fetchAssessments();
-  }, [fetchAssessments]);
-
   const handleAddAssessment = async () => {
-    if (!assessmentForm.name || !assessmentForm.percentage) {
-      setToast({
-        message: "Please fill in assessment name and percentage",
-        type: "error",
-      });
-      return;
-    }
-
     try {
-      const { data, error } = await supabase
-        .from("assessments")
-        .insert({
-          course_id: course.id,
-          assessment_name: assessmentForm.name,
-          percentage: parseFloat(assessmentForm.percentage),
-          occurrences: parseInt(assessmentForm.occurrences),
-          component_type: assessmentForm.componentType,
-        })
-        .select()
-        .single();
+      const validated = assessmentSchema.parse({
+        assessment_name: assessmentForm.name,
+        percentage: parseFloat(assessmentForm.percentage) || 0,
+        occurrences: parseInt(assessmentForm.occurrences) || 0,
+      });
 
-      if (error) throw error;
+      await addAssessmentMutation.mutateAsync({
+        courseId: course.id,
+        assessment: {
+          ...validated,
+          component_type: assessmentForm.componentType,
+        }
+      });
 
       setToast({
         message: "Assessment added successfully!",
@@ -122,38 +95,32 @@ export default function EditCourseModal({
         occurrences: "1",
         componentType: "Lecture",
       });
-
-      await fetchAssessments();
-    } catch (error) {
-      console.error("Error adding assessment:", error);
-      setToast({
-        message: "Failed to add assessment",
-        type: "error",
-      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setToast({ message: err.issues[0].message, type: "error" });
+      } else {
+        console.error("Error adding assessment:", err);
+        setToast({ message: "Failed to add assessment", type: "error" });
+      }
     }
   };
 
   const handleEditAssessment = async (assessmentId: string) => {
-    if (!assessmentForm.name || !assessmentForm.percentage) {
-      setToast({
-        message: "Please fill in assessment name and percentage",
-        type: "error",
-      });
-      return;
-    }
-
     try {
-      const { error } = await supabase
-        .from("assessments")
-        .update({
-          assessment_name: assessmentForm.name,
-          percentage: parseFloat(assessmentForm.percentage),
-          occurrences: parseInt(assessmentForm.occurrences),
-          component_type: assessmentForm.componentType,
-        })
-        .eq("id", assessmentId);
+      const validated = assessmentSchema.parse({
+        assessment_name: assessmentForm.name,
+        percentage: parseFloat(assessmentForm.percentage) || 0,
+        occurrences: parseInt(assessmentForm.occurrences) || 0,
+      });
 
-      if (error) throw error;
+      await updateAssessmentMutation.mutateAsync({
+        courseId: course.id,
+        assessmentId,
+        data: {
+          ...validated,
+          component_type: assessmentForm.componentType,
+        }
+      });
 
       setToast({
         message: "Assessment updated successfully!",
@@ -167,14 +134,13 @@ export default function EditCourseModal({
         occurrences: "1",
         componentType: "Lecture",
       });
-
-      await fetchAssessments();
-    } catch (error) {
-      console.error("Error updating assessment:", error);
-      setToast({
-        message: "Failed to update assessment",
-        type: "error",
-      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setToast({ message: err.issues[0].message, type: "error" });
+      } else {
+        console.error("Error updating assessment:", err);
+        setToast({ message: "Failed to update assessment", type: "error" });
+      }
     }
   };
 
@@ -188,24 +154,15 @@ export default function EditCourseModal({
     }
 
     try {
-      await supabase
-        .from("assessment_grades")
-        .delete()
-        .eq("assessment_id", assessmentId);
-
-      const { error } = await supabase
-        .from("assessments")
-        .delete()
-        .eq("id", assessmentId);
-
-      if (error) throw error;
+      await deleteAssessmentMutation.mutateAsync({
+        courseId: course.id,
+        assessmentId
+      });
 
       setToast({
         message: "Assessment deleted successfully!",
         type: "success",
       });
-
-      await fetchAssessments();
     } catch (error) {
       console.error("Error deleting assessment:", error);
       setToast({
@@ -238,59 +195,75 @@ export default function EditCourseModal({
   const handleLecturePercentageChange = (value: string) => {
     const lectureVal = parseFloat(value) || 0;
     setLecturePercentage(value);
-    setLaboratoryPercentage((100 - lectureVal).toString());
+    setLaboratoryPercentage((Math.max(0, 100 - lectureVal)).toString());
   };
 
   const handleLaboratoryPercentageChange = (value: string) => {
     const labVal = parseFloat(value) || 0;
     setLaboratoryPercentage(value);
-    setLecturePercentage((100 - labVal).toString());
+    setLecturePercentage((Math.max(0, 100 - labVal)).toString());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!courseColor || !courseType || !courseStructure) {
-      setToast({
-        message: "Missing required fields. Please fill in all fields.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (courseStructure === "Lecture + Laboratory") {
-      const totalPercentage =
-        parseFloat(lecturePercentage) + parseFloat(laboratoryPercentage);
-      if (Math.abs(totalPercentage - 100) > 0.01) {
-        setToast({
-          message: "Lecture and Laboratory percentages must add up to 100%",
-          type: "error",
-        });
-        return;
-      }
-    }
-
-    setSaving(true);
+    setErrors({});
 
     try {
-      await onSave({
+      const validatedData = courseSchema.parse({
         course_name: courseName,
+        course_code: courseCode,
         term_id: termId,
-        course_type: courseType,
-        units: parseFloat(units),
+        units: parseFloat(units) || 0,
         target_gpa: targetGPA ? parseFloat(targetGPA) : null,
         course_color: courseColor,
         course_structure: courseStructure,
-        lecture_percentage: parseFloat(lecturePercentage),
-        laboratory_percentage: parseFloat(laboratoryPercentage),
+        lecture_percentage: parseFloat(lecturePercentage) || 0,
+        laboratory_percentage: parseFloat(laboratoryPercentage) || 0,
+      });
+
+      if (courseStructure === "Lecture + Laboratory") {
+        const totalPercentage =
+          parseFloat(lecturePercentage) + parseFloat(laboratoryPercentage);
+        if (Math.abs(totalPercentage - 100) > 0.01) {
+          setToast({
+            message: "Lecture and Laboratory percentages must add up to 100%",
+            type: "error",
+          });
+          return;
+        }
+      }
+
+      setSaving(true);
+      await onSave({
+        course_name: validatedData.course_name,
+        course_code: validatedData.course_code,
+        term_id: validatedData.term_id,
+        course_type: courseType || "Academic",
+        units: validatedData.units,
+        target_gpa: validatedData.target_gpa || null,
+        course_color: validatedData.course_color,
+        course_structure: validatedData.course_structure || "",
+        lecture_percentage: validatedData.lecture_percentage,
+        laboratory_percentage: validatedData.laboratory_percentage,
       });
       onClose();
-    } catch (error) {
-      console.error("Error saving course:", error);
-      setToast({
-        message: "Failed to update course. Please try again.",
-        type: "error",
-      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0].toString()] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+        setToast({ message: "Please fix the errors in the form.", type: "error" });
+      } else {
+        console.error("Error saving course:", err);
+        setToast({
+          message: "Failed to update course. Please try again.",
+          type: "error",
+        });
+      }
     } finally {
       setSaving(false);
     }
@@ -299,24 +272,9 @@ export default function EditCourseModal({
   const handleDeleteCourse = async () => {
     try {
       const courseId = course?.id;
-
       if (!courseId) return;
 
-      await supabase.from("grading_scale").delete().eq("course_id", courseId);
-
-      await supabase
-        .from("assessment_grades")
-        .delete()
-        .eq("course_id", courseId);
-
-      await supabase.from("assessments").delete().eq("course_id", courseId);
-
-      const { error } = await supabase
-        .from("courses")
-        .delete()
-        .eq("id", courseId);
-
-      if (error) throw error;
+      await deleteCourseMutation.mutateAsync(courseId);
 
       setToast({
         message: "Course deleted successfully!",
@@ -352,41 +310,56 @@ export default function EditCourseModal({
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-        <div className="bg-white rounded-[30px] sm:rounded-[45px] border border-black shadow-[0_5px_0_0_#191A23] max-w-full sm:max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between rounded-t-[30px] sm:rounded-t-[45px]">
-            <h2 className="text-xl sm:text-[30px] font-medium">Edit Course</h2>
+        <div className="bg-surface rounded-[30px] sm:rounded-[45px] border border-outline-variant shadow-[0_5px_0_0_#191A23] dark:shadow-[0_5px_0_0_#000000] max-w-full sm:max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-surface border-b border-outline-variant px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between rounded-t-[30px] sm:rounded-t-[45px] z-20">
+            <h2 className="text-xl sm:text-[30px] font-medium text-on-surface">Edit Course</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-on-surface-variant hover:text-on-surface transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="p-4 sm:p-8">
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-900 mb-2">
-                Course Name
-              </label>
-              <input
-                type="text"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
-                required
-                className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-on-surface-variant mb-2">
+                  Course Name
+                </label>
+                <input
+                  type="text"
+                  value={courseName}
+                  onChange={(e) => setCourseName(e.target.value)}
+                  className={`w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary ${errors.course_name ? 'ring-2 ring-error' : ''}`}
+                />
+                {errors.course_name && <p className="text-[10px] font-bold text-error mt-1">{errors.course_name}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-on-surface-variant mb-2">
+                  Course Code
+                </label>
+                <input
+                  type="text"
+                  value={courseCode}
+                  onChange={(e) => setCourseCode(e.target.value)}
+                  placeholder="CS101"
+                  className={`w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary ${errors.course_code ? 'ring-2 ring-error' : ''}`}
+                />
+                {errors.course_code && <p className="text-[10px] font-bold text-error mt-1">{errors.course_code}</p>}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-on-surface-variant mb-2">
                   Academic Term
                 </label>
                 <select
                   value={termId}
                   onChange={(e) => setTermId(e.target.value)}
                   required
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  className={`w-full h-10 px-3 pr-12 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary custom-select ${errors.term_id ? 'ring-2 ring-error' : ''}`}
                 >
                   {terms
                     .sort((a, b) => {
@@ -413,42 +386,45 @@ export default function EditCourseModal({
                       </option>
                     ))}
                 </select>
+                {errors.term_id && <p className="text-[10px] font-bold text-error mt-1">{errors.term_id}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-on-surface-variant mb-2">
                   Course Type
                 </label>
                 <select
                   value={courseType}
                   onChange={(e) => setCourseType(e.target.value)}
                   required
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  className="w-full h-10 px-3 pr-12 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary custom-select"
                 >
-                  <option value="Academic">Academic</option>
-                  <option value="Non-Academic">Non-Academic</option>
+                  <option value="Major">Major</option>
+                  <option value="Minor">Minor</option>
+                  <option value="General">General</option>
+                  <option value="Elective">Elective</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-on-surface-variant mb-2">
                   Units
                 </label>
                 <input
                   type="number"
                   value={units}
                   onChange={(e) => setUnits(e.target.value)}
-                  required
                   step="1"
                   min="0"
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  className={`w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary ${errors.units ? 'ring-2 ring-error' : ''}`}
                 />
+                {errors.units && <p className="text-[10px] font-bold text-error mt-1">{errors.units}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-on-surface-variant mb-2">
                   Target GPA
                 </label>
                 <input
@@ -456,10 +432,11 @@ export default function EditCourseModal({
                   value={targetGPA}
                   onChange={(e) => setTargetGPA(e.target.value)}
                   step="0.05"
-                  min="1"
-                  max="5"
-                  className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                  min="1.0"
+                  max="5.0"
+                  className={`w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary ${errors.target_gpa ? 'ring-2 ring-error' : ''}`}
                 />
+                {errors.target_gpa && <p className="text-[10px] font-bold text-error mt-1">{errors.target_gpa}</p>}
               </div>
             </div>
 
@@ -479,12 +456,12 @@ export default function EditCourseModal({
 
             {courseStructure === "Lecture + Laboratory" && (
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-900 mb-3">
+                <label className="block text-sm font-medium text-on-surface mb-3">
                   Weight Distribution
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">
+                    <label className="block text-xs text-on-surface-variant mb-1">
                       Lecture Percentage
                     </label>
                     <div className="flex items-center gap-2">
@@ -497,14 +474,14 @@ export default function EditCourseModal({
                         min="0"
                         max="100"
                         step="1"
-                        className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                        className="w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                       />
-                      <span className="text-sm font-medium">%</span>
+                      <span className="text-sm font-medium text-on-surface">%</span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">
+                    <label className="block text-xs text-on-surface-variant mb-1">
                       Laboratory Percentage
                     </label>
                     <div className="flex items-center gap-2">
@@ -517,24 +494,24 @@ export default function EditCourseModal({
                         min="0"
                         max="100"
                         step="1"
-                        className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                        className="w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                       />
-                      <span className="text-sm font-medium">%</span>
+                      <span className="text-sm font-medium text-on-surface">%</span>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="mb-6 border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-medium text-slate-900 mb-4">
+            <div className="mb-6 border-t border-outline-variant/20 pt-6">
+              <h3 className="text-lg font-medium text-on-surface mb-4">
                 Manage Assessments
               </h3>
 
-              <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mb-4">
+              <div className="bg-surface-container-low p-3 sm:p-4 rounded-lg mb-4 border border-outline-variant/10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">
+                    <label className="block text-xs text-on-surface-variant mb-1">
                       Assessment Name
                     </label>
                     <input
@@ -547,12 +524,12 @@ export default function EditCourseModal({
                         })
                       }
                       placeholder="e.g., Quiz, Exam, Project"
-                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                      className="w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">
+                    <label className="block text-xs text-on-surface-variant mb-1">
                       Component Type
                     </label>
                     <select
@@ -565,7 +542,7 @@ export default function EditCourseModal({
                             | "Laboratory",
                         })
                       }
-                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                      className="w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary custom-select"
                     >
                       <option value="Lecture">Lecture</option>
                       {courseStructure === "Lecture + Laboratory" && (
@@ -575,7 +552,7 @@ export default function EditCourseModal({
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">
+                    <label className="block text-xs text-on-surface-variant mb-1">
                       Percentage
                     </label>
                     <input
@@ -591,12 +568,12 @@ export default function EditCourseModal({
                       min="0"
                       max="100"
                       step="0.01"
-                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                      className="w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">
+                    <label className="block text-xs text-on-surface-variant mb-1">
                       Occurrences
                     </label>
                     <input
@@ -610,7 +587,7 @@ export default function EditCourseModal({
                       }
                       min="1"
                       step="1"
-                      className="w-full h-10 px-3 pr-12 bg-white border border-black rounded-md text-base focus:outline-none focus:ring-2 focus:ring-brand-green custom-select"
+                      className="w-full h-10 px-3 bg-surface-container border border-outline-variant rounded-md text-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -630,7 +607,7 @@ export default function EditCourseModal({
                       <button
                         type="button"
                         onClick={cancelEditing}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                        className="px-4 py-2 bg-surface-container-high text-on-surface rounded-lg hover:bg-surface-container-highest transition-colors"
                       >
                         Cancel
                       </button>
@@ -651,10 +628,10 @@ export default function EditCourseModal({
               {lectureAssessments.length > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-slate-700">
+                    <h4 className="text-sm font-medium text-on-surface">
                       Lecture Assessments
                     </h4>
-                    <span className="text-sm text-slate-600">
+                    <span className="text-sm text-on-surface-variant">
                       Total: {getTotalPercentage("Lecture").toFixed(2)}%
                     </span>
                   </div>
@@ -662,13 +639,13 @@ export default function EditCourseModal({
                     {lectureAssessments.map((assessment) => (
                       <div
                         key={assessment.id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-surface-container border border-outline-variant/10 rounded-lg"
                       >
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900">
+                          <p className="font-medium text-on-surface">
                             {assessment.assessment_name}
                           </p>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-on-surface-variant">
                             {assessment.percentage}% • {assessment.occurrences}{" "}
                             occurrence(s)
                           </p>
@@ -677,7 +654,7 @@ export default function EditCourseModal({
                           <button
                             type="button"
                             onClick={() => startEditingAssessment(assessment)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -686,7 +663,7 @@ export default function EditCourseModal({
                             onClick={() =>
                               handleDeleteAssessment(assessment.id)
                             }
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -700,10 +677,10 @@ export default function EditCourseModal({
               {labAssessments.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-slate-700">
+                    <h4 className="text-sm font-medium text-on-surface">
                       Laboratory Assessments
                     </h4>
-                    <span className="text-sm text-slate-600">
+                    <span className="text-sm text-on-surface-variant">
                       Total: {getTotalPercentage("Laboratory").toFixed(2)}%
                     </span>
                   </div>
@@ -711,13 +688,13 @@ export default function EditCourseModal({
                     {labAssessments.map((assessment) => (
                       <div
                         key={assessment.id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-surface-container border border-outline-variant/10 rounded-lg"
                       >
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900">
+                          <p className="font-medium text-on-surface">
                             {assessment.assessment_name}
                           </p>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-on-surface-variant">
                             {assessment.percentage}% • {assessment.occurrences}{" "}
                             occurrence(s)
                           </p>
@@ -726,7 +703,7 @@ export default function EditCourseModal({
                           <button
                             type="button"
                             onClick={() => startEditingAssessment(assessment)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -735,7 +712,7 @@ export default function EditCourseModal({
                             onClick={() =>
                               handleDeleteAssessment(assessment.id)
                             }
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -747,11 +724,11 @@ export default function EditCourseModal({
               )}
             </div>
 
-            <div className="flex flex-col xs:flex-row justify-between gap-3 xs:gap-4 pt-6 border-t border-gray-200">
+            <div className="flex flex-col xs:flex-row justify-between gap-3 xs:gap-4 pt-6 border-t border-outline-variant/20">
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="px-6 py-3 bg-red-600 text-white rounded-[20px] font-medium hover:bg-red-700 transition-colors w-full xs:w-auto"
+                className="px-6 py-3 bg-error text-white rounded-[20px] font-medium hover:bg-error/90 transition-colors w-full xs:w-auto"
               >
                 Delete Course
               </button>
@@ -759,7 +736,7 @@ export default function EditCourseModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-3 bg-white border border-black text-black rounded-[20px] font-medium hover:bg-gray-50 transition-colors w-full xs:w-auto"
+                  className="px-6 py-3 bg-surface border border-outline text-on-surface rounded-[20px] font-medium hover:bg-surface-container transition-colors w-full xs:w-auto"
                 >
                   Cancel
                 </button>

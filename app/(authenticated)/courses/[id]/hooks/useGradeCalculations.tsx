@@ -9,80 +9,102 @@ export function useGradeCalculations(course: Course | null) {
   const [finalPercentage, setFinalPercentage] = useState<number | null>(null);
   const [currentGPA, setCurrentGPA] = useState<number | null>(null);
   const [finalGPA, setFinalGPA] = useState<number | null>(null);
+  const [requiredScoreToTarget, setRequiredScoreToTarget] = useState<number | null>(null);
+  const [targetStatus, setTargetStatus] = useState<"possible" | "reached" | "impossible" | "missing_scale" | "no_target">("no_target");
 
   const calculateGrades = useCallback(
     (
       assessmentsList: Assessment[],
       gradesList: AssessmentGrade[],
-      scaleList: GradingScale[]
+      scaleList: GradingScale[],
+      currentCourse: Course | null
     ) => {
-      if (!course || assessmentsList.length === 0) return;
+      if (!currentCourse || assessmentsList.length === 0) return;
 
-      let currentTotal = 0;
+      let totalEarnedContribution = 0;
+      let totalCompletedWeight = 0;
+      let totalPointsEarnedRaw = 0;
+      let totalRemainingWeight = 0;
 
       for (const assessment of assessmentsList) {
         const assessmentGrades = gradesList.filter(
           (g) => g.assessment_id === assessment.id
         );
 
-        const filledGrades = assessmentGrades.filter((g) => g.grade !== null);
+        const weightPerOccurrence = assessment.percentage / assessment.occurrences;
 
-        if (filledGrades.length > 0) {
-          const totalSum = filledGrades.reduce(
-            (sum, g) => sum + (g.grade || 0),
-            0
-          );
-          const avgPercentage = totalSum / filledGrades.length;
-          const contribution = (avgPercentage * assessment.percentage) / 100;
-          currentTotal += contribution;
+        for (let i = 1; i <= assessment.occurrences; i++) {
+          const gradeEntry = assessmentGrades.find(g => g.occurrence_number === i);
+          
+          if (gradeEntry && gradeEntry.grade !== null) {
+            const contribution = (gradeEntry.grade * weightPerOccurrence) / 100;
+            totalEarnedContribution += contribution;
+            totalPointsEarnedRaw += contribution;
+            totalCompletedWeight += weightPerOccurrence;
+          } else {
+            totalRemainingWeight += weightPerOccurrence;
+          }
         }
       }
 
-      setCurrentPercentage(currentTotal);
+      const normalizedAverage = totalCompletedWeight > 0 
+        ? (totalEarnedContribution / totalCompletedWeight) * 100 
+        : null;
 
-      if (scaleList.length > 0) {
-        const gpa = convertPercentageToGPA(currentTotal, scaleList);
-        setCurrentGPA(gpa);
+      setCurrentPercentage(normalizedAverage);
+
+      if (scaleList.length > 0 && normalizedAverage !== null) {
+        setCurrentGPA(convertPercentageToGPA(normalizedAverage, scaleList));
       } else {
         setCurrentGPA(null);
       }
 
-      let finalTotal = 0;
-      let hasAllGrades = true;
+      setFinalPercentage(totalEarnedContribution);
 
-      for (const assessment of assessmentsList) {
-        const assessmentGrades = gradesList.filter(
-          (g) => g.assessment_id === assessment.id
-        );
-
-        const filledGrades = assessmentGrades.filter((g) => g.grade !== null);
-
-        if (filledGrades.length < assessment.occurrences) {
-          hasAllGrades = false;
-        }
-
-        if (filledGrades.length > 0) {
-          const avgPercentage =
-            filledGrades.reduce((sum, g) => sum + (g.grade || 0), 0) /
-            filledGrades.length;
-          finalTotal += (avgPercentage * assessment.percentage) / 100;
-        }
-      }
-
-      if (hasAllGrades) {
-        setFinalPercentage(finalTotal);
-        if (scaleList.length > 0) {
-          const gpa = convertPercentageToGPA(finalTotal, scaleList);
-          setFinalGPA(gpa);
-        } else {
-          setFinalGPA(null);
-        }
+      if (scaleList.length > 0) {
+        setFinalGPA(convertPercentageToGPA(totalEarnedContribution, scaleList));
       } else {
-        setFinalPercentage(null);
         setFinalGPA(null);
       }
+
+      // Prediction Logic
+      if (!currentCourse.target_gpa) {
+        setTargetStatus("no_target");
+        setRequiredScoreToTarget(null);
+      } else if (scaleList.length === 0) {
+        setTargetStatus("missing_scale");
+        setRequiredScoreToTarget(null);
+      } else {
+        const targetScaleEntry = scaleList.find(s => s.grade_point === currentCourse.target_gpa);
+        
+        if (!targetScaleEntry) {
+          setTargetStatus("missing_scale");
+          setRequiredScoreToTarget(null);
+        } else {
+          const goalPercentage = targetScaleEntry.min_percentage;
+          const pointsNeeded = goalPercentage - totalPointsEarnedRaw;
+
+          if (pointsNeeded <= 0) {
+            setTargetStatus("reached");
+            setRequiredScoreToTarget(null);
+          } else if (totalRemainingWeight === 0) {
+            setTargetStatus("impossible");
+            setRequiredScoreToTarget(null);
+          } else {
+            const requiredScore = (pointsNeeded / totalRemainingWeight) * 100;
+            
+            if (requiredScore > 100) {
+              setTargetStatus("impossible");
+              setRequiredScoreToTarget(requiredScore);
+            } else {
+              setTargetStatus("possible");
+              setRequiredScoreToTarget(requiredScore);
+            }
+          }
+        }
+      }
     },
-    [course]
+    []
   );
 
   return {
@@ -90,6 +112,8 @@ export function useGradeCalculations(course: Course | null) {
     finalPercentage,
     currentGPA,
     finalGPA,
+    requiredScoreToTarget,
+    targetStatus,
     calculateGrades,
   };
 }

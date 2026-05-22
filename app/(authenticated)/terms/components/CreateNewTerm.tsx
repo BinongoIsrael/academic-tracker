@@ -2,7 +2,8 @@
 
 import { CreateNewTermProps } from "@/types";
 import { useState } from "react";
-import { Plus, ChevronDown } from "lucide-react";
+import { termSchema } from "@/lib/validations";
+import { z } from "zod";
 
 export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
   const [academicYear, setAcademicYear] = useState("");
@@ -10,6 +11,7 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
   const [endDate, setEndDate] = useState("");
   const [semester, setSemester] = useState("1st");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
@@ -33,47 +35,55 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
   };
 
   const handleSubmit = () => {
-    const academicYearPattern = /^\d{4}-\d{4}$/;
-    if (!academicYearPattern.test(academicYear)) {
-      alert(`Please enter academic year in format: YYYY-YYYY (e.g., ${placeholderText})`);
-      return;
-    }
-
-    const [startYear, endYear] = academicYear.split("-").map(Number);
+    setErrors({});
     
-    if (endYear !== startYear + 1) {
-      alert(`End year must be exactly one year after start year (e.g., ${placeholderText})`);
-      return;
-    }
+    try {
+      const validatedData = termSchema.parse({
+        academicYear,
+        semester,
+        startDate: startDate || null,
+        endDate: endDate || null
+      });
 
-    if (startYear >= endYear) {
-      alert("Start year must be before end year");
-      return;
-    }
+      // Additional custom logic for year format if needed beyond the basic schema
+      const [startYear, endYear] = academicYear.split("-").map(Number);
+      if (academicYear.includes("-") && endYear !== startYear + 1) {
+        setErrors({ academicYear: `End year must be exactly one year after start year (e.g., ${placeholderText})` });
+        return;
+      }
 
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      alert("Start date must be before or equal to end date");
-      return;
+      onCreateTerm({
+        academicYear: validatedData.academicYear,
+        semester: validatedData.semester,
+        startDate: validatedData.startDate || null,
+        endDate: validatedData.endDate || null
+      });
+      
+      setAcademicYear("");
+      setStartDate("");
+      setEndDate("");
+      setSemester("1st");
+      setIsExpanded(false); 
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0].toString()] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+      }
     }
-
-    onCreateTerm({ 
-      academicYear, 
-      startDate: startDate || null, 
-      endDate: endDate || null, 
-      semester 
-    });
-    
-    setAcademicYear("");
-    setStartDate("");
-    setEndDate("");
-    setSemester("1st");
-    setIsExpanded(false); 
   };
 
   return (
     <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.06)] mb-8 sm:mb-12 overflow-hidden">
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => {
+          setIsExpanded(!isExpanded);
+          setErrors({});
+        }}
         className="w-full p-6 sm:p-8 flex items-center justify-between hover:bg-surface-container transition-colors"
       >
         <div className="flex items-center gap-4">
@@ -109,8 +119,9 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
                 value={academicYear}
                 onChange={handleAcademicYearChange}
                 maxLength={9}
-                className="w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold"
+                className={`w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold ${errors.academicYear ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.academicYear && <p className="text-[10px] font-bold text-error mt-1">{errors.academicYear}</p>}
             </div>
 
             <div className="space-y-2">
@@ -121,8 +132,9 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold"
+                className={`w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold ${errors.startDate ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.startDate && <p className="text-[10px] font-bold text-error mt-1">{errors.startDate}</p>}
             </div>
 
             <div className="space-y-2">
@@ -133,8 +145,9 @@ export default function CreateNewTerm({ onCreateTerm }: CreateNewTermProps) {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold"
+                className={`w-full bg-surface-container border-none rounded p-3 text-sm focus:ring-2 focus:ring-primary font-semibold ${errors.endDate ? 'ring-2 ring-error/50' : ''}`}
               />
+              {errors.endDate && <p className="text-[10px] font-bold text-error mt-1">{errors.endDate}</p>}
             </div>
           </div>
 

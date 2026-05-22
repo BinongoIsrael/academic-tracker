@@ -1,111 +1,41 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/utils/supabase/client";
+import { useMemo, useState } from "react";
 import CurrentGWACard from "./components/CurrentGWACard";
 import GWATrendCard from "./components/GWATrendCard";
 import CoursesCard from "./components/CoursesCard";
+import InfoPanel from "./components/InfoPanel";
+import CardErrorBoundary from "@/components/CardErrorBoundary";
 import { Course, Term } from "@/types";
-import { User } from "@supabase/supabase-js";
 import CreateCourseModal from "../courses/components/CreateCourseModal";
 import Toast from "../components/Toast";
+import { useUser, useCourses, useTerms, useCreateCourseMutation } from "@/lib/hooks/useAcademicData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPageClient() {
-  const [user, setUser] = useState<User | null>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [terms, setTerms] = useState<Term[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [cumulativeGWA, setCumulativeGWA] = useState<number>(0.0);
-  const [gwaTrend, setGwaTrend] = useState<number[]>([]);
+  const { data: user } = useUser();
+  const { data: courses = [], isLoading: isLoadingCourses } = useCourses(user?.id);
+  const { data: terms = [], isLoading: isLoadingTerms } = useTerms(user?.id);
+  const createCourseMutation = useCreateCourseMutation();
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const fetchData = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    setUser(user);
+  const loading = isLoadingCourses || isLoadingTerms;
 
-    if (user) {
-      // Fetch Courses with Terms
-      const { data: coursesData, error: coursesError } = await supabase
-        .from("courses")
-        .select(
-          `
-          *,
-          terms (
-            id,
-            user_id,
-            academic_year,
-            semester,
-            start_date,
-            end_date,
-            is_active
-          )
-        `
-        )
-        .eq("user_id", user.id);
-
-      if (coursesData) {
-        const mappedCourses = coursesData.map((course: any) => ({
-          ...course,
-          term: course.terms ? {
-            id: course.terms.id,
-            user_id: course.terms.user_id,
-            academicYear: course.terms.academic_year,
-            semester: course.terms.semester,
-            startDate: course.terms.start_date,
-            endDate: course.terms.end_date,
-            isActive: course.terms.is_active,
-            courses: 0,
-            units: 0,
-            gpa: null,
-          } : undefined,
-        }));
-        setCourses(mappedCourses);
-      }
-      if (coursesError) {
-        console.error("Error fetching courses:", coursesError);
-      }
-
-      // Fetch all Terms for the modal
-      const { data: termsData, error: termsError } = await supabase
-        .from("terms")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("academic_year", { ascending: false });
-
-      if (termsData) {
-        const mappedTerms: Term[] = termsData.map((t: any) => ({
-          id: t.id,
-          user_id: t.user_id,
-          academicYear: t.academic_year,
-          semester: t.semester,
-          startDate: t.start_date,
-          endDate: t.end_date,
-          isActive: t.is_active,
-          courses: 0,
-          units: 0,
-          gpa: null,
-        }));
-        setTerms(mappedTerms);
-      }
-      if (termsError) {
-        console.error("Error fetching terms:", termsError);
-      }
-    }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
+  const { cumulativeGWA, semesterTrend, yearTrend, infoPanelStats } = useMemo(() => {
     if (courses.length === 0) {
-      setCumulativeGWA(0.0);
-      setGwaTrend([]);
-      return;
+      return {
+        cumulativeGWA: 0.0,
+        semesterTrend: [],
+        yearTrend: [],
+        infoPanelStats: {
+          targetGWA: 0,
+          enrolledUnits: 0,
+          completedUnits: 0,
+          currentGWA: 0,
+        },
+      };
     }
 
     let totalSumOfWeightedGrades = 0;
@@ -121,8 +51,6 @@ export default function DashboardPageClient() {
       }
     }
     const finalGWA = totalSumOfUnits > 0 ? totalSumOfWeightedGrades / totalSumOfUnits : 0.0;
-    setCumulativeGWA(finalGWA);
-
 
     const termsMap = new Map<string, { courses: Course[], termInfo: Term }>();
 
@@ -150,76 +78,141 @@ export default function DashboardPageClient() {
       return { termInfo, gwa };
     });
 
+    let currentInfoPanelStats = {
+      targetGWA: 0,
+      enrolledUnits: 0,
+      completedUnits: 0,
+      currentGWA: 0,
+    };
+
+    const activeTermData = termGWAs.find(t => t.termInfo.isActive) || termGWAs[0];
+    if (activeTermData) {
+      const activeCourses = termsMap.get(activeTermData.termInfo.id)?.courses || [];
+      const enrolled = activeCourses.reduce((sum, c) => sum + (c.units || 0), 0);
+      const completed = activeCourses
+        .filter(c => c.grade !== null && c.grade !== undefined && Number(c.grade) > 0)
+        .reduce((sum, c) => sum + (c.units || 0), 0);
+      
+      const targetGpaSum = activeCourses.reduce((sum, c) => sum + (c.target_gpa || 0), 0);
+      const avgTarget = activeCourses.length > 0 ? targetGpaSum / activeCourses.length : 0;
+
+      currentInfoPanelStats = {
+        targetGWA: avgTarget,
+        enrolledUnits: enrolled,
+        completedUnits: completed,
+        currentGWA: activeTermData.gwa,
+      };
+    }
+
     termGWAs.sort((a, b) => {
         const yearCompare = a.termInfo.academicYear.localeCompare(b.termInfo.academicYear);
         if (yearCompare !== 0) return yearCompare;
         return a.termInfo.semester.localeCompare(b.termInfo.semester);
     });
 
-    setGwaTrend(termGWAs.map(item => item.gwa));
+    const semesterTrendData = termGWAs.map(item => {
+      const semPrefix = item.termInfo.semester.startsWith("1") ? "S1" : 
+                        item.termInfo.semester.startsWith("2") ? "S2" : "SS";
+      const yearSuffix = item.termInfo.academicYear.split("-").map(y => y.slice(-2)).join("-");
+      
+      return {
+        label: `${semPrefix} ${yearSuffix}`,
+        gwa: item.gwa
+      };
+    });
 
+    const yearsMap = new Map<string, { weightedGradeSum: number, unitSum: number }>();
+    for (const item of termGWAs) {
+      const year = item.termInfo.academicYear;
+      if (!yearsMap.has(year)) {
+        yearsMap.set(year, { weightedGradeSum: 0, unitSum: 0 });
+      }
+      const yearData = yearsMap.get(year)!;
+      
+      let termUnits = 0;
+      let termWeightedGrades = 0;
+      const termCourses = termsMap.get(item.termInfo.id)?.courses || [];
+      for (const course of termCourses) {
+        const grade = parseFloat(String(course.grade ?? 0));
+        const units = parseFloat(String(course.units ?? 0));
+        if (!isNaN(grade) && !isNaN(units) && units > 0 && grade > 0 && grade !== 5.0) {
+          termWeightedGrades += grade * units;
+          termUnits += units;
+        }
+      }
+      
+      yearData.weightedGradeSum += termWeightedGrades;
+      yearData.unitSum += termUnits;
+    }
+
+    const yearTrendData = Array.from(yearsMap.entries()).map(([year, data]) => ({
+      label: year.split("-").map(y => y.slice(-2)).join("-"),
+      gwa: data.unitSum > 0 ? data.weightedGradeSum / data.unitSum : 0
+    })).sort((a, b) => a.label.localeCompare(b.label));
+
+    return {
+      cumulativeGWA: finalGWA,
+      semesterTrend: semesterTrendData,
+      yearTrend: yearTrendData,
+      infoPanelStats: currentInfoPanelStats,
+    };
   }, [courses]);
 
   const handleCreateCourse = async (courseData: any) => {
     try {
-      const { data, error } = await supabase
-        .from("courses")
-        .insert([
-          {
-            user_id: user?.id,
-            term_id: courseData.termId,
-            course_name: courseData.courseName,
-            course_code: courseData.courseCode,
-            units: courseData.units,
-            course_type: courseData.courseType,
-            course_color: courseData.courseColor,
-            course_structure: courseData.courseStructure,
-            grade_input_mode: courseData.gradeInputMode,
-            grade: courseData.grade,
-            lecture_percentage: courseData.lecturePercentage,
-            laboratory_percentage: courseData.laboratoryPercentage,
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Handle assessments if any
-      if (courseData.assessments && courseData.assessments.length > 0) {
-        const assessmentsToInsert = courseData.assessments.map((a: any) => ({
-          course_id: data.id,
-          assessment_name: a.assessment_name,
-          occurrences: a.occurrences,
-          percentage: a.percentage,
-          type: a.type,
-        }));
-
-        const { error: assessmentError } = await supabase
-          .from("assessments")
-          .insert(assessmentsToInsert);
-
-        if (assessmentError) throw assessmentError;
+      if (
+        !courseData.courseTitle ||
+        !courseData.academicTerm ||
+        !courseData.courseType ||
+        !courseData.units
+      ) {
+        setToast({
+          message: "Please fill in all required fields",
+          type: "error",
+        });
+        return;
       }
+
+      if (!user) return;
+
+      await createCourseMutation.mutateAsync({ user, courseData });
 
       setToast({ message: "Course created successfully!", type: "success" });
       setIsCreateModalOpen(false);
-      fetchData();
     } catch (error: any) {
       console.error("Error creating course:", error);
-      setToast({ message: error.message || "Failed to create course", type: "error" });
+      setToast({
+        message: error.message || "Failed to create course",
+        type: "error",
+      });
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface pb-20 lg:pb-8">
-          <div className="flex items-center justify-center h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-on-surface-variant font-medium">Loading dashboard...</p>
-            </div>
+      <div className="p-6 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-10 pb-24">
+        <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-64 md:h-12 md:w-96" />
           </div>
+          <Skeleton className="h-12 w-32 rounded-xl" />
+        </section>
+
+        <div className="grid grid-cols-12 gap-6 lg:gap-8">
+          <div className="col-span-12 lg:col-span-4">
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+          <div className="col-span-12 lg:col-span-8">
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+          <div className="col-span-12 lg:col-span-9">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+          <div className="col-span-12 lg:col-span-3">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -242,24 +235,41 @@ export default function DashboardPageClient() {
         </div>
       </section>
 
-      {/* Bento Grid Layout */}
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
-        {/* CurrentGWACard (Main Spotlight) */}
         <div className="col-span-12 lg:col-span-4">
-          <CurrentGWACard gwa={cumulativeGWA} />
+          <CardErrorBoundary title="Current GWA">
+            <CurrentGWACard gwa={cumulativeGWA} />
+          </CardErrorBoundary>
         </div>
 
-        {/* GWATrendCard */}
         <div className="col-span-12 lg:col-span-8">
-          <GWATrendCard currentGWA={cumulativeGWA} trendData={gwaTrend} />
+          <CardErrorBoundary title="GWA Trend">
+            <GWATrendCard 
+              currentGWA={cumulativeGWA} 
+              semesterTrend={semesterTrend} 
+              yearTrend={yearTrend} 
+            />
+          </CardErrorBoundary>
         </div>
 
-        {/* CoursesCard */}
-        <div className="col-span-12">
-          <CoursesCard 
-            courses={courses} 
-            onAddCourse={() => setIsCreateModalOpen(true)} 
-          />
+        <div className="col-span-12 lg:col-span-9">
+          <CardErrorBoundary title="My Courses">
+            <CoursesCard 
+              courses={courses} 
+              onAddCourse={() => setIsCreateModalOpen(true)} 
+            />
+          </CardErrorBoundary>
+        </div>
+
+        <div className="col-span-12 lg:col-span-3">
+          <CardErrorBoundary title="Academic Stats">
+            <InfoPanel 
+              targetGWA={infoPanelStats.targetGWA}
+              enrolledUnits={infoPanelStats.enrolledUnits}
+              completedUnits={infoPanelStats.completedUnits}
+              currentGWA={infoPanelStats.currentGWA}
+            />
+          </CardErrorBoundary>
         </div>
       </div>
 
