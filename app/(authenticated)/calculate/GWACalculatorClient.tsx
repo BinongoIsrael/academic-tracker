@@ -3,136 +3,36 @@ import React, { useState, useEffect } from "react";
 import GWATypeSelection from "./components/GWATypeSelection";
 import GWAResults from "./components/GWAResults";
 import GWABreakdown from "./components/GWABreakdown";
-import { supabase } from "@/utils/supabase/client";
-import { Course, Term } from "@/types";
 import { useRouter } from "next/navigation";
 import Toast from "../components/Toast";
+import { useUser, useTerms, useCourses } from "@/lib/hooks/useAcademicData";
 
 export default function GWACalculatorClient() {
   const router = useRouter();
+  const { data: user } = useUser();
+  const { data: terms = [], isLoading: isLoadingTerms, error: termsError } = useTerms(user?.id);
+  const { data: allCourses = [], isLoading: isLoadingCourses } = useCourses(user?.id);
+
   const [selectionType, setSelectionType] = useState<"all" | "specific">("all");
   const [selectedTermId, setSelectedTermId] = useState("");
 
   const [academicGWA, setAcademicGWA] = useState("-.--");
   const [totalGWA, setTotalGWA] = useState("-.--");
-  const [loadingTerms, setLoadingTerms] = useState(false);
-  const [termsError, setTermsError] = useState<string | null>(null);
-  const [terms, setTerms] = useState<Term[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const courses = selectionType === "all" 
+    ? allCourses 
+    : allCourses.filter(c => c.term_id === selectedTermId);
+
+  const loading = isLoadingTerms || isLoadingCourses;
 
   useEffect(() => {
-    const fetchTerms = async () => {
-      setLoadingTerms(true);
-      setTermsError(null);
-
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
-          router.push("/signin");
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from("terms")
-          .select("*")
-          .order("academic_year", { ascending: false })
-          .order("semester", { ascending: true })
-          .eq("user_id", user.id);
-
-        if (error) {
-          const errorMessage = error.message || "Failed to fetch terms";
-          setTermsError(errorMessage);
-          setToast({ message: errorMessage, type: "error" });
-          setTerms([]);
-        } else if (!data || (Array.isArray(data) && data.length === 0)) {
-          setTerms([]);
-        } else {
-          const mapped: Term[] = (data as any[]).map((t) => ({
-            id: t.id,
-            user_id: t.user_id ?? "",
-            academicYear: t.academic_year ?? t.academicYear ?? "",
-            semester: t.semester ?? "",
-            startDate: t.start_date ?? t.startDate ?? null,
-            endDate: t.end_date ?? t.endDate ?? null,
-            courses: t.courses ?? 0, 
-            units: t.units ?? 0,
-            gpa: t.gpa ?? null,
-            isActive: t.is_active ?? t.isActive ?? false,
-            created_at: t.created_at ?? "",
-            updated_at: t.updated_at ?? "",
-          }));
-          setTerms(mapped);
-          if (selectedTermId && !mapped.some(term => term.id === selectedTermId)) {
-            setSelectedTermId("");
-          }
-        }
-      } catch (err) {
-        console.error("fetchTerms exception:", err);
-        const errorMessage = "An unexpected error occurred while fetching terms.";
-        setTermsError(errorMessage);
-        setToast({ message: errorMessage, type: "error" });
-        setTerms([]);
-      } finally {
-        setLoadingTerms(false);
-      }
-    };
-
-    fetchTerms();
-  }, [router, selectedTermId]);
+    if (terms.length > 0 && selectedTermId && !terms.some(term => term.id === selectedTermId)) {
+      setSelectedTermId("");
+    }
+  }, [terms, selectedTermId]);
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      try {
-        setCourses([]);
-        setAcademicGWA("-.--");
-        setTotalGWA("-.--");
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          router.push("/signin");
-          return;
-        }
-
-        let query = supabase.from("courses").select("*").eq("user_id", user.id);
-
-        if (selectionType === "specific") {
-          if (!selectedTermId) {
-            setCourses([]);
-            return;
-          }
-          query = query.eq("term_id", selectedTermId);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-            throw error;
-        }
-
-        if (data) {
-          setCourses(data as Course[]);
-        } else {
-          setCourses([]);
-        }
-      } catch (error: any) {
-          console.error("Error fetching courses:", error.message);
-          setToast({ message: "Failed to fetch courses.", type: "error" });
-          setCourses([]);
-      } finally {
-          setLoading(false);
-      }
-    };
-    fetchCourses();
-  }, [selectionType, selectedTermId, router]);
-
-   useEffect(() => {
-
     if (courses.length === 0) {
       setAcademicGWA("-.--");
       setTotalGWA("-.--");
@@ -208,8 +108,8 @@ export default function GWACalculatorClient() {
           selectedTermId={selectedTermId}
           setSelectedTermId={setSelectedTermId}
           terms={terms}
-          loadingTerms={loadingTerms}
-          termsError={termsError}
+          loadingTerms={isLoadingTerms}
+          termsError={termsError ? (termsError as Error).message : null}
         />
 
         <GWABreakdown
