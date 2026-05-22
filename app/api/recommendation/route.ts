@@ -2,7 +2,6 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { Term, Course, Assessment, AssessmentGrade } from "@/types";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -33,11 +32,20 @@ export async function POST(_req: NextRequest) {
   try {
     const { data: termsData, error: termsError } = await supabase
       .from("terms")
-      .select("*")
+      .select(`
+        *,
+        courses (
+          *,
+          assessments (
+            *,
+            assessment_grades (*)
+          )
+        )
+      `)
       .eq("user_id", user.id);
     if (termsError) throw termsError;
 
-  const mappedTerms: Term[] = (termsData || []).map((t: any) => ({
+    const mappedTerms = (termsData || []).map((t: any) => ({
       id: t.id,
       user_id: t.user_id,
       academicYear: t.academic_year,
@@ -47,19 +55,17 @@ export async function POST(_req: NextRequest) {
       isActive: t.is_active,
       created_at: t.created_at,
       updated_at: t.updated_at,
-      courses: 0,
-      units: 0,
-      gpa: 0,
+      courses: t.courses || [],
     }));
 
     const now = new Date();
     let activeTerm = mappedTerms.find((t) => t.isActive) || null;
     if (!activeTerm) {
-      activeTerm = mappedTerms.find((t) => new Date(t.startDate!) <= now && new Date(t.endDate!) >= now) || null;
+      activeTerm = mappedTerms.find((t) => t.startDate && t.endDate && new Date(t.startDate) <= now && new Date(t.endDate) >= now) || null;
     }
     if (!activeTerm) {
       const futureTerms = mappedTerms
-        .filter((t) => new Date(t.startDate!) > now)
+        .filter((t) => t.startDate && new Date(t.startDate) > now)
         .sort((a, b) => new Date(a.startDate!).getTime() - new Date(b.startDate!).getTime());
       if (futureTerms.length > 0) {
         activeTerm = futureTerms[0];
@@ -70,39 +76,25 @@ export async function POST(_req: NextRequest) {
       return NextResponse.json({ recommendation: "### No Active Term Found\n\nI couldn't find an active or upcoming academic term to analyze. Please add or set a term as active to get a recommendation." }, { status: 200 });
     }
 
-    const { data: courses, error: coursesError } = await supabase
-      .from("courses")
-      .select("*")
-      .eq("term_id", activeTerm.id);
-    if (coursesError) throw coursesError;
+    const courses = activeTerm.courses;
 
     if (!courses || courses.length === 0) {
         return NextResponse.json({ recommendation: `### No Courses in Current Term\n\nThere are no courses listed for the term **${activeTerm.academicYear} ${activeTerm.semester}**. Add courses to this term to get a recommendation.` }, { status: 200 });
     }
 
-    const courseIds = (courses as Course[]).map((c: Course) => c.id);
-    const { data: assessments, error: assessmentsError } = await supabase.from("assessments").select("*").in("course_id", courseIds);
-    if (assessmentsError) throw assessmentsError;
-    const { data: assessmentGrades, error: gradesError } = await supabase.from("assessment_grades").select("*").in("course_id", courseIds);
-    if (gradesError) throw gradesError;
-
     const analysisData = {
         term: `${activeTerm.academicYear} ${activeTerm.semester}`,
-        courses: (courses as Course[]).map((course: Course) => {
-            const courseAssessments = (assessments as Assessment[]).filter((a: Assessment) => a.course_id === course.id);
-            return {
-                course_name: course.course_name,
-                units: course.units,
-                assessments: courseAssessments.map((assessment: Assessment) => {
-                    const gradesForAssessment = (assessmentGrades as AssessmentGrade[]).filter((g: AssessmentGrade) => g.assessment_id === assessment.id);
-                    return {
-                        name: assessment.assessment_name,
-                        percentage: assessment.percentage,
-                        grades: gradesForAssessment.length > 0 ? gradesForAssessment.map((g: AssessmentGrade) => g.grade) : null,
-                    };
-                }),
-            };
-        }),
+        courses: courses.map((course: any) => ({
+            course_name: course.course_name,
+            units: course.units,
+            assessments: (course.assessments || []).map((assessment: any) => ({
+                name: assessment.assessment_name,
+                percentage: assessment.percentage,
+                grades: (assessment.assessment_grades || []).length > 0 
+                  ? assessment.assessment_grades.map((g: any) => g.grade) 
+                  : null,
+            })),
+        })),
     };
 
     const prompt = `
