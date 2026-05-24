@@ -132,7 +132,7 @@ export default function CoursesPageClient() {
 
           <div className="space-y-12">
             <CardErrorBoundary title="My Courses">
-              <MyCoursesTable courses={courses} />
+              <MyCoursesTable courses={courses} terms={terms} />
             </CardErrorBoundary>
           </div>
         </main>

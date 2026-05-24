@@ -172,6 +172,7 @@ export interface AddAssessmentButtonProps {
 
 export interface MyCoursesTableProps {
   courses: Course[];
+  terms: Term[];
 }
 
 export interface WeightDistributionProps {
