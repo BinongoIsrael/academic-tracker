@@ -190,7 +190,7 @@ export default function DashboardPageClient() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-10 pb-24">
+      <div className="p-4 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-6 md:space-y-10 pb-24">
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <Skeleton className="h-4 w-32" />
@@ -218,7 +218,7 @@ export default function DashboardPageClient() {
   }
 
   return (
-    <div className="p-6 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-10 pb-24">
+    <div className="p-4 md:p-8 lg:p-12 max-w-[1440px] mx-auto space-y-6 md:space-y-10 pb-24">
       {/* Header Section */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { SignUpForm } from "./components/SignUpForm";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Sign Up | Gradient",
 };
 
-const SignUpPage = () => {
+const SignUpContent = () => {
   return (
     <main className="h-screen flex items-stretch overflow-hidden">
       <section className="hidden lg:flex lg:w-1/2 bg-brand-dark relative overflow-hidden flex-col justify-center p-16">
@@ -52,6 +52,18 @@ const SignUpPage = () => {
         </div>
       </section>
     </main>
+  );
+};
+
+const SignUpPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-surface">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <SignUpContent />
+    </Suspense>
   );
 };
 

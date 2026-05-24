@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GWATrendCardProps } from "@/types";
 import {
   LineChart,
@@ -28,6 +28,11 @@ export default function GWATrendCard({
   yearTrend = [] 
 }: GWATrendCardProps) {
   const [viewMode, setViewMode] = useState<"semesters" | "years">("semesters");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const activeData = viewMode === "semesters" ? semesterTrend : yearTrend;
   
@@ -37,16 +42,18 @@ export default function GWATrendCard({
   }));
 
   return (
-    <div className="bg-surface-container-low p-10 rounded-xl transition-all duration-300 hover:bg-surface-container-high h-full flex flex-col">
-      <div className="flex justify-between items-start mb-10">
+    <div className="bg-surface-container-low p-5 sm:p-8 lg:p-10 rounded-xl transition-all duration-300 hover:bg-surface-container-high h-full flex flex-col">
+      {/* ... header ... */}
+      <div className="flex-col sm:flex-row justify-between items-start gap-4 mb-8 sm:mb-10 flex">
         <div>
           <h3 className="text-xl font-bold text-on-surface tracking-tight">Performance Vector</h3>
           <p className="text-xs text-on-surface-variant mt-1 uppercase tracking-widest font-semibold">Longitudinal Analysis</p>
         </div>
-        <div className="flex gap-2 bg-surface-container-high/50 p-1 rounded-lg border border-outline-variant/10">
+        <div className="flex flex-wrap gap-2 bg-surface-container-high/50 p-1 rounded-lg border border-outline-variant/10 w-full sm:w-auto justify-center">
+          {/* ... buttons ... */}
           <button 
             onClick={() => setViewMode("semesters")}
-            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
               viewMode === "semesters" 
                 ? "bg-surface border border-outline-variant/30 shadow-sm text-on-surface" 
                 : "text-on-surface-variant/40 hover:text-on-surface-variant"
@@ -56,7 +63,7 @@ export default function GWATrendCard({
           </button>
           <button 
             onClick={() => setViewMode("years")}
-            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
               viewMode === "years" 
                 ? "bg-surface border border-outline-variant/30 shadow-sm text-on-surface" 
                 : "text-on-surface-variant/40 hover:text-on-surface-variant"
@@ -67,38 +74,52 @@ export default function GWATrendCard({
         </div>
       </div>
 
-      <div className="flex-1 w-full min-h-[160px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            key={viewMode}
-            data={chartData}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--outline-variant) / 0.2)" />
-            <XAxis 
-              dataKey="label" 
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 10, fontWeight: 700, fill: "hsl(var(--on-surface-variant))" }}
-              dy={10}
-            />
-            <YAxis
-              domain={[1.0, 5.0]}
-              reversed={true}
-              hide={true}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="gwa"
-              stroke="hsl(var(--primary))"
-              strokeWidth={4}
-              dot={{ fill: "hsl(var(--primary-container))", stroke: "hsl(var(--primary))", strokeWidth: 2, r: 6 }}
-              activeDot={{ r: 8, strokeWidth: 0 }}
-              animationDuration={1000}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="flex-1 w-full" style={{ minHeight: '200px' }}>
+        {isMounted ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart
+              key={viewMode}
+              data={chartData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--outline-variant) / 0.2)" />
+              <XAxis 
+                dataKey="label" 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 9, fontWeight: 700, fill: "hsl(var(--on-surface-variant))" }}
+                dy={10}
+                minTickGap={10}
+                interval="preserveStartEnd"
+                tickFormatter={(value) => {
+                  // Shorten "2023-2024 1st Semester" -> "23-24 S1"
+                  return value
+                    .replace(/(\d{2})(\d{2})-(\d{2})(\d{2})/, "$2-$4")
+                    .replace(/1st Semester/, "S1")
+                    .replace(/2nd Semester/, "S2")
+                    .replace(/Short Term/, "ST");
+                }}
+              />
+              <YAxis
+                domain={[1.0, 5.0]}
+                reversed={true}
+                hide={true}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="gwa"
+                stroke="hsl(var(--primary))"
+                strokeWidth={4}
+                dot={{ fill: "hsl(var(--primary-container))", stroke: "hsl(var(--primary))", strokeWidth: 2, r: 6 }}
+                activeDot={{ r: 8, strokeWidth: 0 }}
+                animationDuration={1000}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-[200px] animate-pulse bg-surface-container-highest/20 rounded-lg" />
+        )}
       </div>
       
       <div className="mt-4 flex justify-between px-2">

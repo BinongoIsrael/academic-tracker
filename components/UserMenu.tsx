@@ -24,6 +24,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               alt={user.user_metadata?.full_name || "User"} 
               fill
               className="object-cover"
+              sizes="32px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-primary-container text-on-primary-container">
