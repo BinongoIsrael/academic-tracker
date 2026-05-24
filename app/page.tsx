@@ -24,7 +24,7 @@ export default function Home() {
             <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-primary-container blur-[120px]"></div>
             <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-secondary-container blur-[100px]"></div>
           </div>
-          <div className="relative z-10 text-center max-w-4xl mx-auto">
+          <div className="relative z-10 text-center max-w-4xl mx-auto py-12 md:py-20 lg:py-0">
             <ScrollReveal direction="up" distance={30}>
               <span className="inline-block px-4 py-1.5 mb-6 text-[0.75rem] font-bold tracking-[0.2em] uppercase bg-primary-container/30 text-primary border border-primary/10 rounded-full">Editorial Academic Tracking</span>
               <h1 className="text-[3.5rem] md:text-[5rem] font-black leading-[1.1] tracking-tight text-on-surface mb-8">
@@ -77,6 +77,7 @@ export default function Home() {
                       src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeusJ7ay5enNQyV6CZeFP-nTHki3i5HcMd7gKcwFyn5UlPZFlL01edQJfZCaJ5UiLAioQQiMjO4czfzeba2lRBitvJ-lqI0Q48h2I8gTiao9ugEz45IM617WDHztsfL0a5xY4r1PnlcDywndpLLiI-2WAS5V8TCZnHy66O6uOozlMzR2ZUnJFOm9LMu4XDnakW2A64uoMxuXZxDqNFeF4a1mDiRowBImCqr0Skl15QzEOEtZvs2GF_GFmRJZqWg05_eMii9mtjkGxi" 
                       alt="Dashboard Preview"
                       fill
+                      sizes="(max-width: 768px) 100vw, 800px"
                     />
                   </div>
                 </div>
@@ -208,6 +209,7 @@ export default function Home() {
                       src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxOEMFMb8p005mCfy55W0Ka_CL4p9KogGVrZCplWmZKcw9whh5PDu6RMUaCkFDhqWGc4IfT4aZPCf_3rwVyq4qxKz39fLgkuqmpCekct-ANXdm5XSbQs5zKmW9Jgcmelt78S1jWHq-IMqKvrayBwpghtu5Kp4RrAxPQg8-cqRdFV3emyaWcORYYtrgxuICRubqmt4SE5y574w3gzGQdul5ukV_gO-2mGLmesNUH56YL6wy_mk3H2ejjZaiKsX3WxHgGuyh8C3CZfLn" 
                       alt="Study Setup"
                       fill
+                      sizes="(max-width: 768px) 100vw, 600px"
                     />
                   </div>
                   <div className="absolute -bottom-8 -left-8 bg-primary-container p-8 rounded-lg shadow-2xl">

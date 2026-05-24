@@ -18,13 +18,20 @@ export default function GWABreakdown({
     setIsExporting(true);
 
     try {
-      const canvas = await html2canvas(tableRef.current, {
+      const element = tableRef.current;
+      const originalStyle = element.style.width;
+      element.style.width = "1200px";
+
+      const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
         scrollY: -window.scrollY,
+        windowWidth: 1200,
       });
+
+      element.style.width = originalStyle;
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
@@ -54,8 +61,8 @@ export default function GWABreakdown({
   if (courses.length === 0) {
     return (
       <section>
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
         </div>
         <div className="bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 rounded-lg p-20 text-center">
           <span className="material-symbols-outlined text-5xl text-outline-variant mb-4 opacity-20 block">search_off</span>
@@ -96,24 +103,27 @@ export default function GWABreakdown({
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <h2 className="text-xl md:text-2xl font-bold text-on-surface">Detailed Calculation Breakdown</h2>
         <button
           onClick={handleExportPDF}
           disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-sm font-semibold transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high hover:bg-surface-container-highest disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-sm font-bold transition-all active:scale-95"
         >
           {isExporting ? (
              <span className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
           ) : (
-            <span className="material-symbols-outlined text-sm">download</span>
+            <span className="material-symbols-outlined text-base">download</span>
           )}
-          {isExporting ? "Generating PDF..." : "Export PDF"}
+          <span className={isExporting ? "" : "hidden xs:inline"}>
+            {isExporting ? "Generating PDF..." : "Export PDF"}
+          </span>
+          {!isExporting && <span className="xs:hidden">Export</span>}
         </button>
       </div>
 
-      <div ref={tableRef} className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[600px]">
+      <div ref={tableRef} className="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(26,27,36,0.04)] overflow-x-auto print:overflow-visible">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/10">
               <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Course Code</th>
@@ -180,7 +190,7 @@ export default function GWABreakdown({
             Requirement Warning
           </h4>
           <p className="text-sm text-on-surface-variant leading-relaxed">
-            Maintain a GWA of at least 1.75 to remain eligible for the University Scholarship. Review your &apos;Academic Goals&apos; for personalized targets.
+            Maintain a GWA of at least 1.75 to remain eligible for the University Scholarship. Monitor your semester performance to stay on track.
           </p>
         </div>
       </div>

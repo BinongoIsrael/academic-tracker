@@ -24,7 +24,12 @@ export default function RecommendationPageClient() {
         },
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        throw new Error('Failed to parse response from server.');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Something went wrong');
@@ -42,23 +47,23 @@ export default function RecommendationPageClient() {
 
   return (
     <div className="min-h-screen bg-surface pb-12">
-      <main className="max-w-4xl mx-auto pt-6 lg:pt-10 px-8 pb-12">
+      <main className="max-w-4xl mx-auto p-4 md:p-8 lg:p-12 pb-24">
         {/* Hero / Entry State */}
         <section className="mb-12">
-          <div className="bg-surface-container-low rounded-xl p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 shadow-[0_20px_40px_rgba(26,27,36,0.06)]">
-            <div className="flex-1 z-10">
+          <div className="bg-surface-container-low rounded-xl p-6 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 shadow-[0_20px_40px_rgba(26,27,36,0.06)]">
+            <div className="flex-1 z-10 text-center md:text-left">
               <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
                 <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>colors_spark</span>
                 AI Powered Insights
               </span>
-              <h1 className="text-5xl font-bold tracking-tight text-on-surface mb-4 leading-none">Smart Insights</h1>
-              <p className="text-on-surface-variant text-lg max-w-md mb-8">
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-on-surface mb-4 leading-none">Smart Insights</h1>
+              <p className="text-on-surface-variant text-base md:text-lg max-w-md mb-8 mx-auto md:mx-0">
                 Leverage advanced academic analysis to predict outcomes and receive tailored curriculum recommendations.
               </p>
               <button
                 onClick={handleGetRecommendation}
                 disabled={loadingRecommendation}
-                className="bg-brand-green text-brand-dark px-8 py-4 font-bold text-sm tracking-tight inline-flex items-center gap-2 transition-all duration-200 active:scale-95 hover:shadow-[4px_4px_0px_#191A23] group disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-brand-green text-brand-dark px-6 md:px-8 py-3 md:py-4 font-bold text-sm tracking-tight inline-flex items-center gap-2 transition-all duration-200 active:scale-95 hover:shadow-[4px_4px_0px_#191A23] group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loadingRecommendation ? (
                   <>
@@ -73,8 +78,8 @@ export default function RecommendationPageClient() {
                 )}
               </button>
             </div>
-            <div className="w-64 h-64 bg-surface-container-highest rounded-full flex items-center justify-center relative shrink-0">
-              <span className="material-symbols-outlined text-7xl text-primary/20">psychology</span>
+            <div className="w-48 h-48 md:w-64 md:h-64 bg-surface-container-highest rounded-full flex items-center justify-center relative shrink-0">
+              <span className="material-symbols-outlined text-5xl md:text-7xl text-primary/20">psychology</span>
               <div className="absolute inset-0 border-2 border-dashed border-outline-variant/30 rounded-full animate-[spin_20s_linear_infinite]"></div>
             </div>
           </div>
@@ -110,7 +115,7 @@ export default function RecommendationPageClient() {
             
             {recommendation && (
               <div className="space-y-8">
-                <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0_20px_40px_rgba(26,27,36,0.06)] border border-outline-variant/10">
+                <div className="bg-surface-container-lowest rounded-xl p-6 sm:p-10 shadow-[0_20px_40px_rgba(26,27,36,0.06)] border border-outline-variant/10">
                   <div className="prose prose-slate max-w-none">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
@@ -144,14 +149,14 @@ export default function RecommendationPageClient() {
                 </div>
 
                 {/* Projected Milestones */}
-                <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0_20px_40px_rgba(26,27,36,0.06)]">
+                <div className="bg-surface-container-lowest rounded-xl p-6 sm:p-10 shadow-[0_20px_40px_rgba(26,27,36,0.06)]">
                   <h2 className="text-2xl font-bold mb-8 text-on-surface flex items-center gap-3">
                     <span className="material-symbols-outlined text-primary">trending_up</span>
                     Projected Milestones
                   </h2>
                   <div className="space-y-8">
                     <div className="flex flex-col sm:flex-row gap-6 items-start">
-                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">
+                      <div className="text-5xl font-bold text-brand-green tracking-tighter shrink-0 min-w-[120px] tabular-nums">
                         {milestones?.gpaVelocity || "-.--"}
                       </div>
                       <div className="flex-1">
@@ -160,7 +165,7 @@ export default function RecommendationPageClient() {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-6 items-start">
-                      <div className="text-5xl font-bold text-brand-green tracking-tighter w-24 tabular-nums">
+                      <div className="text-5xl font-bold text-brand-green tracking-tighter shrink-0 min-w-[120px] tabular-nums">
                         {milestones?.optimalTrajectory || "---"}
                       </div>
                       <div className="flex-1">

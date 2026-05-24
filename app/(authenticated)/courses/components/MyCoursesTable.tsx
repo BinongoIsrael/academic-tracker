@@ -5,11 +5,12 @@ import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
-export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
+export default function MyCoursesTable({ courses, terms }: MyCoursesTableProps) {
   const router = useRouter();
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [selectedTermId, setSelectedTermId] = useState<string>("all");
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -29,11 +30,15 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
     return <div className="min-h-[400px]" />;
   }
 
-  const averageGPA = courses.filter(c => c.grade && c.grade > 0).length > 0
-    ? courses.filter(c => c.grade && c.grade > 0).reduce((sum, c) => sum + (c.grade || 0), 0) / courses.filter(c => c.grade && c.grade > 0).length
+  const filteredCourses = selectedTermId === "all"
+    ? courses
+    : courses.filter(c => c.term_id === selectedTermId);
+
+  const averageGPA = filteredCourses.filter(c => c.grade && c.grade > 0).length > 0
+    ? filteredCourses.filter(c => c.grade && c.grade > 0).reduce((sum, c) => sum + (c.grade || 0), 0) / filteredCourses.filter(c => c.grade && c.grade > 0).length
     : 0;
   
-  const totalUnits = courses.reduce((sum, c) => sum + (c.units || 0), 0);
+  const totalUnits = filteredCourses.reduce((sum, c) => sum + (c.units || 0), 0);
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -44,7 +49,7 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
     }
   };
 
-  const sortedCourses = [...courses].sort((a, b) => {
+  const sortedCourses = [...filteredCourses].sort((a, b) => {
     if (!sortField) return 0;
 
     let aVal: any;
@@ -89,11 +94,11 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
         </div>
         <div className="bg-surface-container-high p-6 rounded-lg border border-outline-variant/10">
           <p className="text-[10px] font-black uppercase text-on-surface-variant mb-1">Total Courses</p>
-          <h4 className="text-4xl font-black text-on-surface">{courses.length.toString().padStart(2, '0')}</h4>
+          <h4 className="text-4xl font-black text-on-surface">{filteredCourses.length.toString().padStart(2, '0')}</h4>
         </div>
         <div className="bg-surface-container-high p-6 rounded-lg border border-outline-variant/10">
           <p className="text-[10px] font-black uppercase text-on-surface-variant mb-1">Completed</p>
-          <h4 className="text-4xl font-black text-on-surface">{courses.filter(c => c.grade !== null).length.toString().padStart(2, '0')}</h4>
+          <h4 className="text-4xl font-black text-on-surface">{filteredCourses.filter(c => c.grade !== null).length.toString().padStart(2, '0')}</h4>
         </div>
       </div>
 
@@ -101,21 +106,41 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h3 className="text-2xl font-bold text-on-surface">Course Portfolio</h3>
-          <div className="flex items-center gap-2 bg-surface-container p-1 rounded-lg">
-            <button
-              onClick={() => handleViewModeChange("list")}
-              className={`p-2 rounded flex items-center gap-2 transition-all ${viewMode === "list" ? "bg-surface shadow-sm text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
-            >
-              <span className="material-symbols-outlined text-xl">view_list</span>
-              <span className="text-xs font-bold uppercase tracking-tighter">List</span>
-            </button>
-            <button
-              onClick={() => handleViewModeChange("grid")}
-              className={`p-2 rounded flex items-center gap-2 transition-all ${viewMode === "grid" ? "bg-surface shadow-sm text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
-            >
-              <span className="material-symbols-outlined text-xl">grid_view</span>
-              <span className="text-xs font-bold uppercase tracking-tighter">Grid</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <select
+                value={selectedTermId}
+                onChange={(e) => setSelectedTermId(e.target.value)}
+                className="appearance-none bg-surface-container-high border border-outline-variant/20 rounded-lg px-4 py-2 pr-10 text-xs font-bold uppercase tracking-tight text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer w-full sm:w-auto"
+              >
+                <option value="all">All Academic Terms</option>
+                {terms.map((term) => (
+                  <option key={term.id} value={term.id}>
+                    {term.semester} {term.academicYear}
+                  </option>
+                ))}
+              </select>
+              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">
+                expand_more
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-surface-container p-1 rounded-lg w-full sm:w-auto">
+              <button
+                onClick={() => handleViewModeChange("list")}
+                className={`flex-1 sm:flex-none p-2 rounded flex items-center justify-center gap-2 transition-all ${viewMode === "list" ? "bg-surface shadow-sm text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
+              >
+                <span className="material-symbols-outlined text-xl">view_list</span>
+                <span className="text-xs font-bold uppercase tracking-tighter">List</span>
+              </button>
+              <button
+                onClick={() => handleViewModeChange("grid")}
+                className={`flex-1 sm:flex-none p-2 rounded flex items-center justify-center gap-2 transition-all ${viewMode === "grid" ? "bg-surface shadow-sm text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
+              >
+                <span className="material-symbols-outlined text-xl">grid_view</span>
+                <span className="text-xs font-bold uppercase tracking-tighter">Grid</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -156,7 +181,7 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
                     <tr>
                       <td colSpan={4} className="text-center py-12 text-on-surface-variant bg-surface">
                         <span className="material-symbols-outlined text-4xl mb-2 opacity-20 block">library_books</span>
-                        <p className="font-medium">No courses in your portfolio yet</p>
+                        <p className="font-medium">No courses in this term yet</p>
                       </td>
                     </tr>
                   ) : (
@@ -194,24 +219,30 @@ export default function MyCoursesTable({ courses }: MyCoursesTableProps) {
             </div>
             {/* Mobile List View */}
             <div className="md:hidden divide-y divide-outline-variant/10 bg-surface">
-              {sortedCourses.map((course) => (
-                <div
-                  key={course.id}
-                  onClick={() => router.push(`/courses/${course.id}`)}
-                  className="p-4 hover:bg-surface-container transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-8 rounded-full" style={{ backgroundColor: course.course_color || '#3B82F6' }}></div>
-                      <div>
-                        <div className="font-bold text-sm text-on-surface">{course.course_name}</div>
-                        <div className="text-[10px] font-bold text-on-surface-variant uppercase">{course.term?.semester} {course.term?.academicYear}</div>
-                      </div>
-                    </div>
-                    <div className="text-right font-black text-primary text-sm">{course.grade ? course.grade.toFixed(2) : '-.--'}</div>
-                  </div>
+              {sortedCourses.length === 0 ? (
+                <div className="text-center py-12 text-on-surface-variant">
+                  <p className="font-medium text-xs">No courses in this term yet</p>
                 </div>
-              ))}
+              ) : (
+                sortedCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    onClick={() => router.push(`/courses/${course.id}`)}
+                    className="p-4 hover:bg-surface-container transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1 h-8 rounded-full" style={{ backgroundColor: course.course_color || '#3B82F6' }}></div>
+                        <div>
+                          <div className="font-bold text-sm text-on-surface">{course.course_name}</div>
+                          <div className="text-[10px] font-bold text-on-surface-variant uppercase">{course.term?.semester} {course.term?.academicYear}</div>
+                        </div>
+                      </div>
+                      <div className="text-right font-black text-primary text-sm">{course.grade ? course.grade.toFixed(2) : '-.--'}</div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         ) : (

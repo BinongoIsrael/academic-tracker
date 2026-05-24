@@ -8,6 +8,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { User } from "@supabase/supabase-js";
 import { Search, Zap, Book, Calendar, ArrowRight, Loader2 } from "lucide-react";
 import { Course, Term } from "@/types";
+import { useUser, useProfile } from "@/lib/hooks/useAcademicData";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -18,8 +19,8 @@ function cn(...inputs: ClassValue[]) {
 export default function AuthenticatedHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
+  const { data: user } = useUser();
+  const { data: profile } = useProfile(user?.id);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<{ courses: Course[]; terms: Term[] }>({
@@ -30,6 +31,7 @@ export default function AuthenticatedHeader() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const staticActions = [
     {
@@ -77,57 +79,7 @@ export default function AuthenticatedHeader() {
   ];
 
   useEffect(() => {
-    let subscription: any;
-
-    const getUserAndProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("full_name, avatar_url")
-          .eq("id", user.id)
-          .single();
-        
-        if (profileData) {
-          setProfile(profileData);
-        }
-
-        subscription = supabase
-          .channel(`profile:${user.id}`)
-          .on(
-            'postgres_changes',
-            {
-              event: '*',
-              schema: 'public',
-              table: 'profiles',
-              filter: `id=eq.${user.id}`
-            },
-            (payload) => {
-              if (payload.eventType === 'DELETE') {
-                setProfile(null);
-              } else {
-                setProfile({
-                  full_name: payload.new.full_name,
-                  avatar_url: payload.new.avatar_url
-                });
-              }
-            }
-          )
-          .subscribe();
-      }
-    };
-
-    getUserAndProfile();
-
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
-    };
+    setIsMounted(true);
   }, []);
 
   const fetchIndex = useCallback(async () => {
@@ -146,7 +98,7 @@ export default function AuthenticatedHeader() {
 
       setResults({
         courses: coursesRes.data || [],
-        terms: (termsRes.data || []).map((t) => ({
+        terms: (termsRes.data || []).map((t: any) => ({
           id: t.id,
           user_id: t.user_id,
           academicYear: t.academic_year,
@@ -232,10 +184,110 @@ export default function AuthenticatedHeader() {
     }
   };
 
-  if (!user) return null;
-
   const pageTitle = pathname.split("/").filter(Boolean)[0] || "Dashboard";
   const formattedTitle = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
+
+  function renderResults(isMobile = false) {
+    if (allResults.length === 0) {
+      return (
+        <div className="py-12 md:py-8 text-center">
+          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+            No results found
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        {["action", "course", "term"].map((type) => {
+          const typeResults = allResults.filter((r) => r.type === type);
+          if (typeResults.length === 0) return null;
+
+          return (
+            <div key={type} className={cn("last:mb-0", isMobile ? "mb-4" : "mb-2")}>
+              <h3 className={cn(
+                "px-3 font-black uppercase tracking-widest text-on-surface-variant/40",
+                isMobile ? "text-[9px] mb-1" : "text-[9px] py-1"
+              )}>
+                {type === "action"
+                  ? "Quick Actions"
+                  : type === "course"
+                    ? "Courses"
+                    : "Academic Terms"}
+              </h3>
+              {typeResults.map((item: any) => {
+                const globalIdx = allResults.indexOf(item);
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelect(item)}
+                    className={cn(
+                      "w-full flex items-center justify-between rounded-xl transition-all text-left",
+                      isMobile ? "px-4 py-2 mb-0.5" : "px-3 py-2 md:rounded-lg",
+                      selectedIndex === globalIdx
+                        ? "bg-primary text-on-primary shadow-lg"
+                        : "hover:bg-surface-container-high text-on-surface",
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          "rounded flex items-center justify-center shrink-0",
+                          isMobile ? "w-6 h-6" : "w-6 h-6",
+                          selectedIndex === globalIdx
+                            ? "bg-on-primary/20"
+                            : "bg-surface-container-highest",
+                        )}
+                      >
+                        {type === "action" ? (
+                          item.icon
+                        ) : type === "course" ? (
+                          <Book className={isMobile ? "w-3 h-3" : "w-3 h-3"} />
+                        ) : (
+                          <Calendar className={isMobile ? "w-3 h-3" : "w-3 h-3"} />
+                        )}
+                      </div>
+                      <div>
+                        <span className={cn(
+                          "font-bold block leading-tight",
+                          isMobile ? "text-[13px]" : "text-xs"
+                        )}>
+                          {item.name}
+                        </span>
+                        {type === "course" && (
+                          <span
+                            className={cn(
+                              "font-bold uppercase",
+                              isMobile ? "text-[8px]" : "text-[9px]",
+                              selectedIndex === globalIdx
+                                ? "text-on-primary/70"
+                                : "text-on-surface-variant",
+                            )}
+                          >
+                            {item.course_code || "No Code"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowRight
+                      className={cn(
+                        "transition-transform shrink-0",
+                        isMobile ? "w-3 h-3" : "w-3 h-3",
+                        selectedIndex === globalIdx
+                          ? "translate-x-0 opacity-100"
+                          : "-translate-x-1 opacity-0",
+                      )}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
+      </>
+    );
+  }
 
   return (
     <header className="flex justify-between items-center h-16 px-4 md:px-6 lg:px-8 sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-border">
@@ -346,7 +398,7 @@ export default function AuthenticatedHeader() {
                   close
                 </span>
               </button>
-              </div>
+            </div>
 
             <div className="flex-1 overflow-y-auto overscroll-contain bg-surface">
               <div className="px-4 py-2">{renderResults(true)}</div>
@@ -362,119 +414,21 @@ export default function AuthenticatedHeader() {
 
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
-          <UserMenu 
-            user={{
-              email: user.email,
-              user_metadata: {
-                full_name: profile?.full_name || user.user_metadata?.full_name,
-                avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url,
-              }
-            }} 
-          />
+          <div className="min-w-[32px]">
+            {isMounted && user && (
+              <UserMenu 
+                user={{
+                  email: user.email,
+                  user_metadata: {
+                    full_name: profile?.full_name || user.user_metadata?.full_name,
+                    avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url,
+                  }
+                }} 
+              />
+            )}
+          </div>
         </div>
       </div>
     </header>
   );
-
-  function renderResults(isMobile = false) {
-    if (allResults.length === 0) {
-      return (
-        <div className="py-12 md:py-8 text-center">
-          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
-            No results found
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <>
-        {["action", "course", "term"].map((type) => {
-          const typeResults = allResults.filter((r) => r.type === type);
-          if (typeResults.length === 0) return null;
-
-          return (
-            <div key={type} className={cn("last:mb-0", isMobile ? "mb-4" : "mb-2")}>
-              <h3 className={cn(
-                "px-3 font-black uppercase tracking-widest text-on-surface-variant/40",
-                isMobile ? "text-[9px] mb-1" : "text-[9px] py-1"
-              )}>
-                {type === "action"
-                  ? "Quick Actions"
-                  : type === "course"
-                    ? "Courses"
-                    : "Academic Terms"}
-              </h3>
-              {typeResults.map((item: any) => {
-                const globalIdx = allResults.indexOf(item);
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleSelect(item)}
-                    className={cn(
-                      "w-full flex items-center justify-between rounded-xl transition-all text-left",
-                      isMobile ? "px-4 py-2 mb-0.5" : "px-3 py-2 md:rounded-lg",
-                      selectedIndex === globalIdx
-                        ? "bg-primary text-on-primary shadow-lg"
-                        : "hover:bg-surface-container-high text-on-surface",
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={cn(
-                          "rounded flex items-center justify-center shrink-0",
-                          isMobile ? "w-6 h-6" : "w-6 h-6",
-                          selectedIndex === globalIdx
-                            ? "bg-on-primary/20"
-                            : "bg-surface-container-highest",
-                        )}
-                      >
-                        {type === "action" ? (
-                          item.icon
-                        ) : type === "course" ? (
-                          <Book className={isMobile ? "w-3 h-3" : "w-3 h-3"} />
-                        ) : (
-                          <Calendar className={isMobile ? "w-3 h-3" : "w-3 h-3"} />
-                        )}
-                      </div>
-                      <div>
-                        <span className={cn(
-                          "font-bold block leading-tight",
-                          isMobile ? "text-[13px]" : "text-xs"
-                        )}>
-                          {item.name}
-                        </span>
-                        {type === "course" && (
-                          <span
-                            className={cn(
-                              "font-bold uppercase",
-                              isMobile ? "text-[8px]" : "text-[9px]",
-                              selectedIndex === globalIdx
-                                ? "text-on-primary/70"
-                                : "text-on-surface-variant",
-                            )}
-                          >
-                            {item.course_code || "No Code"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <ArrowRight
-                      className={cn(
-                        "transition-transform shrink-0",
-                        isMobile ? "w-3 h-3" : "w-3 h-3",
-                        selectedIndex === globalIdx
-                          ? "translate-x-0 opacity-100"
-                          : "-translate-x-1 opacity-0",
-                      )}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          );
-        })}
-      </>
-    );
-  }
 }

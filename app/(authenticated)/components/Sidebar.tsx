@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useUser, useProfile } from "@/lib/hooks/useAcademicData";
+import { Loader2 } from "lucide-react";
 
 const sidebarItems = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
@@ -14,9 +17,16 @@ const sidebarItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: user } = useUser();
+  const { data: profile, isLoading: isProfileLoading } = useProfile(user?.id);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
-    <>
+    <div className="flex shrink-0">
       <aside className="hidden md:flex flex-col h-screen w-54 lg:w-64 bg-surface-container-low border-r border-border shrink-0 sticky top-0">
         <div className="h-16 px-4 lg:px-8 flex items-center border-b border-transparent">
           <Link href="/dashboard" className="flex items-center gap-2 group transition-all">
@@ -27,6 +37,7 @@ export default function Sidebar() {
                 width={24} 
                 height={24}
                 className="w-full h-full object-contain dark:invert"
+                sizes="24px"
               />
             </div>
             <h1 className="text-lg font-bold tracking-tight text-on-surface uppercase group-hover:opacity-80 transition-opacity duration-200">
@@ -75,7 +86,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-    </>
-
+    </div>
   );
 }

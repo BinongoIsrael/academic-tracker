@@ -120,10 +120,32 @@ export async function POST(_req: NextRequest) {
     `;
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
-    const result = await model.generateContent(prompt);
+
+    let result;
+    let retries = 0;
+    const maxRetries = 2;
+
+    while (retries <= maxRetries) {
+      try {
+        result = await model.generateContent(prompt);
+        break;
+      } catch (error: any) {
+        if (error.status === 503 && retries < maxRetries) {
+          retries++;
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    if (!result) {
+      throw new Error("Failed to generate content after retries.");
+    }
+
     const responseText = result.response.text();
     const responseData = JSON.parse(responseText);
 
@@ -134,6 +156,13 @@ export async function POST(_req: NextRequest) {
 
   } catch (error: any) {
     console.error("Error in recommendation API:", error);
+    
+    if (error.status === 503) {
+      return NextResponse.json({ 
+        error: "The AI model is currently experiencing high demand. Please try again in a few moments." 
+      }, { status: 503 });
+    }
+
     return NextResponse.json({ error: error.message || "Failed to generate recommendation." }, { status: 500 });
   }
 }

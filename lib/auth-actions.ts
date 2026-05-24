@@ -63,27 +63,6 @@ export async function signout() {
   redirect("/");
 }
 
-export async function signInWithGoogle() {
-  const supabase = createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dashboard`,//default to localhost for now
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-    },
-  });
-
-  if (error) {
-    console.log(error);
-    redirect("/error");
-  }
-
-  redirect(data.url);
-}
-
 export async function requestPasswordReset(formData: FormData) {
   const supabase = createClient();
   const email = formData.get("email") as string;
