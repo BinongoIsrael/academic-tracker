@@ -3,6 +3,7 @@ import { supabase } from "@/utils/supabase/client";
 import { Course, Term, Assessment, AssessmentGrade, GradingScale } from "@/types";
 import { User } from "@supabase/supabase-js";
 import { useEffect } from "react";
+import { mapTermData } from "../calculations";
 
 // --- User Hook ---
 export function useUser() {
@@ -77,25 +78,7 @@ export function useTerms(userId?: string) {
 
       if (error) throw error;
 
-      return (data || []).map((t: any) => ({
-        id: t.id,
-        user_id: t.user_id,
-        academicYear: t.academic_year,
-        semester: t.semester,
-        startDate: t.start_date,
-        endDate: t.end_date,
-        isActive: t.is_active,
-        courses: t.courses?.length || 0,
-        units: t.courses?.reduce((sum: number, c: any) => sum + (c.units || 0), 0) || 0,
-        gpa: t.courses?.filter((c: any) => c.grade !== null).length > 0
-          ? t.courses
-              .filter((c: any) => c.grade !== null)
-              .reduce((sum: number, c: any) => sum + c.grade, 0) /
-            t.courses.filter((c: any) => c.grade !== null).length
-          : null,
-        created_at: t.created_at,
-        updated_at: t.updated_at,
-      })) as Term[];
+      return (data || []).map(mapTermData) as Term[];
     },
     enabled: !!userId,
   });
