@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/utils/supabase/client";
 import { Course, Term, Assessment, AssessmentGrade, GradingScale } from "@/types";
 import { User } from "@supabase/supabase-js";
+import { useEffect } from "react";
 
 // --- User Hook ---
 export function useUser() {
@@ -12,6 +13,50 @@ export function useUser() {
       if (error) throw error;
       return user;
     },
+  });
+}
+
+export function useProfile(userId?: string) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const subscription = supabase
+      .channel(`profile:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${userId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [userId, queryClient]);
+
+  return useQuery({
+    queryKey: ["profile", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", userId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
   });
 }
 

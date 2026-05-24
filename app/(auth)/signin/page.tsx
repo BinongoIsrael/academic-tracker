@@ -31,6 +31,7 @@ const SignInContent = () => {
             alt="Workspace Background"
             fill
             className="object-cover grayscale"
+            sizes="50vw"
           />
         </div>
       </div>
@@ -56,7 +57,11 @@ const SignInContent = () => {
 
 const SignInPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-surface">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
       <SignInContent />
     </Suspense>
   );
