@@ -59,13 +59,17 @@ export async function POST(_req: NextRequest) {
     }));
 
     const now = new Date();
-    let activeTerm = mappedTerms.find((t) => t.isActive) || null;
+    // Prioritize date-driven active term, then falls back to isActive flag
+    let activeTerm = mappedTerms.find((t) => 
+      t.startDate && t.endDate && 
+      new Date(t.startDate).setHours(0,0,0,0) <= now.getTime() && 
+      new Date(t.endDate).setHours(23,59,59,999) >= now.getTime()
+    ) || mappedTerms.find((t) => t.isActive) || null;
+
     if (!activeTerm) {
-      activeTerm = mappedTerms.find((t) => t.startDate && t.endDate && new Date(t.startDate) <= now && new Date(t.endDate) >= now) || null;
-    }
-    if (!activeTerm) {
+      // Find the nearest upcoming term
       const futureTerms = mappedTerms
-        .filter((t) => t.startDate && new Date(t.startDate) > now)
+        .filter((t) => t.startDate && new Date(t.startDate).getTime() > now.getTime())
         .sort((a, b) => new Date(a.startDate!).getTime() - new Date(b.startDate!).getTime());
       if (futureTerms.length > 0) {
         activeTerm = futureTerms[0];

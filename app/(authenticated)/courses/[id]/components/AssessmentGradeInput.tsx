@@ -5,12 +5,14 @@ export default function AssessmentGradeInput({
   assessments,
   grades,
   onGradeChange,
+  isReadOnly,
 }: AssessmentGradeInputProps) {
   const handleInputChange = (
     assessmentId: string,
     occurrenceNumber: number,
     value: string
   ) => {
+    if (isReadOnly) return;
     if (value === "") {
       onGradeChange(assessmentId, occurrenceNumber, value);
       return;
@@ -108,6 +110,7 @@ export default function AssessmentGradeInput({
                               e.target.value
                             )
                           }
+                          disabled={isReadOnly}
                           placeholder="0.0"
                           step="0.01"
                           min="0"

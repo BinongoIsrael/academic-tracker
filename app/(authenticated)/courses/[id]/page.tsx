@@ -17,6 +17,7 @@ import ActionButtons from "./components/ActionButtons";
 import EditCourseModal from "./components/EditCourseModal";
 import { useGradeCalculations } from "./hooks/useGradeCalculations";
 import CardErrorBoundary from "@/components/CardErrorBoundary";
+import { getTermStatus } from "@/lib/utils";
 
 import { 
   useUser, 
@@ -44,10 +45,15 @@ export default function CourseDetailPage() {
 
   const [showGradingSetup, setShowGradingSetup] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const course = courseData?.course ?? null;
   const assessments = useMemo(() => courseData?.assessments ?? [], [courseData?.assessments]);
@@ -73,10 +79,15 @@ export default function CourseDetailPage() {
   } = useGradeCalculations(course);
 
   useEffect(() => {
-    if (assessments.length > 0 && localGrades.length > 0 && gradingScale.length > 0) {
+    if (assessments.length > 0 && localGrades.length > 0) {
       calculateGrades(assessments, localGrades, gradingScale, course);
     }
   }, [assessments, localGrades, gradingScale, calculateGrades, course]);
+
+  const isReadOnly = useMemo(() => {
+    if (!isMounted || !course?.term) return false;
+    return getTermStatus(course.term.startDate, course.term.endDate) === 'past';
+  }, [isMounted, course?.term]);
 
   const handleUpdateOccurrences = async (
     assessmentId: string,
@@ -266,6 +277,8 @@ export default function CourseDetailPage() {
     : currentGPA;
   const displayFinalGPA = hasFinalGradeOnly ? course?.grade ?? null : finalGPA;
 
+  if (!isMounted) return null;
+
   return (
     <>
       <div className="min-h-screen bg-surface">
@@ -279,7 +292,20 @@ export default function CourseDetailPage() {
                   setShowGradingSetup(!showGradingSetup)
                 }
                 onEditClick={() => setShowEditModal(true)}
+                isReadOnly={isReadOnly}
               />
+
+              {isReadOnly && (
+                <div className="bg-surface-container-highest border border-outline-variant/20 rounded-lg p-6 flex items-start gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <span className="material-symbols-outlined text-on-surface">lock</span>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface uppercase tracking-wider mb-1">Archived Course</p>
+                    <p className="text-sm text-on-surface-variant font-medium leading-relaxed">
+                        This course belongs to a past academic term. It is currently in a read-only state for historical reference.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {showGradingSetup && (
                 <div className="animate-in slide-in-from-top-2 duration-300">
@@ -342,6 +368,7 @@ export default function CourseDetailPage() {
                           assessments={lectureAssessments}
                           grades={localGrades}
                           onGradeChange={handleGradeChange}
+                          isReadOnly={isReadOnly}
                         />
                       </CardErrorBoundary>
                     </div>
@@ -355,6 +382,7 @@ export default function CourseDetailPage() {
                           assessments={labAssessments}
                           grades={localGrades}
                           onGradeChange={handleGradeChange}
+                          isReadOnly={isReadOnly}
                         />
                       </CardErrorBoundary>
                     </div>
@@ -365,6 +393,7 @@ export default function CourseDetailPage() {
                       onCalculate={handleCalculate}
                       onSave={handleSaveGrades}
                       isSaving={saveGradesMutation.isPending}
+                      isReadOnly={isReadOnly}
                     />
                   </div>
                 </div>

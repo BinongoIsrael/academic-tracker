@@ -9,12 +9,13 @@ interface ExtendedCoursesCardProps extends CoursesCardProps {
   onAddCourse: () => void;
 }
 
-export default function CoursesCard({ courses = [], onAddCourse }: ExtendedCoursesCardProps) {
+export default function CoursesCard({ courses = [], onAddCourse, activeTermName }: ExtendedCoursesCardProps) {
   const [sortBy, setSortBy] = useState<string>("course_name-asc");
   const router = useRouter();
   const hasCourses = courses.length > 0;
 
   const sortedCourses = [...courses].sort((a, b) => {
+    // ... rest of sort logic ...
     const [field, direction] = sortBy.split('-');
     const asc = direction === 'asc' ? 1 : -1;
 
@@ -40,7 +41,7 @@ export default function CoursesCard({ courses = [], onAddCourse }: ExtendedCours
       <div className="p-5 sm:p-8 lg:p-10 pb-6 flex justify-between items-center">
         <div>
           <h3 className="text-xl font-bold text-on-surface tracking-tight">Active Curriculum</h3>
-          <p className="text-xs text-on-surface-variant mt-1 uppercase tracking-widest font-semibold">Academic Year {new Date().getFullYear()}</p>
+          <p className="text-xs text-on-surface-variant mt-1 uppercase tracking-widest font-semibold">{activeTermName || "All Terms"}</p>
         </div>
         <div className="flex items-center">
           <AddCourseButton onClick={onAddCourse} />

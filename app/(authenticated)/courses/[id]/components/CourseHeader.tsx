@@ -6,6 +6,7 @@ export default function CourseHeader({
   onBack,
   onGradingScaleClick,
   onEditClick,
+  isReadOnly,
 }: CourseHeaderProps) {
   return (
     <header className="space-y-6">
@@ -17,22 +18,24 @@ export default function CourseHeader({
           <span className="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
           Return to Portfolio
         </button>
-        <div className="flex items-center gap-3">
-            <button
-                onClick={onEditClick}
-                className="p-2.5 bg-surface-container-high hover:bg-surface-container-highest rounded-lg transition-all text-on-surface shadow-sm active:scale-95"
-                title="Edit Course Configuration"
-            >
-                <span className="material-symbols-outlined text-xl">edit</span>
-            </button>
-            <button
-                onClick={onGradingScaleClick}
-                className="p-2.5 bg-surface-container-high hover:bg-surface-container-highest rounded-lg transition-all text-on-surface shadow-sm active:scale-95"
-                title="Configure Grading Metrics"
-            >
-                <span className="material-symbols-outlined text-xl">settings</span>
-            </button>
-        </div>
+        {!isReadOnly && (
+          <div className="flex items-center gap-3">
+              <button
+                  onClick={onEditClick}
+                  className="p-2.5 bg-surface-container-high hover:bg-surface-container-highest rounded-lg transition-all text-on-surface shadow-sm active:scale-95"
+                  title="Edit Course Configuration"
+              >
+                  <span className="material-symbols-outlined text-xl">edit</span>
+              </button>
+              <button
+                  onClick={onGradingScaleClick}
+                  className="p-2.5 bg-surface-container-high hover:bg-surface-container-highest rounded-lg transition-all text-on-surface shadow-sm active:scale-95"
+                  title="Configure Grading Metrics"
+              >
+                  <span className="material-symbols-outlined text-xl">settings</span>
+              </button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-outline-variant/20">
