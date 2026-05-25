@@ -4,12 +4,23 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, User, Settings, LogOut } from "lucide-react";
-import { signout } from "@/lib/auth-actions";
 import { UserMenuProps } from "@/types";
+import { supabase } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 
 export default function UserMenu({ user }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    setIsOpen(false);
+    router.push("/");
+    
+    await supabase.auth.signOut();
+    
+    router.refresh();
+  };
 
   return (
     <div className="relative">
@@ -62,7 +73,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               </Link>
               
               <button
-                onClick={() => signout()}
+                onClick={handleSignOut}
                 className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-error hover:bg-error/5 transition-colors text-left"
               >
                 <span className="material-symbols-outlined text-lg">logout</span>
