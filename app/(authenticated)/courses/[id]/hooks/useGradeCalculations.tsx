@@ -68,15 +68,24 @@ export function useGradeCalculations(course: Course | null) {
       }
 
       // Prediction Logic
-      if (!currentCourse.target_gpa) {
-        setTargetStatus("no_target");
-        setRequiredScoreToTarget(null);
-      } else if (scaleList.length === 0) {
+      const effectiveTargetGPA = currentCourse.target_gpa || 3.0;
+
+      if (scaleList.length === 0) {
         setTargetStatus("missing_scale");
         setRequiredScoreToTarget(null);
       } else {
-        const targetScaleEntry = scaleList.find(s => s.grade_point === currentCourse.target_gpa);
-        
+        let targetScaleEntry = scaleList.find(s => s.grade_point === effectiveTargetGPA);
+
+        if (!targetScaleEntry) {
+          const passingScales = scaleList
+            .filter(s => s.grade_point <= 3.0)
+            .sort((a, b) => b.grade_point - a.grade_point);
+          
+          if (passingScales.length > 0) {
+            targetScaleEntry = passingScales[0];
+          }
+        }
+
         if (!targetScaleEntry) {
           setTargetStatus("missing_scale");
           setRequiredScoreToTarget(null);

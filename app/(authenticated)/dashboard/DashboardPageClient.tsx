@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import CurrentGWACard from "./components/CurrentGWACard";
 import GWATrendCard from "./components/GWATrendCard";
 import CoursesCard from "./components/CoursesCard";
@@ -14,15 +14,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getTermStatus } from "@/lib/utils";
 
 export default function DashboardPageClient() {
-  const { data: user } = useUser();
+  const { data: user, isLoading: isLoadingUser } = useUser();
   const { data: courses = [], isLoading: isLoadingCourses } = useCourses(user?.id);
   const { data: terms = [], isLoading: isLoadingTerms } = useTerms(user?.id);
   const createCourseMutation = useCreateCourseMutation();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const loading = isLoadingCourses || isLoadingTerms;
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const loading = isLoadingUser || isLoadingCourses || isLoadingTerms || !isMounted;
 
   const { cumulativeGWA, semesterTrend, yearTrend, infoPanelStats, activeTermName } = useMemo(() => {
     if (courses.length === 0) {

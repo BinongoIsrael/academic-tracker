@@ -27,7 +27,7 @@ export default function Sidebar() {
 
   return (
     <div className="flex shrink-0">
-      <aside className="hidden md:flex flex-col h-screen w-54 lg:w-64 bg-surface-container-low border-r border-border shrink-0 sticky top-0">
+      <aside className="hidden md:flex flex-col h-screen w-56 lg:w-64 bg-surface-container-low border-r border-border shrink-0 sticky top-0">
         <div className="h-16 px-4 lg:px-8 flex items-center border-b border-transparent">
           <Link href="/dashboard" className="flex items-center gap-2 group transition-all">
             <div className="relative w-6 h-6 group-hover:scale-110 group-hover:opacity-80 transition-all duration-200">

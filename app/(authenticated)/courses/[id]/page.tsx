@@ -45,10 +45,15 @@ export default function CourseDetailPage() {
 
   const [showGradingSetup, setShowGradingSetup] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const course = courseData?.course ?? null;
   const assessments = useMemo(() => courseData?.assessments ?? [], [courseData?.assessments]);
@@ -74,10 +79,15 @@ export default function CourseDetailPage() {
   } = useGradeCalculations(course);
 
   useEffect(() => {
-    if (assessments.length > 0 && localGrades.length > 0 && gradingScale.length > 0) {
+    if (assessments.length > 0 && localGrades.length > 0) {
       calculateGrades(assessments, localGrades, gradingScale, course);
     }
   }, [assessments, localGrades, gradingScale, calculateGrades, course]);
+
+  const isReadOnly = useMemo(() => {
+    if (!isMounted || !course?.term) return false;
+    return getTermStatus(course.term.startDate, course.term.endDate) === 'past';
+  }, [isMounted, course?.term]);
 
   const handleUpdateOccurrences = async (
     assessmentId: string,
@@ -267,7 +277,7 @@ export default function CourseDetailPage() {
     : currentGPA;
   const displayFinalGPA = hasFinalGradeOnly ? course?.grade ?? null : finalGPA;
 
-  const isReadOnly = course?.term ? getTermStatus(course.term.startDate, course.term.endDate) === 'past' : false;
+  if (!isMounted) return null;
 
   return (
     <>
