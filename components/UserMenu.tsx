@@ -15,10 +15,11 @@ export default function UserMenu({ user }: UserMenuProps) {
 
   const handleSignOut = async () => {
     setIsOpen(false);
-    router.push("/");
     
+
     await supabase.auth.signOut();
     
+    router.push("/");
     router.refresh();
   };
 
