@@ -32,9 +32,17 @@ export default function TermCard({ term, onEdit, onAddCourse }: TermCardProps) {
         <p className="text-xs text-on-surface-variant font-bold mb-4 uppercase tracking-wider">
           Completed {term.endDate ? new Date(term.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-6">
           <span className="material-symbols-outlined text-sm">bar_chart</span>
           <span className="text-xs font-semibold">Final GPA: {term.gpa ? term.gpa.toFixed(2) : '-.--'}</span>
+        </div>
+        <div className="flex items-center justify-between pt-4 border-t border-outline-variant/20">
+          <button
+            onClick={() => onEdit(term.id)}
+            className="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all"
+          >
+            Edit Details <span className="material-symbols-outlined text-sm">edit</span>
+          </button>
         </div>
       </div>
     );

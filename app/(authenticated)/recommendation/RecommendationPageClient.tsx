@@ -53,7 +53,6 @@ export default function RecommendationPageClient() {
           <div className="bg-surface-container-low rounded-xl p-6 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 shadow-[0_20px_40px_rgba(26,27,36,0.06)]">
             <div className="flex-1 z-10 text-center md:text-left">
               <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
-                <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>colors_spark</span>
                 AI Powered Insights
               </span>
               <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-on-surface mb-4 leading-none">Smart Insights</h1>
