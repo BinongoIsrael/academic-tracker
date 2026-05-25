@@ -52,6 +52,7 @@ export interface Course {
 export interface CoursesCardProps {
   courses?: Course[];
   onAddCourse?: () => void;
+  activeTermName?: string;
 }
 
 export interface Term {
@@ -204,6 +205,7 @@ export interface AssessmentGradeInputProps {
     occurrenceNumber: number,
     value: string
   ) => void;
+  isReadOnly?: boolean;
 }
 
 export interface GradingScale {
@@ -240,6 +242,7 @@ export interface ActionButtonsProps {
   onCalculate: () => void;
   onSave: () => void;
   isSaving?: boolean;
+  isReadOnly?: boolean;
 }
 
 export interface CourseHeaderProps {
@@ -248,6 +251,7 @@ export interface CourseHeaderProps {
   onBack: () => void;
   onGradingScaleClick: () => void;
   onEditClick: () => void;
+  isReadOnly?: boolean;
 }
 
 export interface GradeSummaryCardProps {

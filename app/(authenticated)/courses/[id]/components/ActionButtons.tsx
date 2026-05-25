@@ -4,7 +4,10 @@ export default function ActionButtons({
   onCalculate,
   onSave,
   isSaving,
+  isReadOnly,
 }: ActionButtonsProps) {
+  if (isReadOnly) return null;
+
   return (
     <div className="flex flex-col sm:flex-row justify-end items-center gap-4 w-full">
       <button

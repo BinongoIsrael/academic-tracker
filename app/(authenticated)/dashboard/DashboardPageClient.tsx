@@ -11,6 +11,7 @@ import CreateCourseModal from "../courses/components/CreateCourseModal";
 import Toast from "../components/Toast";
 import { useUser, useCourses, useTerms, useCreateCourseMutation } from "@/lib/hooks/useAcademicData";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getTermStatus } from "@/lib/utils";
 
 export default function DashboardPageClient() {
   const { data: user } = useUser();
@@ -23,7 +24,7 @@ export default function DashboardPageClient() {
 
   const loading = isLoadingCourses || isLoadingTerms;
 
-  const { cumulativeGWA, semesterTrend, yearTrend, infoPanelStats } = useMemo(() => {
+  const { cumulativeGWA, semesterTrend, yearTrend, infoPanelStats, activeTermName } = useMemo(() => {
     if (courses.length === 0) {
       return {
         cumulativeGWA: 0.0,
@@ -35,6 +36,7 @@ export default function DashboardPageClient() {
           completedUnits: 0,
           currentGWA: 0,
         },
+        activeTermName: "",
       };
     }
 
@@ -85,7 +87,13 @@ export default function DashboardPageClient() {
       currentGWA: 0,
     };
 
-    const activeTermData = termGWAs.find(t => t.termInfo.isActive) || termGWAs[0];
+    let activeTermName = "";
+    const currentActiveTerm = terms.find(t => getTermStatus(t.startDate, t.endDate) === 'active');
+    if (currentActiveTerm) {
+      activeTermName = `${currentActiveTerm.semester} ${currentActiveTerm.academicYear}`;
+    }
+
+    const activeTermData = termGWAs.find(t => getTermStatus(t.termInfo.startDate, t.termInfo.endDate) === 'active');
     if (activeTermData) {
       const activeCourses = termsMap.get(activeTermData.termInfo.id)?.courses || [];
       const enrolled = activeCourses.reduce((sum, c) => sum + (c.units || 0), 0);
@@ -155,8 +163,9 @@ export default function DashboardPageClient() {
       semesterTrend: semesterTrendData,
       yearTrend: yearTrendData,
       infoPanelStats: currentInfoPanelStats,
+      activeTermName,
     };
-  }, [courses]);
+  }, [courses, terms]);
 
   const handleCreateCourse = async (courseData: any) => {
     try {
@@ -257,6 +266,7 @@ export default function DashboardPageClient() {
             <CoursesCard 
               courses={courses} 
               onAddCourse={() => setIsCreateModalOpen(true)} 
+              activeTermName={activeTermName}
             />
           </CardErrorBoundary>
         </div>

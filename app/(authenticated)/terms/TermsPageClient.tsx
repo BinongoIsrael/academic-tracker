@@ -14,6 +14,7 @@ import CardErrorBoundary from "@/components/CardErrorBoundary";
 import { useUser, useTerms } from "@/lib/hooks/useAcademicData";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getTermStatus } from "@/lib/utils";
 
 export default function TermsPageClient() {
   const queryClient = useQueryClient();
@@ -126,6 +127,7 @@ export default function TermsPageClient() {
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["terms"] });
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
       setToast({ message: "Term updated successfully!", type: "success" });
     } catch (error: any) {
       console.error("Error updating term:", error);
@@ -145,6 +147,7 @@ export default function TermsPageClient() {
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["terms"] });
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
       setDeletingTerm(null);
       setToast({ message: "Term deleted successfully", type: "success" });
     } catch (error) {
@@ -177,7 +180,7 @@ export default function TermsPageClient() {
     router.push(`/courses?term=${termId}`);
   };
 
-  const activeTermsCount = terms.filter(t => t.isActive).length;
+  const activeTermsCount = terms.filter(t => getTermStatus(t.startDate, t.endDate) === 'active').length;
   const totalTermsCount = terms.length;
   const termsWithGpa = terms.filter(t => t.gpa !== null).length;
   const completionRate = totalTermsCount > 0 ? Math.round((termsWithGpa / totalTermsCount) * 100) : 0;
