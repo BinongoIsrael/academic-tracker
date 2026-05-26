@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
+import { getURL } from "@/utils/get-url";
 
 export async function signin(formData: FormData) {
   const supabase = createClient();
@@ -33,7 +34,7 @@ export async function signup(formData: FormData) {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/dashboard`,//default to localhost for now
+      emailRedirectTo: `${getURL()}auth/confirm?next=/dashboard`,
       data: {
         full_name: username,
         email: formData.get("email") as string,
@@ -68,7 +69,7 @@ export async function requestPasswordReset(formData: FormData) {
   const email = formData.get("email") as string;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+    redirectTo: `${getURL()}auth/callback?next=/reset-password`,
   });
 
   if (error) {
