@@ -81,7 +81,7 @@ export default function CoursesPageClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface">
-        <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-12">
+        <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-24 sm:pb-12">
           <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-4">
               <Skeleton className="h-12 w-64" />
@@ -111,7 +111,7 @@ export default function CoursesPageClient() {
   return (
     <>
       <div className="min-h-screen bg-surface">
-        <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-12">
+        <main className="max-w-[1200px] mx-auto pt-6 lg:pt-10 px-4 sm:px-8 lg:px-12 pb-24 sm:pb-12">
           <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h1 className="text-dashboard-title text-on-surface mb-2">
