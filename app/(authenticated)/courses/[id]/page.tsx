@@ -46,6 +46,9 @@ export default function CourseDetailPage() {
   const [showGradingSetup, setShowGradingSetup] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [autoFilledGradeKeys, setAutoFilledGradeKeys] = useState<Set<string>>(
+    () => new Set()
+  );
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -88,6 +91,8 @@ export default function CourseDetailPage() {
     if (!isMounted || !course?.term) return false;
     return getTermStatus(course.term.startDate, course.term.endDate) === 'past';
   }, [isMounted, course?.term]);
+
+  const PASSING_GRADE_POINT = 3.0;
 
   const handleUpdateOccurrences = async (
     assessmentId: string,
@@ -154,6 +159,15 @@ export default function CourseDetailPage() {
     value: string
   ) => {
     const gradeValue = value === "" ? null : parseFloat(value);
+    const gradeKey = `${assessmentId}:${occurrenceNumber}`;
+
+    setAutoFilledGradeKeys((prev) => {
+      if (!prev.has(gradeKey)) return prev;
+      const next = new Set(prev);
+      next.delete(gradeKey);
+      return next;
+    });
+
     setLocalGrades((prev) =>
       prev.map((g) =>
         g.assessment_id === assessmentId &&
@@ -168,6 +182,183 @@ export default function CourseDetailPage() {
     calculateGrades(assessments, localGrades, gradingScale, course);
     setToast({
       message: "Grades calculated successfully!",
+      type: "success",
+    });
+  };
+
+  const getTargetScaleEntry = (targetGradePoint: number) => {
+    if (gradingScale.length === 0) return null;
+
+    const exactMatch = gradingScale.find(
+      (scale) => scale.grade_point === targetGradePoint
+    );
+
+    if (exactMatch) return exactMatch;
+
+    const passingScales = gradingScale
+      .filter((scale) => scale.grade_point <= PASSING_GRADE_POINT)
+      .sort((a, b) => b.grade_point - a.grade_point);
+
+    return passingScales[0] ?? null;
+  };
+
+  const calculateRequiredScore = (targetGradePoint: number) => {
+    if (assessments.length === 0) {
+      return { status: "no_assessments" as const, requiredScore: null };
+    }
+
+    const scaleEntry = getTargetScaleEntry(targetGradePoint);
+    if (!scaleEntry) {
+      return { status: "missing_scale" as const, requiredScore: null };
+    }
+
+    let totalEarnedContribution = 0;
+    let totalRemainingWeight = 0;
+    let emptyGradeCount = 0;
+
+    for (const assessment of assessments) {
+      const assessmentGrades = localGrades.filter(
+        (g) => g.assessment_id === assessment.id
+      );
+      const weightPerOccurrence =
+        assessment.percentage / assessment.occurrences;
+
+      for (let i = 1; i <= assessment.occurrences; i++) {
+        const gradeEntry = assessmentGrades.find(
+          (g) => g.occurrence_number === i
+        );
+        const gradeKey = `${assessment.id}:${i}`;
+        const shouldTreatAsRemaining =
+          gradeEntry?.grade == null || autoFilledGradeKeys.has(gradeKey);
+
+        if (!shouldTreatAsRemaining && gradeEntry?.grade != null) {
+          totalEarnedContribution +=
+            (gradeEntry.grade * weightPerOccurrence) / 100;
+        } else {
+          totalRemainingWeight += weightPerOccurrence;
+          emptyGradeCount += 1;
+        }
+      }
+    }
+
+    if (emptyGradeCount === 0 || totalRemainingWeight === 0) {
+      return { status: "no_remaining" as const, requiredScore: null };
+    }
+
+    const pointsNeeded = scaleEntry.min_percentage - totalEarnedContribution;
+
+    if (pointsNeeded <= 0) {
+      return { status: "reached" as const, requiredScore: 0 };
+    }
+
+    const requiredScore = (pointsNeeded / totalRemainingWeight) * 100;
+
+    if (requiredScore > 100) {
+      return { status: "impossible" as const, requiredScore };
+    }
+
+    return { status: "possible" as const, requiredScore };
+  };
+
+  const applyRequiredScoresToEmptyGrades = (
+    targetGradePoint: number,
+    label: string
+  ) => {
+    const result = calculateRequiredScore(targetGradePoint);
+
+    if (result.status === "missing_scale") {
+      setToast({
+        message: "Set a grading scale to calculate required scores.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (result.status === "no_assessments") {
+      setToast({
+        message: "No assessments available for score predictions.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (result.status === "no_remaining") {
+      setToast({
+        message: "All assessment inputs already have grades.",
+        type: "success",
+      });
+      return;
+    }
+
+    if (result.status === "impossible" && result.requiredScore != null) {
+      setToast({
+        message: `Cannot reach ${label}. Required average is ${result.requiredScore.toFixed(1)}%.`,
+        type: "error",
+      });
+      return;
+    }
+
+    const scoreValue = Math.max(0, Math.min(100, result.requiredScore ?? 0));
+    const roundedScore = Math.min(100, Math.ceil(scoreValue * 100) / 100);
+    const updatedKeys = new Set<string>();
+
+    const nextGrades = localGrades.map((grade) => {
+      const gradeKey = `${grade.assessment_id}:${grade.occurrence_number}`;
+      const shouldFill =
+        grade.grade === null || autoFilledGradeKeys.has(gradeKey);
+
+      if (!shouldFill) return grade;
+
+      updatedKeys.add(gradeKey);
+      return { ...grade, grade: roundedScore };
+    });
+
+    setLocalGrades(nextGrades);
+    setAutoFilledGradeKeys(updatedKeys);
+    calculateGrades(assessments, nextGrades, gradingScale, course);
+
+    setToast({
+      message: `Filled remaining grades with ${roundedScore.toFixed(2)}% to reach ${label}.`,
+      type: "success",
+    });
+  };
+
+  const handleFillPassingScores = () => {
+    applyRequiredScoresToEmptyGrades(
+      PASSING_GRADE_POINT,
+      `passing grade (${PASSING_GRADE_POINT.toFixed(2)})`
+    );
+  };
+
+  const handleFillTargetScores = () => {
+    const goalGPA = course?.target_gpa ?? PASSING_GRADE_POINT;
+    applyRequiredScoresToEmptyGrades(
+      goalGPA,
+      `goal grade (${goalGPA.toFixed(2)})`
+    );
+  };
+
+  const handleClearAutoFilledScores = () => {
+    if (autoFilledGradeKeys.size === 0) {
+      setToast({
+        message: "No auto-filled grades to clear.",
+        type: "success",
+      });
+      return;
+    }
+
+    const nextGrades = localGrades.map((grade) => {
+      const gradeKey = `${grade.assessment_id}:${grade.occurrence_number}`;
+      if (!autoFilledGradeKeys.has(gradeKey)) return grade;
+      return { ...grade, grade: null };
+    });
+
+    setLocalGrades(nextGrades);
+    setAutoFilledGradeKeys(new Set());
+    calculateGrades(assessments, nextGrades, gradingScale, course);
+
+    setToast({
+      message: "Auto-filled grades cleared.",
       type: "success",
     });
   };
@@ -368,6 +559,7 @@ export default function CourseDetailPage() {
                           assessments={lectureAssessments}
                           grades={localGrades}
                           onGradeChange={handleGradeChange}
+                          autoFilledGradeKeys={autoFilledGradeKeys}
                           isReadOnly={isReadOnly}
                         />
                       </CardErrorBoundary>
@@ -382,6 +574,7 @@ export default function CourseDetailPage() {
                           assessments={labAssessments}
                           grades={localGrades}
                           onGradeChange={handleGradeChange}
+                          autoFilledGradeKeys={autoFilledGradeKeys}
                           isReadOnly={isReadOnly}
                         />
                       </CardErrorBoundary>
@@ -391,6 +584,9 @@ export default function CourseDetailPage() {
                   <div className="pt-8 animate-in fade-in duration-700 delay-500">
                     <ActionButtons
                       onCalculate={handleCalculate}
+                      onFillPassingScores={handleFillPassingScores}
+                      onFillTargetScores={handleFillTargetScores}
+                      onClearAutoFilledScores={handleClearAutoFilledScores}
                       onSave={handleSaveGrades}
                       isSaving={saveGradesMutation.isPending}
                       isReadOnly={isReadOnly}
