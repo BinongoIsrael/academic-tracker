@@ -2,6 +2,9 @@ import { ActionButtonsProps } from "@/types";
 
 export default function ActionButtons({
   onCalculate,
+  onFillPassingScores,
+  onFillTargetScores,
+  onClearAutoFilledScores,
   onSave,
   isSaving,
   isReadOnly,
@@ -9,7 +12,7 @@ export default function ActionButtons({
   if (isReadOnly) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row justify-end items-center gap-4 w-full">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-end items-center gap-4 w-full">
       <button
         onClick={onCalculate}
         disabled={isSaving}
@@ -17,6 +20,30 @@ export default function ActionButtons({
       >
         <span className="material-symbols-outlined text-lg">calculate</span>
         SYNC CALCULATIONS
+      </button>
+      <button
+        onClick={onFillPassingScores}
+        disabled={isSaving}
+        className="w-full sm:w-auto px-6 py-3.5 bg-surface-container-high text-on-surface rounded font-bold text-xs sm:text-sm hover:bg-surface-container-highest transition-all flex items-center justify-center gap-2 active:scale-95 border border-outline-variant/10 shadow-sm disabled:opacity-50"
+      >
+        <span className="material-symbols-outlined text-lg">check_circle</span>
+        FILL PASSING SCORES
+      </button>
+      <button
+        onClick={onFillTargetScores}
+        disabled={isSaving}
+        className="w-full sm:w-auto px-6 py-3.5 bg-surface-container-high text-on-surface rounded font-bold text-xs sm:text-sm hover:bg-surface-container-highest transition-all flex items-center justify-center gap-2 active:scale-95 border border-outline-variant/10 shadow-sm disabled:opacity-50"
+      >
+        <span className="material-symbols-outlined text-lg">flag</span>
+        FILL GOAL SCORES
+      </button>
+      <button
+        onClick={onClearAutoFilledScores}
+        disabled={isSaving}
+        className="w-full sm:w-auto px-6 py-3.5 bg-surface-container-high text-on-surface rounded font-bold text-xs sm:text-sm hover:bg-surface-container-highest transition-all flex items-center justify-center gap-2 active:scale-95 border border-outline-variant/10 shadow-sm disabled:opacity-50"
+      >
+        <span className="material-symbols-outlined text-lg">backspace</span>
+        CLEAR AUTO-FILLED
       </button>
       <button
         onClick={onSave}

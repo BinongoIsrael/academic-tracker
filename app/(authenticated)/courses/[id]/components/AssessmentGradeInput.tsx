@@ -5,6 +5,7 @@ export default function AssessmentGradeInput({
   assessments,
   grades,
   onGradeChange,
+  autoFilledGradeKeys,
   isReadOnly,
 }: AssessmentGradeInputProps) {
   const handleInputChange = (
@@ -88,6 +89,10 @@ export default function AssessmentGradeInput({
                   const gradeEntry = assessmentGrades.find(
                     (g) => g.occurrence_number === occurrenceNumber
                   );
+                  const gradeKey = `${assessment.id}:${occurrenceNumber}`;
+                  const isAutoFilled =
+                    !!autoFilledGradeKeys?.has(gradeKey) &&
+                    gradeEntry?.grade != null;
 
                   const isInvalid =
                     gradeEntry?.grade !== null &&
@@ -118,9 +123,16 @@ export default function AssessmentGradeInput({
                           className={`w-full h-12 px-4 pr-10 bg-surface border rounded focus:outline-none focus:ring-2 transition-all font-bold text-sm ${
                             isInvalid
                               ? "border-error focus:ring-error/20"
-                              : "border-outline-variant/30 focus:border-primary focus:ring-primary/20"
+                              : isAutoFilled
+                                ? "border-primary/60 bg-primary-container/10 focus:border-primary focus:ring-primary/30"
+                                : "border-outline-variant/30 focus:border-primary focus:ring-primary/20"
                           }`}
                         />
+                        {isAutoFilled && (
+                          <span className="absolute -top-2 right-2 px-2 py-0.5 rounded bg-primary/15 text-primary text-[9px] font-black tracking-wider">
+                            AUTO
+                          </span>
+                        )}
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[10px] font-black">
                           %
                         </span>

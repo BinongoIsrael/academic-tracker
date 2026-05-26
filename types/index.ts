@@ -205,6 +205,7 @@ export interface AssessmentGradeInputProps {
     occurrenceNumber: number,
     value: string
   ) => void;
+  autoFilledGradeKeys?: Set<string>;
   isReadOnly?: boolean;
 }
 
@@ -240,6 +241,9 @@ export interface GradingScaleSetupProps {
 
 export interface ActionButtonsProps {
   onCalculate: () => void;
+  onFillPassingScores: () => void;
+  onFillTargetScores: () => void;
+  onClearAutoFilledScores: () => void;
   onSave: () => void;
   isSaving?: boolean;
   isReadOnly?: boolean;
